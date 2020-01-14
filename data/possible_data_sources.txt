@@ -1,0 +1,39 @@
+
+modern
+------------
+https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-017-3943-8
+https://journals.plos.org/plosgenetics/article?id=10.1371/journal.pgen.1003211#s4
+https://onlinelibrary.wiley.com/doi/full/10.1111/age.12753
+-----------
+
+ancient
+------------
+https://onlinelibrary.wiley.com/doi/10.1002/bies.201900164#.Xep6gityPf8.twitter
+https://www.pnas.org/content/111/52/E5661
+https://www.pnas.org/content/112/50/E6889
+https://science.sciencemag.org/content/356/6336/442.full
+https://science.sciencemag.org/content/360/6384/111.full
+https://science.sciencemag.org/content/360/6396/eaar7711
+https://www.sciencedirect.com/science/article/pii/S0305440318305533#sec6
+https://science.sciencemag.org/content/356/6336/442
+https://onlinelibrary.wiley.com/doi/full/10.1111/1755-0998.12470
+https://onlinelibrary.wiley.com/doi/full/10.1111/1755-0998.12623 - but not all samples
+
+------------
+
+modern and ancient
+------------
+https://www.sciencedirect.com/science/article/pii/S0960982215010039#sec2
+https://www.sciencedirect.com/science/article/pii/S0092867419303848#sec4
+https://europepmc.org/article/PMC/6769756#sec2-genes-10-00649
+
+
+------------
+
+
+
+SRA NCBI search
+(((horse[Organism]) OR Equus[Organism]) AND genomic[Source]) AND WGS[Strategy] 
+
+
+https://www.ncbi.nlm.nih.gov/Traces/study/?query_key=100&WebEnv=NCID_1_117274914_130.14.22.33_5555_1578903634_1837747289_0MetA0_S_HStore&o=acc_s%3Aa

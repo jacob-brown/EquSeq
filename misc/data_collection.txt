@@ -1,0 +1,39 @@
+Data collection
+
+2 tables
+
+Table 1: Paper and bioproject 
+	DOI
+	Paper Title
+	Author
+	era (modern/ancient)
+	Bioproject number
+	pipeline
+
+
+Table 2: SRA Metadata (collected by using above bioproject codes)
+	Study Accession
+	Format
+	Sorce(ENA or NCBI) - if synchronised might not make a difference
+	Paper
+	Pipeline/Protocol
+	Comparable (Y/N)
+	Modern/Ancient?
+	Breed
+	Where is the sample from
+	Who
+
+
+paper then SRA  - probably best
+SRA to paper
+
+
+
+Can I search SRA using python/bash? - yes? use suplimentary materials of Ludvic Orlando papers.
+
+Can we convert between BAM and FASTQ? We might be able to get more data this way?
+
+
+
+
+
