@@ -69,7 +69,7 @@ for i in project_orlando:
 project_list = project_list + list_to_append # append newly generated list
 del project_list[1] # remove blank element that has now been populated
 
-with open('../data/project_list_update.csv', 'w') as file:
+with open('../data/papers_projects_update.csv', 'w') as file:
 	writer = csv.writer(file, delimiter=',')
 	for i in project_list:
 		writer.writerow(i)
