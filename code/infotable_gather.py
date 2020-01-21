@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-01-14
-# Last Modified: 2020-01-15
+# Last Modified: 2020-01-20
 
 
 
@@ -95,6 +95,8 @@ def get_runinfo(code, header_only=False):
 modern = np.genfromtxt('../data/prj_modern.csv', delimiter=',', dtype=str)
 ancient = np.genfromtxt('../data/prj_ancient.csv', delimiter=',', dtype=str)
 
+modern = modern[1:3]
+ancient = ancient[1:3]
 
 ###########################################
 ############### Wraggling #################
@@ -146,4 +148,5 @@ with open('../data/info_ancient.csv', 'w') as file:
 	writer.writerow(i for i in header_ancient) # add header
 	for i in store_ancient:
 		writer.writerow(i)
+
 
