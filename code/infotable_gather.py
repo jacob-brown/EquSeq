@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-01-14
-# Last Modified: 2020-01-20
+# Last Modified: 2020-01-21
 
 
 
@@ -83,6 +83,25 @@ def get_runinfo(code, header_only=False):
 		# for blank runs
 		err = "{} was empty and was not added".format(code) # return an error
 		return err
+
+
+def get_titles(code):
+	""" Gather additional metadata missed from runinfo tables """
+	command = "esearch -db bioproject -query {} | elink -target biosample | efetch -format docsum | xtract -pattern DocumentSummary -block Attribute -element Attribute".format(code) # entrez query to send to terminal
+	p = subprocess.Popen(command, shell = True, stdout=subprocess.PIPE, stderr=subprocess.PIPE) # run command and store the results
+	stdout, stderr = p.communicate() 
+
+	body = stdout.decode().split('\n')
+
+	### break down into a list of lists ###
+	store = [] 
+
+	for elem in body: 
+		if len(elem) > 1: # prevent empty outputs
+			body2 = elem.split() # split at tab
+			store.append((body2)) # stores the new element
+
+
 
 
 

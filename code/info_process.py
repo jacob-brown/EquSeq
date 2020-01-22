@@ -2,57 +2,52 @@
 # -*- coding: utf-8 -*-
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
-# Date:   2020-01-15
-# Last Modified: 2020-01-15
+# Date:   2020-01-21
+# Last Modified: 2020-01-21
 
 
 
-""" Summarise the currently collected data """
+"""  """
 
 ###########################################
 ################# Modules #################
 ###########################################
 
-import pandas as pd
 import numpy as np
+import csv
 
 ###########################################
 ############## Function(s) ################
 ###########################################
 
-
-
 ###########################################
 ######### Input(s) and Parameters #########
 ###########################################
 
-df_modern = pd.read_csv('../data/info_modern.csv')
+### modern ####
+modern = [] # initialise the list
 
-df_ancient = pd.read_csv('../data/info_ancient.csv')
+with open('../data/manual_SraRunTable_modern.txt', 'r') as file:
+	reader = csv.reader(file)
+	for row in reader:
+		modern.append(row) # add row to list
+
+
+### ancient ####
+ancient = [] 
+
+with open('../data/manual_SraRunTable_ancient.txt', 'r') as file:
+	reader = csv.reader(file)
+	for row in reader:
+		ancient.append(row) # add row to list
+
 
 ###########################################
 ############### Wraggling #################
 ###########################################
 
-df_modern.columns
-df_modern[['Sample', 'Run']]
-
-### counts 
-mod_sam = np.array(df_modern['Sample'])
-len(np.unique(mod_sam))
-
-mod_anc = np.array(df_ancient['Sample'])
-len(np.unique(mod_anc))
-
-### taxa groupings
-df_modern.groupby(['ScientificName']).count()
-df_ancient.groupby(['ScientificName']).count()
-
-### remove cod!! 
-'Gadus morhua'
-
-### clean the data
-# remove any duplicates, the paper that combined the two. how should I remove them?
+modern[0]
+ancient[0]
 
 ###########################################
 ############### Analysis ##################

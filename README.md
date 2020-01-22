@@ -1,5 +1,9 @@
 # Horse Genomics
 
+## Software and Downloads
+* SRA Toolkit
+* Entrez Direct
+
 
 ## Running To Do 
 * List all datasets (bioproject codes)
@@ -42,6 +46,8 @@ Mapping softwares - samtools etc.
 
 
 ## Files
+Collection - runinfo tables manually from run selector pasting in all bioproject codes
+
 
 ### Code
 * `expand_projects.py` - expand the project codes and prepare list for a deeper search.

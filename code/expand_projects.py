@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-01-14
-# Last Modified: 2020-01-14
+# Last Modified: 2020-01-21
 
 
 
@@ -92,14 +92,14 @@ len(all_project) == len(np.unique(all_project)) # duplicates are present
 modern = [i[1] for i in project_list if i[2] =='modern' or i[2] == 'both'] # modern project codes
 
 modern = np.unique(modern)
-np.savetxt('../data/prj_modern.csv', modern, fmt='%s', delimiter=',') # save to csv
+np.savetxt('../data/prj_modern.txt', modern, fmt='%s') # save to txt
 
 
 # ancient
 ancient = [i[1] for i in project_list if i[2] =='ancient' or i[2] == 'both'] # ancient project codes
 
 ancient = np.unique(ancient)
-np.savetxt('../data/prj_ancient.csv', ancient, fmt='%s', delimiter=',')
+np.savetxt('../data/prj_ancient.txt', ancient, fmt='%s')
 
 
 
