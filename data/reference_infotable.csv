@@ -1,0 +1,36 @@
+BioProject,data_type,species,sub_group,era,era_guess,age,comments
+PRJEB5942,DATASTORE_filetype_ss,Organism,title,,modern,,appears modern
+PRJEB7537,DATASTORE filetype,Organism,,,,,???
+PRJEB9139,DATASTORE_filetype_ss,Organism,title,,modern,,appears modern
+PRJEB9267,DATASTORE_filetype_ss,Organism,title,,modern,,appears modern
+PRJEB9269,DATASTORE_filetype_ss,Organism,title,,modern,,appears modern
+PRJEB9799,DATASTORE_filetype_ss,Organism,title,,modern,,appears modern
+PRJEB10098,DATASTORE filetype,Organism,,,,,title is not always helpful
+PRJEB10532,DATASTORE filetype,Organism,Description,ancient,,,ancient in paper
+PRJEB10854,DATASTORE_filetype_ss,Organism,Region of origin,both,,Age,supplementary table joined
+PRJEB12979,DATASTORE_filetype_ss,Organism,title,,modern,,appears modern
+PRJEB13863,DATASTORE_filetype_ss,Organism,title,,modern,,appears modern
+PRJEB13983,DATASTORE filetype,Organism,,,ancient,,title gives some info but not all
+PRJEB14651,DATASTORE_filetype_ss,Organism,title,,modern,,appears modern
+PRJEB14779,DATASTORE_filetype_ss,Organism,title,,modern,,appears modern
+PRJEB15516,DATASTORE filetype,Organism,,ancient,,,check paper for details
+PRJEB19970,DATASTORE_filetype_ss,Organism,,,,,"title and description, check paper"
+PRJEB20000,DATASTORE filetype,Organism,,,,,title and alias possibly check paper
+PRJEB22390,DATASTORE filetype,Organism,,,ancient,,"alias and title, appears ancient"
+PRJEB28294,DATASTORE filetype,Organism,Alias,ancient,,,"alias holds some clues, check supplementary"
+PRJEB29661,DATASTORE filetype,Organism,Alias,ancient,,,"alias holds some clues, check supplementary"
+PRJEB31613,DATASTORE filetype,Organism,Site,ancient,,Age (years ago) ,supplementary holds lots of info – joined
+PRJNA168142,DATASTORE_filetype_ss,Organism,,,,,"Library Name some, but not much"
+PRJNA169102,DATASTORE_filetype_ss,Organism,,,,,
+PRJNA184688,DATASTORE_filetype_ss,Organism,,,,,
+PRJNA230019,DATASTORE_filetype_ss,Organism,Breed,,,,additional locations for one sample
+PRJNA233529,DATASTORE_filetype_ss,Organism,,,modern,,appears modern
+PRJNA233533,DATASTORE_filetype_ss,Organism,,,modern,,appears modern
+PRJNA246445,DATASTORE_filetype_ss,Organism,Breed,,,,
+PRJNA273402,DATASTORE_filetype_ss,Organism,,,modern,,appears modern
+PRJNA291776,DATASTORE_filetype_ss,Organism,Breed,,,,
+PRJNA306677,DATASTORE_filetype_ss,Organism,,,,,Breed possibly?
+PRJNA357976,DATASTORE_filetype_ss,Organism,Breed,,,,
+SRR488214,DATASTORE_filetype_ss,Organism,,,,,
+PRJNA205517,DATASTORE filetype,Organism,,,,Age,many helpful fields
+PRJNA225855,DATASTORE filetype,Organism,,,ancient,,"appears ancient, check paper"
