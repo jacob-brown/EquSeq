@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-01-14
-# Last Modified: 2020-01-21
+# Last Modified: 2020-01-22
 
 
 
@@ -35,7 +35,7 @@ with open('../data/papers_projects.csv', 'r') as file:
 ##################################
 ### secondary list of projects ###
 
-loc_orlando = '../data{}'.format(project_list[1][-2]) # location of orlando bioproject codes for Origins paper
+loc_orlando = '../data{}'.format(project_list[1][-3]) # location of orlando bioproject codes for Origins paper
 
 project_orlando_all = [] # all data
 project_orlando = [] # just the project codes
@@ -60,14 +60,22 @@ list_to_append = []
 tmp = dc(project_list[1]) # temp object deep copy - prevent overwrite of project_list
 
 for i in project_orlando:
-	tmp[1] = i # update the project code whilst maintainng other metadata
+	tmp[0] = i # update the project code whilst maintainng other metadata
 	list_to_append.append(tmp[:]) # append, slice to prevent shallow copy
 
 ####################################
 ### update the all projects list ###
 
 project_list = project_list + list_to_append # append newly generated list
-del project_list[1] # remove blank element that has now been populated
+del project_list[1] # remove blank Orlando element that has now been populated
+
+### add a unique reference 
+for i in range(0, len(project_list)):
+	if i == 0:
+		project_list[i].insert(0, 'Source_Ref') # header
+	else:
+		project_list[i].insert(0, i) # numerical reference
+
 
 with open('../data/papers_projects_update.csv', 'w') as file:
 	writer = csv.writer(file, delimiter=',')
@@ -82,7 +90,7 @@ all_project = [i[1] for i in project_list] # list of BioProject codes
 all_project = all_project[1:] # remove header
 all_project.sort()
 
-len(all_project) == len(np.unique(all_project)) # duplicates are present
+#len(all_project) == len(np.unique(all_project)) # duplicates are present
 
 ####################################################
 ### Group project numbers by modern and ancient ####
