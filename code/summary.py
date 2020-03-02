@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-01-22
-# Last Modified: 2020-01-27
+# Last Modified: 2020-01-31
 
 
 
@@ -40,14 +40,20 @@ def open_csv(file):
 
 
 ### runinfo table files ###
-run_files = os.listdir('../data/infotables_update')
-run_files.remove('.DS_Store')
-run_files_no_ext = [i.strip('.csv') for i in run_files] # remove extension
+run_files = os.listdir('../data/cleaned_data/infotables_update')
+
+# remove DS_Store if present
+if '.DS_Store' in run_files:
+	run_files.remove('.DS_Store')
+
+# strip csv extension
+run_files_no_ext = np.array([i.strip('.csv') for i in run_files]) 
 
 ### reference table ####
 #ref_tab = pd.read_csv('../data/reference_infotable.csv')
 
-ref_tab = open_csv('../data/reference_infotable.csv')
+ref_tab = open_csv('../data/raw_data/reference_infotable.csv')
+ref_tab = [i[0:8] for i in ref_tab if i[8] != 'y'] # remore the ignore projects and strip ignore column 
 
 ###########################################
 ############### Wraggling #################
@@ -56,10 +62,6 @@ ref_tab = open_csv('../data/reference_infotable.csv')
 # loop through bioprojects, determine which column to gather and 
 	# pull out that column
 	# exclude any that are blank
-
-#ref_tab[0] # headers
-#ref_tab[0][3] # subgroup
-
 
 ### seperate groups with and without information ###
 all_PrjID = [i[0] for i in ref_tab] # all project ids, keep header as using for index
@@ -74,7 +76,7 @@ store = []
 for pid in prj_ID:
 
 	# open file
-	file_in = open_csv('../data/infotables_update/{}.csv'.format(pid)) 
+	file_in = open_csv('../data/cleaned_data/infotables_update/{}.csv'.format(pid)) 
 	header = file_in[0] # header list
 	del file_in[0] # strip header
 
@@ -91,7 +93,7 @@ for pid in prj_ID:
 
 	### ref table info ###
 	era = ref_prj[4]
-	era_guess = ref_prj[5]
+	#era_guess = ref_prj[5]
 	comments = ref_prj[7]
 
 	# iterate through each element (sequence run) of the filein
@@ -103,95 +105,102 @@ for pid in prj_ID:
 		species = k[i_species] # species 
 		sub_group = k[i_sub_group] # how is the data grouped? population, breed, etc.
 		data_type = k[i_data_type] # type of data - fasta, sam, etc.
-		#age = k[i_age] # age
-
-		#if pid == 'PRJEB10098':
-		#	import ipdb
-		#	ipdb.set_trace()
 
 		# append to a new store list
 			# iterate through each location and add the corresponding value to the list	
-		tmp_store = [runs, sample, pid, species, sub_group, data_type, era, era_guess, '', comments]
+		tmp_store = [runs, sample, pid, species, sub_group, data_type, era, '', comments]
 
 		# append to master store
 		store.append(tmp_store)
 
 
-### remove Gadus morhua if present ###
-	# present in one study
-store = [i for i in store if i[3] != 'Gadus morhua'] 
-
-### append the best guess of the age ###
-for i in store:
-	if i[6] != '':
-		i.append(i[6])
-	else:
-		i.append(i[7])
 
 
+### note the BioProjects with missing data ###
+issue_IDs = np.unique([i[2] for i in store if i[4] == '']) # those that had partial joins
+passed_IDs = np.unique([i[2] for i in store]) # ids that passed
+add_issues = run_files_no_ext[np.isin(run_files_no_ext, passed_IDs, invert=True)] # list those values not in the main df i.e. no info
+issue_IDs = np.append(issue_IDs, add_issues) # append partial and failed ids
+
+
+### tidy up the df prior to save ###
+store = [i for i in store if i[4] != ''] # no blank entries
+
+### update 'both' field for Yakutian horse - PRJEB10854 ###
+	# hardcode for finer detail
+for i in range(0, len(store)):
+	if store[i][6] == 'both': # check both
+		if store[i][4] == 'Ancient horse from Yakutia': 
+			store[i][6] = 'ancient' # update
+		elif store[i][4] == 'Yakutian horse':
+			store[i][6] = 'modern' # update
 
 # add the headers 
-head = ['Run', 'BioSample', 'BioProject', 'species', 'sub_group', 'data_type', 'era', 'era_guess', 'age', 'comments', 'era_best_guess']
-
+head = ['Run', 'BioSample', 'BioProject', 'species', 'sub_group', 'data_type', 'era', 'age', 'comments']
 
 df_store = pd.DataFrame(store, columns=head)
+df_store.to_csv('../data/cleaned_data/info_all.csv', index=False)
+issue_IDs = issue_IDs.astype(str)
+np.savetxt('../data/cleaned_data/issue_BioProject.txt', issue_IDs, delimiter='', fmt='%s')
 
 
-df_store.to_csv('../data/run_info_summary.csv')
+### check for duplicates ###
+if len(np.unique(df_store.Run)) != len(df_store):
+	print('Duplicate runs found.')
+
+##################################################
+### summarise the data into individual samples ###
+
+# strip run and data_type in prep for groupnby
+grp_by_vars = [i for i in head[1:] if i !='data_type'] 
+
+# count number of runs and concatenate data_type
+grp_df = df_store.groupby(grp_by_vars, as_index = False).agg({'data_type': ','.join, 'Run' : 'count'})
+
+### only unique values in datatype ###
+# pull out datatypes
+df_data_type = grp_df.data_type.tolist()
+
+# iterate through removing duplicates
+for i in range(0,len(df_data_type)):
+	string = df_data_type[i]
+	tmp = string.split(',') # break into list
+	uniq = set(tmp) # remove duplicates
+	df_data_type[i] = ','.join(uniq) # rejoin and update df
+
+# update pandas df
+grp_df.data_type = df_data_type
+
+# update column name
+grp_df.rename(columns={'Run':'run_count'}, inplace=True)
+
+# sort df
+grp_df = grp_df.sort_values(by=['era', 'species', 'sub_group', 'data_type', 'BioProject', 'BioSample'], ascending=False)
+
+# rearrange column order and remove age
+grp_df = grp_df[['BioSample', 'BioProject', 'species', 'sub_group', 'era', 'data_type', 'run_count','comments']]
+
+# save to csv
+grp_df.to_csv('../data/cleaned_data/info_individual_grouped.csv', index=False)
 
 
+############################################
+### summarise at group and species level ###
 
+# group by 
+grp_pop_level = grp_df.groupby(['species', 'sub_group', 'era'], as_index = False).count()
 
-### rename to csv's ###
-	# quickly viewing become easier
+# select only some vars
+grp_pop_level = grp_pop_level[['species', 'sub_group', 'era', 'run_count']]
 
-if False:
+# rename count
+grp_pop_level.rename(columns={'run_count':'individ_count'}, inplace=True)
 
-	for i in files:
-		og = '../data/infotables_update/{}'.format(i)
-		strp = i.strip('.txt') + '.csv'
-		rnam = '../data/infotables_update/{}'.format(strp)
-		os.rename(og, rnam) 
+# sort
+grp_pop_level = grp_pop_level.sort_values(by=['era', 'species', 'sub_group'], ascending=False)
 
-
-
-
-	df_modern.columns
-
-	### remove non Equus species ###
-	df_ancient = df_ancient[df_ancient.Organism != 'Gadus morhua']
-
-	### remove RNA-Seq ###
-	df_modern = df_modern[df_modern['Assay Type'] != 'RNA-Seq']
-
-	### check for duplicates ###
-
-	duplicates = df_modern[df_modern.Run.isin(df_ancient.Run)]
-
-	# which project IDs are the duplicates found in 
-	dup_bioPrj = duplicates.BioProject.unique() # bio project
-	dup_run = duplicates.Run.unique() # run ids
-
-	# print duplication project codes
-	if len(duplicates) != 0:
-		print("Duplicates found in {}, check the data.".format(dup_bioPrj))
-
-
-	########
-	### Resolve duplication
-		# much of the duplication in bioproject codes is due to 
-		# grouping of ancient and modern in the same sets
-
-	# import data for splitting  
-	df_modern_split = pd.read_csv('../data/supplementary_data_from_studies/TableS1.1.csv')
-	df_ancient_split = pd.read_csv('../data/supplementary_data_from_studies/TableS1.2.csv')
-
-
-	'PRJEB10854' 
-	'PRJEB19970'
-
-
-
+# save
+grp_pop_level.to_csv('../data/cleaned_data/info_pop_grouped.csv', index=False)
 
 
 
