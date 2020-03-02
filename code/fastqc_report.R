@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-02-10
-# Last Modified: 2020-02-10
+# Last Modified: 2020-03-02
 
 
 ##############################################
@@ -16,7 +16,7 @@
 iter <- 1 # for testing
 
 # files - with paths
-files <- list.files('/rds/general/user/jb1919/home/genomics/sequences/horse/cdts-hk.genomics.cn/Clean/F19FTSEUHT1854-swab-horse-1A/',  full.names=TRUE) 
+files <- list.files('/rds/general/user/jb1919/home/genomics/sequences/cdts-hk.genomics.cn/Clean/F19FTSEUHT1854-swab-horse-1A/',  full.names=TRUE) 
 
 # path out
 path_out <- '/rds/general/user/jb1919/home/genomics/results/report/'

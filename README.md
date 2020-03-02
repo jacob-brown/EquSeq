@@ -1,6 +1,15 @@
 # Horse Genomics
 
 ## Software and Downloads
+Used
+* fastqc - quality scores
+* FASTX - trimming the last 10 bases
+* BWA - aligning and mapping
+
+To Look into
+* Guy: blobtools,Busco software, spades
+
+possibly used
 * SRA Toolkit
 * Entrez Direct
 
@@ -41,6 +50,7 @@ Mapping softwares - samtools etc.
 
 **3. Analysis**
 * AMSD, NGSTOOLS, etc. 
+* blobtools, Busco software, spades, BWA
 * Admixture plots, PCAs, trees, etc. 
 * lots can be done. 
 
