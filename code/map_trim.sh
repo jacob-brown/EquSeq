@@ -1,9 +1,8 @@
 #!/bin/bash
-#PBS -l walltime=06:00:00
-#PBS -l select=1:ncpus=1:mem=5gb
+#PBS -l walltime=12:00:00
+#PBS -l select=1:ncpus=1:mem=1gb
 
 DATA=$(ls $EPHEMERAL/reads/*)
-
 
 echo '=================================='
 echo -e "\nLoading fastx\n"
