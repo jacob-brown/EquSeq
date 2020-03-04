@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-03-03
-# Last Modified: 2020-03-04
+# Last Modified: 2020-03-03
 
 
 
@@ -30,9 +30,6 @@ path_out = '/rds/general/user/jb1919/ephemeral/aligned'
 
 # path to indexed reference genome
 ref_genome = '/rds/general/user/jb1919/ephemeral/ref_genome_indexed/EquCab2.fna'
-
-# catch the job number
-job_num = int(os.environ['PBS_ARRAY_INDEX'])
 
 ###########################################
 ############ File Preparation #############
@@ -84,6 +81,9 @@ for c in store:
 ################ Command ##################
 ###########################################
 
+# catch the job number
+job_num = int(os.environ['PBS_ARRAY_INDEX'])
+
 selected = pairs[job_num]
 
 ### full paths ### 
@@ -92,7 +92,7 @@ read2 = '{}/{}'.format(path_in, selected[1])
 out_file = '{}/{}'.format(path_out, selected[2])
 
 # construc the command
-command = 'bwa mem {} {} {} > {}'.format(ref_genome, read1, read2, out_file) 
+command = 'bwa mem -t 6 {} {} {} > {}'.format(ref_genome, read1, read2, out_file) 
 # bwa mem ref.fa read1.fq read2.fq > aln-pe.sam
 
 
