@@ -1,6 +1,6 @@
 #!/bin/bash
-#PBS -l walltime=06:00:00
-#PBS -l select=1:ncpus=1:mem=5gb
+#PBS -l walltime=12:00:00
+#PBS -l select=1:ncpus=5:mem=6gb
 
 #### remember job numbers 0 to 23 ###
 # qsub -J 0-23 map_align.sh
@@ -8,9 +8,7 @@
 	# python index at 0
 
 # completed
-# 0-1 - thread_map_align 
-# 2-3 - node_map_align
-# 4-5 - node_increase_map_align
+# 0-5 completed 
 
 #----- load modules ----#
 echo '=================================='

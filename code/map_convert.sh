@@ -4,6 +4,8 @@
 
 # jobs from 0-N
 	# bash index starts at 0
+	# 0-5 complete 
+		# 6-23
 
 
 #----- load modules ----#
@@ -41,8 +43,15 @@ echo -e "\nSorting\n"
 
 samtools sort -m 5GiB $FILE_CONV_OUT -o $FILE_SORT_OUT
 
+echo '=================================='
+echo -e "\nIndex\n"
+
+samtools index $FILE_SORT_OUT
+
+
 # then merge
 # check with  samtools view -H
-
+# samtools flagstat
+	# samtools flagstat myFile.bam > myFile.stats 
 
 # check the times of last run, delete and run a trial
