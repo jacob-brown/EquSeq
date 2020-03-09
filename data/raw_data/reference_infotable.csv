@@ -1,7 +1,7 @@
 BioProject,data_type,species,sub_group,era,era_guess,age,comments,ignore
 PRJEB5942,DATASTORE_filetype_ss,Organism,Breed_Info,modern,,,,
 PRJEB7537,DATASTORE filetype,Organism,,,,,???,
-PRJEB9139,DATASTORE_filetype_ss,Organism,Breed_Info,modern,,,,
+PRJEB9139,DATASTORE filetype,Organism,Breed_Info,modern,,,,
 PRJEB9267,DATASTORE_filetype_ss,Organism,Breed_Info,modern,,,,
 PRJEB9269,DATASTORE_filetype_ss,Organism,Breed_Info,modern,,,,
 PRJEB9799,DATASTORE_filetype_ss,Organism,title,modern,,,appears modern,

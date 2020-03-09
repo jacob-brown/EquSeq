@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-01-22
-# Last Modified: 2020-01-31
+# Last Modified: 2020-03-09
 
 
 
@@ -117,10 +117,10 @@ for pid in prj_ID:
 
 
 ### note the BioProjects with missing data ###
-issue_IDs = np.unique([i[2] for i in store if i[4] == '']) # those that had partial joins
-passed_IDs = np.unique([i[2] for i in store]) # ids that passed
-add_issues = run_files_no_ext[np.isin(run_files_no_ext, passed_IDs, invert=True)] # list those values not in the main df i.e. no info
-issue_IDs = np.append(issue_IDs, add_issues) # append partial and failed ids
+#issue_IDs = np.unique([i[2] for i in store if i[4] == '']) # those that had partial joins
+#passed_IDs = np.unique([i[2] for i in store]) # ids that passed
+#add_issues = run_files_no_ext[np.isin(run_files_no_ext, passed_IDs, invert=True)] # list those values not in the main df i.e. no info
+#issue_IDs = np.append(issue_IDs, add_issues) # append partial and failed ids
 
 
 ### tidy up the df prior to save ###
@@ -140,6 +140,19 @@ head = ['Run', 'BioSample', 'BioProject', 'species', 'sub_group', 'data_type', '
 
 df_store = pd.DataFrame(store, columns=head)
 df_store.to_csv('../data/cleaned_data/info_all.csv', index=False)
+
+### which bioprojects failed or still need work ###
+# unique list of projectIDs
+proj_all = open_csv('../data/cleaned_data/papers_projects_update.csv')
+proj_all = [i[1] for i in proj_all] # projectIDs only
+del proj_all[0] # strip header (not an ID)
+proj_all = np.unique(proj_all) # unique only
+
+# IDs that have been processed
+passed_ID = np.unique(df_store.BioProject)
+
+# compare the processed with all
+issue_IDs = proj_all[np.isin(proj_all, passed_ID, invert=True)] 
 issue_IDs = issue_IDs.astype(str)
 np.savetxt('../data/cleaned_data/issue_BioProject.txt', issue_IDs, delimiter='', fmt='%s')
 

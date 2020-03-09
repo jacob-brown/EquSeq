@@ -12,7 +12,7 @@ BWA to map onto reference genome
 
 
 ## Steps
-1 ) get the refernce seq
+1 ) get the reference seq
 	rsync from source
 2) Trim ends of sequence - those with poor kmer scores
 	fastx last 10 bases of all reads
@@ -31,6 +31,7 @@ BWA to map onto reference genome
 sorting brings the header to the top and allows for merging
 
 6) Merge SAM files into one
-`samtools merge finalBamFile.bam *.bam`
+
+
 
 

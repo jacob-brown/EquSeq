@@ -56,11 +56,23 @@ Mapping softwares - samtools etc.
 
 
 ## Files
+* `info_all.csv` - Unique sequence runs/file codes with additional information. 
+* `info_individual_grouped.csv` - As above, but grouped at the individual sample level. Noting the number of files on NCBI associated with the BioSample ID.
+* `info_pop_grouped.csv` - As above, but grouped at the sub-group level. Noting how many individual samples we have for each species and sub_group.
+
 Collection - runinfo tables manually from run selector pasting in all bioproject codes
 
 
-### Code
+### Code Files
+* `getall_` - get all the available sequences phase of work
+* `map_` - mapping phase of work
+
+
+
 * `expand_projects.py` - expand the project codes and prepare list for a deeper search.
+
+
+
 
 ### Data
 

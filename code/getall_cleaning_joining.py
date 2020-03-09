@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-01-27
-# Last Modified: 2020-01-31
+# Last Modified: 2020-03-09
 
 
 
@@ -88,7 +88,9 @@ df_S1_Orl = pd.DataFrame(df_S1_Orl, columns = head_S1)
 	# also save as new csv, keeping originals
 
 for i in files:
-
+	#if i ==  'PRJEB9139.txt':
+		#import ipdb
+		#ipdb.set_trace()
 	################################
 	### open and save file paths ###
 	path_open = '../data/raw_data/infotables_original/{}'.format(i) # open path
@@ -107,7 +109,7 @@ for i in files:
 	########################
 	### Orlando Table S1 ###
 	if no_ext in orlando_bio_projects and no_ext != 'SRP012260': # ensure it is in the ref table and not a project giving issues
-		biop = [i[1] for i in ref_orlando if i[0] == no_ext] # bioprojects only
+		biop = [c[1] for c in ref_orlando if c[0] == no_ext] # bioprojects only
 
 		df = pd.merge(df, df_S1_Orl, how='left', left_on=['BioProject', biop[0]], right_on=['BioProject','ID_approx'])
 	
