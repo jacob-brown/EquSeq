@@ -1,5 +1,8 @@
 #Mapping
- 
+
+fastqc report suggests good base quality
+BGI notes that it is phred33 
+
 ## Tools
 fastx - trim ends of reads
 BWA - mapping reads onto reference genome
@@ -32,6 +35,24 @@ sorting brings the header to the top and allows for merging
 
 6) Merge SAM files into one
 
+
+
+
+next) remove duplicates
+$SAMTOOLS rmdup -s NA19238.bam NA19238.md.bam
+
+
+java -jar $PICARD MarkDuplicates I=id.fixmate.srt2.bam \
+O=id.fixmate.srt.md.bam  M=metrics;
+
+next) remove unmapped?
+samtools view -h -F 4 -b blah.bam > blah_only_mapped.bam
+
+
+next) remove poorly quality mapped reads
+
+maybe with
+samtools view -f 2 -F 1024 id.fixmate.srt.md.bam -q 10 >new.bam
 
 
 

@@ -31,7 +31,7 @@ FILE_SORT_OUT=$EPHEMERAL/sorted/$BASE.sorted.bam # outfile of sorted sam
 
 
 echo '=================================='
-echo -e "\nConvert to sam\n"
+echo -e "\nConvert to bam\n"
 
 #samtools view -S -b sample.sam > sample.bam
 samtools view -S -b $FILE > $FILE_CONV_OUT
@@ -53,5 +53,6 @@ samtools index $FILE_SORT_OUT
 # check with  samtools view -H
 # samtools flagstat
 	# samtools flagstat myFile.bam > myFile.stats 
+# samtools stats $EPHEMERAL/merged/merged_reads.bam | grep ^SN > stats.txt
 
 # check the times of last run, delete and run a trial
