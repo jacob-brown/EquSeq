@@ -5,13 +5,17 @@ Used
 * fastqc - quality scores
 * FASTX - trimming the last 10 bases
 * BWA - aligning and mapping
+* picard - marking reads for duplicates and updating info
+* samtools - general read cleaning and processing
+* kraken2 - metagenomic analysis of fastq reads
 
 To Look into
 * Guy: blobtools,Busco software, spades
 
-possibly used
+possibly use
 * SRA Toolkit
 * Entrez Direct
+
 
 
 ## Running To Do 
@@ -50,7 +54,7 @@ Mapping softwares - samtools etc.
 
 **3. Analysis**
 * AMSD, NGSTOOLS, etc. 
-* blobtools, Busco software, spades, BWA
+* blobtools, Busco software, spades
 * Admixture plots, PCAs, trees, etc. 
 * lots can be done. 
 

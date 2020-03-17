@@ -2,12 +2,14 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-03-02
-# Last Modified: 2020-03-02
+# Last Modified: 2020-03-17
 # Desc: 
 
 
 # EquCab2 
 # ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/vertebrate_mammalian/Equus_caballus/all_assembly_versions/suppressed/
+
+
 
 # filename: GCF_000002305.2_EquCab2.0_genomic.fna.gz
 
@@ -24,7 +26,7 @@ rsync --copy-links --times --verbose rsync://ftp.ncbi.nlm.nih.gov/genomes/refseq
 
 #-------------- EquCab3 --------------#
 # specific file 
-rsync --copy-links --times --verbose rsync://ftp.ncbi.nlm.nih.gov/genomes/refseq/vertebrate_mammalian/Equus_caballus/latest_assembly_versions/GCF_002863925.1_EquCab3.0/GCF_002863925.1_EquCab3.0_genomic.fna.gz .
+#rsync --copy-links --times --verbose rsync://ftp.ncbi.nlm.nih.gov/genomes/refseq/vertebrate_mammalian/Equus_caballus/latest_assembly_versions/GCF_002863925.1_EquCab3.0/GCF_002863925.1_EquCab3.0_genomic.fna.gz .
 
 #-------------- unzip --------------#
 

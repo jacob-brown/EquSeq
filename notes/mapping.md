@@ -35,9 +35,20 @@ sorting brings the header to the top and allows for merging
 
 6) Merge SAM files into one
 
+7) picard: update mate data and mark duplicates
+
+8) samtools - remove dupliactes 
+
+9) remove unmapped reads
 
 
 
+# Misc
+Bowtie2 trialled but poor results were observed
+
+
+
+# dump
 next) remove duplicates
 $SAMTOOLS rmdup -s NA19238.bam NA19238.md.bam
 

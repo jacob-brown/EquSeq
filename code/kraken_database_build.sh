@@ -1,7 +1,6 @@
 #!/bin/bash
-#PBS -l walltime=03:00:00
-#PBS -l select=1:ncpus=8:mem=10gb
-
+#PBS -lwalltime=05:00:00
+#PBS -lselect=1:ncpus=24:ompthreads=24:mem=240gb
 
 
 #install and create in a segregated conda environment. i.e.
@@ -18,43 +17,52 @@
 echo '=================================='
 echo -e "\nLoad modules\n"
 module load anaconda3/personal
+module load fastx/0.0.14
 source activate myenv # activate conda environment
 
 
 DBNAME=$EPHEMERAL/kraken/db_kraken_horse
 
-# create a kraken database
 
 echo '=================================='
 echo -e "\nBuild taxonomy database\n"
 
 # pull taxonomy structure 
-kraken2-build --download-taxonomy --db $DBNAME
+#kraken2-build --download-taxonomy --db $DBNAME
 
-echo '=================================='
-echo -e "\nAdd libraries\n"
+#echo '=================================='
+#echo -e "\nAdd libraries\n"
 # add reference libraries
 
-echo -e "\narchaea\n"
+#echo -e "\narchaea\n"
 #kraken2-build --download-library archaea --db $DBNAME
-echo -e "\nbacteria\n"
-kraken2-build --download-library bacteria --db $DBNAME
-echo -e "\nviral\n"
+#echo -e "\nbacteria\n"
+#kraken2-build --download-library bacteria --db $DBNAME
+#echo -e "\nviral\n"
 #kraken2-build --download-library viral --db $DBNAME
-echo -e "\nfungi\n"
+#echo -e "\nfungi\n"
 #kraken2-build --download-library fungi --db $DBNAME
-echo -e "\nplant\n"
+#echo -e "\nplant\n"
 #kraken2-build --download-library plant --db $DBNAME
-echo -e "\nhuman\n"
+#echo -e "\nhuman\n"
 #kraken2-build --download-library human --db $DBNAME
-echo -e "\nhorse\n"
-kraken2-build --download-library horse --db $DBNAME
+
+# update taxanomic info in fasta file
+# taxanomic IDs from:
+	#https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi
+# Update header 
+#var=">EquCab2|kraken:taxid|9796  Horse reference genome"
+# line 1 and change
+#sed "1c$var" $EPHEMERAL/kraken/EquCab2.fna > horse.fa
+
+#echo -e "\nhorse\n"
+#kraken2-build --add-to-library $EPHEMERAL/kraken/horse.fa --db $DBNAME
 
 echo '=================================='
 echo -e "\nFinal Build\n"
 
 # build the database
-kraken2-build --build --threads 7 --db $DBNAME
+kraken2-build --build --threads 24 --db $DBNAME
 
 echo '=================================='
 echo -e "\nclose conda\n"

@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -l walltime=02:00:00
-#PBS -l select=1:ncpus=5:mem=15gb
+#PBS -l select=1:ncpus=5:mem=7gb
 
 # remove duplicates and poor quality reads
 
@@ -8,36 +8,36 @@
 #----- load modules ----#
 echo '=================================='
 echo -e "\nLoad modules\n"
-module load anaconda3/personal
-module load java
-module load picard
+module load samtools/1.3.1
+module load java/jdk-8u144
+module load picard/2.6.0
 
-
+#----- variables ----#
 PICARD=$PICARD_HOME/picard.jar
+DIR=$EPHEMERAL/test_align/
 
-#samtools mpileup $EPHEMERAL/merged/merged_reads.bam | cut -f4 | sort -n | uniq -c > $EPHEMERAL/merged/dep1
 
-#samtools rmdup -s $EPHEMERAL/merged/merged_reads.bam $EPHEMERAL/merged/merged_reads.md.bam
-
-#samtools mpileup $EPHEMERAL/merged/merged_reads.bam | cut -f4 | sort -n | uniq -c > $EPHEMERAL/merged/dep2
 
 echo '=================================='
-echo -e "\nFix mate info\n"
+echo -e "\nFixmate info\n"
 
-# reorder and fill in the mate information
-java -jar $PICARD FixMateInformation \
-			INPUT=$EPHEMERAL/merged/merged_reads.bam \
-			OUTPUT=$EPHEMERAL/merged/id.fixmate.srt.bam \
-			SORT_ORDER=coordinate
+
+java -Xmx6g -jar $PICARD FixMateInformation \
+			INPUT=$DIR/read_out.sorted.bam \
+			OUTPUT=$DIR/read_out.fix.bam  \
+			SORT_ORDER=coordinate \
+			TMP_DIR=$TMPDIR # resolves memory issues
 
 echo '=================================='
 echo -e "\nMark Duplicates\n"
 
 # mark duplicates
-java -jar $PICARD MarkDuplicates \
-			INPUT=$EPHEMERAL/merged/id.fixmate.srt.bam \
-			OUTPUT=$EPHEMERAL/merged/id.fixmate.srt.md.bam  \
-			M=metrics
+java -Xmx6g \
+			-jar $PICARD MarkDuplicates \
+			INPUT=$DIR/read_out.fix.bam \
+			OUTPUT=$DIR/read_out.fix.md.bam  \
+			M=metrics \
+			TMP_DIR=$TMPDIR
 
 
 # Summarise alignments
