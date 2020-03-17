@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-01-22
-# Last Modified: 2020-03-09
+# Last Modified: 2020-03-17
 
 
 
@@ -84,8 +84,11 @@ for pid in prj_ID:
 	prj_loc = all_PrjID.index(pid)
 	ref_prj = ref_tab[prj_loc] # refernece for the project of interest
 
-	# find location with the header of the read in file
-	i_sample = header.index('BioSample')
+	### find location with the header of the read in file ###
+	i_sample = header.index('BioSample') # biosample number
+	#i_sra_acc = header.index('SRA_accession')
+	#i_sra_study = header.index('SRA Study')
+
 	i_sub_group = header.index(ref_prj[3]) # sub_group index (breed, location, etc.)
 	i_data_type = header.index(ref_prj[1]) # data type (fasta, bam, sam, etc.)
 	i_species = header.index(ref_prj[2]) # species 
@@ -102,13 +105,16 @@ for pid in prj_ID:
 		### pull data for each category - referencing location
 		runs = k[0] # run ID
 		sample = k[i_sample] # sample ID 
+		#sra_acc = k[i_sra_acc] # accession number SRA
+		#sra_study = k[i_sra_study] # study number SRA
 		species = k[i_species] # species 
 		sub_group = k[i_sub_group] # how is the data grouped? population, breed, etc.
 		data_type = k[i_data_type] # type of data - fasta, sam, etc.
 
 		# append to a new store list
 			# iterate through each location and add the corresponding value to the list	
-		tmp_store = [runs, sample, pid, species, sub_group, data_type, era, '', comments]
+			#sra_acc, sra_study,
+		tmp_store = [runs, sample, pid,  species, sub_group, data_type, era, '', comments]
 
 		# append to master store
 		store.append(tmp_store)
@@ -136,7 +142,8 @@ for i in range(0, len(store)):
 			store[i][6] = 'modern' # update
 
 # add the headers 
-head = ['Run', 'BioSample', 'BioProject', 'species', 'sub_group', 'data_type', 'era', 'age', 'comments']
+	#'SRA_accession', 'SRA_study'
+head = ['Run', 'BioSample', 'BioProject','species', 'sub_group', 'data_type', 'era', 'age', 'comments']
 
 df_store = pd.DataFrame(store, columns=head)
 df_store.to_csv('../data/cleaned_data/info_all.csv', index=False)
