@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -l walltime=02:00:00
+#PBS -l walltime=12:00:00
 #PBS -l select=1:ncpus=5:mem=7gb
 
 # remove duplicates and poor quality reads
@@ -15,6 +15,7 @@ module load picard/2.6.0
 #----- variables ----#
 PICARD=$PICARD_HOME/picard.jar
 DIR=$EPHEMERAL/test_align/
+
 
 
 

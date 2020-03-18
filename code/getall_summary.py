@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-01-22
-# Last Modified: 2020-03-17
+# Last Modified: 2020-03-18
 
 
 
@@ -13,7 +13,7 @@
 ################# Modules #################
 ###########################################
 
-import pandas as pd
+#import pandas as pd
 import numpy as np
 import os
 import csv
@@ -34,6 +34,52 @@ def open_csv(file):
 
 	return tmp
 
+
+def duplicate_runs(data):
+
+	""" check for duplicate runs """
+
+	runs = [i[0] for i in data]
+
+	if len(np.unique(runs)) != len(data): # should be only uniques 
+		return 'Duplicate runs found.'
+	else:
+		return 0
+
+
+def no_group(data):
+	
+	""" Group/Breed info not present.
+		Return ProjectIDs """
+
+	tmp = [i[2] for i in data if i[4]=='']
+	return np.unique(tmp)
+
+def issue_BioProjects(all_files, ID_keep, ID_ignore, \
+						out='../data/cleaned_data/issue_BioProject.txt'):
+	
+	""" save file of BioProjectIDs that still need work.
+		those that are present but are not used """
+
+	# strip 
+	files_no_ext = [i.strip('.csv') for i in all_files]
+
+	### check that all projects are present, unless noted to ignore ###
+		# save a file of those that still need work
+
+	issue_IDs = [] # tmp storage
+
+	for i in files_no_ext:
+		if i not in ID_keep: # project ID not in project list
+			issue_IDs.append(i)
+			if i not in ID_ignore: # unless specified
+				print('{}.csv present, but not specified in reference table'.format(i))
+
+	# save the IDs that need further exploration
+	np.savetxt(out, issue_IDs, delimiter='', fmt='%s')
+
+	return 'Issue BioProject IDs saved.'
+
 ###########################################
 ######### Input(s) and Parameters #########
 ###########################################
@@ -42,131 +88,112 @@ def open_csv(file):
 ### runinfo table files ###
 run_files = os.listdir('../data/cleaned_data/infotables_update')
 
+
 # remove DS_Store if present
 if '.DS_Store' in run_files:
 	run_files.remove('.DS_Store')
 
-# strip csv extension
-run_files_no_ext = np.array([i.strip('.csv') for i in run_files]) 
+# reference table - details columns of interest 
+ref_tab_all = open_csv('../data/raw_data/reference_infotable.csv')
 
-### reference table ####
-#ref_tab = pd.read_csv('../data/reference_infotable.csv')
+# remove the ignore=yes projects and strip ignore column 
+ref_tab = [i[0:6] for i in ref_tab_all if i[6] != 'y'] 
 
-ref_tab = open_csv('../data/raw_data/reference_infotable.csv')
-ref_tab = [i[0:8] for i in ref_tab if i[8] != 'y'] # remore the ignore projects and strip ignore column 
+
+### project IDs ### 
+prj_ID = [i[0] for i in ref_tab] # Project IDs to be used
+del prj_ID[0] # remove header
+prj_ID_ignored = [i[0] for i in ref_tab_all if i[6] == 'y'] # IDs ignored
+
 
 ###########################################
 ############### Wraggling #################
 ###########################################
 
-# loop through bioprojects, determine which column to gather and 
-	# pull out that column
-	# exclude any that are blank
 
-### seperate groups with and without information ###
-all_PrjID = [i[0] for i in ref_tab] # all project ids, keep header as using for index
-no_df_groups = [i for i in ref_tab if i[3] == ''] # without sub_group
-df_groups = [i for i in ref_tab if i[3] != ''] # with sub_group
-prj_ID = [i[0] for i in df_groups] # Project IDs to be used
-del prj_ID[0] # remove header
-
-### use the reference table to pull out desired columns and append
+### filter columns of infotables ###
+	# allowing for unions and summarising
 store = []
 
 for pid in prj_ID:
 
 	# open file
-	file_in = open_csv('../data/cleaned_data/infotables_update/{}.csv'.format(pid)) 
+	file_in = open_csv('../data/cleaned_data/infotables_update/{}.csv'\
+		.format(pid)) 
 	header = file_in[0] # header list
 	del file_in[0] # strip header
 
-	# find location of project code in the ref table
-	prj_loc = all_PrjID.index(pid)
-	ref_prj = ref_tab[prj_loc] # refernece for the project of interest
+	### present in all
+	# SRA Study in all, not always SRA_ass
+	# DATASTORE filetype in all
+	# Organism in all
 
-	### find location with the header of the read in file ###
-	i_sample = header.index('BioSample') # biosample number
-	#i_sra_acc = header.index('SRA_accession')
-	#i_sra_study = header.index('SRA Study')
+	### columns of interest, from reference table ###
+		# ['BioProject', 'sub_group', 'era', 'era_guess', 'age', 'comments']
+	ref_pivot = [i for i in ref_tab if i[0] == pid][0] # remove nesting with [0] 
 
-	i_sub_group = header.index(ref_prj[3]) # sub_group index (breed, location, etc.)
-	i_data_type = header.index(ref_prj[1]) # data type (fasta, bam, sam, etc.)
-	i_species = header.index(ref_prj[2]) # species 
-	#i_age = header.index(ref_prj[6]) # age 
+	### Extract information of interest and append to data ###
+		
 
-	### ref table info ###
-	era = ref_prj[4]
-	#era_guess = ref_prj[5]
-	comments = ref_prj[7]
+	# sub_group - find the index within the header
+	i_sub = header.index(ref_pivot[1]) 
 
-	# iterate through each element (sequence run) of the filein
-	for k in file_in:
-
-		### pull data for each category - referencing location
-		runs = k[0] # run ID
-		sample = k[i_sample] # sample ID 
-		#sra_acc = k[i_sra_acc] # accession number SRA
-		#sra_study = k[i_sra_study] # study number SRA
-		species = k[i_species] # species 
-		sub_group = k[i_sub_group] # how is the data grouped? population, breed, etc.
-		data_type = k[i_data_type] # type of data - fasta, sam, etc.
-
-		# append to a new store list
-			# iterate through each location and add the corresponding value to the list	
-			#sra_acc, sra_study,
-		tmp_store = [runs, sample, pid,  species, sub_group, data_type, era, '', comments]
-
-		# append to master store
-		store.append(tmp_store)
+	# append (and extend, when list) subgroup and reftab info
+	for elm in file_in:
+		elm.append(elm[i_sub]) # sub group
+		elm.extend(ref_pivot[2:6]) # era, era_guess, age, comments
 
 
+	#---- write to function ----#
+	# update header	- unsure same order as appended above
+	header.extend(['sub_group', 'era', 'era_guess', 'age', 'comments'])
+
+	### columns to keep ###
+	select_list = ['Run', 'BioSample', 'BioProject','Organism',\
+					'sub_group', 'DATASTORE filetype', 'SRA Study',\
+					'era', 'era_guess', 'age', 'comments']
+
+	# find their position within the header
+	index_list = [header.index(i) for i in select_list]
+	
+	# pull from the main data
+	for row_in in file_in:
+		tmp_selected = [row_in[i] for i in index_list] 
+		store.append(tmp_selected)
 
 
-### note the BioProjects with missing data ###
-#issue_IDs = np.unique([i[2] for i in store if i[4] == '']) # those that had partial joins
-#passed_IDs = np.unique([i[2] for i in store]) # ids that passed
-#add_issues = run_files_no_ext[np.isin(run_files_no_ext, passed_IDs, invert=True)] # list those values not in the main df i.e. no info
-#issue_IDs = np.append(issue_IDs, add_issues) # append partial and failed ids
+	### update 'both' field for Yakutian horse - PRJEB10854 ###
+		# hardcode for finer detail
+	for i in range(0, len(store)):
+		if store[i][7] == 'both': # check both
+			if store[i][4] == 'Ancient horse from Yakutia': 
+				store[i][6] = 'ancient' # update
+			elif store[i][4] == 'Yakutian horse':
+				store[i][6] = 'modern' # update	
+			store[i][7] = 'both_updated' # note the update
 
 
-### tidy up the df prior to save ###
-store = [i for i in store if i[4] != ''] # no blank entries
+# end iteration # 
 
-### update 'both' field for Yakutian horse - PRJEB10854 ###
-	# hardcode for finer detail
-for i in range(0, len(store)):
-	if store[i][6] == 'both': # check both
-		if store[i][4] == 'Ancient horse from Yakutia': 
-			store[i][6] = 'ancient' # update
-		elif store[i][4] == 'Yakutian horse':
-			store[i][6] = 'modern' # update
+### re-add the header ###
+store.insert(0, select_list)
 
-# add the headers 
-	#'SRA_accession', 'SRA_study'
-head = ['Run', 'BioSample', 'BioProject','species', 'sub_group', 'data_type', 'era', 'age', 'comments']
+### save to csv ###
+with open('../data/cleaned_data/info_all.csv', 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerows(store)
 
-df_store = pd.DataFrame(store, columns=head)
-df_store.to_csv('../data/cleaned_data/info_all.csv', index=False)
+##############
+### Checks ###
 
-### which bioprojects failed or still need work ###
-# unique list of projectIDs
-proj_all = open_csv('../data/cleaned_data/papers_projects_update.csv')
-proj_all = [i[1] for i in proj_all] # projectIDs only
-del proj_all[0] # strip header (not an ID)
-proj_all = np.unique(proj_all) # unique only
+# 0 notes no duplicates
+duplicate_runs(store) 
 
-# IDs that have been processed
-passed_ID = np.unique(df_store.BioProject)
+# blank entries
+no_group(store) 
 
-# compare the processed with all
-issue_IDs = proj_all[np.isin(proj_all, passed_ID, invert=True)] 
-issue_IDs = issue_IDs.astype(str)
-np.savetxt('../data/cleaned_data/issue_BioProject.txt', issue_IDs, delimiter='', fmt='%s')
-
-
-### check for duplicates ###
-if len(np.unique(df_store.Run)) != len(df_store):
-	print('Duplicate runs found.')
+# bioproject IDs that need attention - saves file
+issue_BioProjects(run_files, prj_ID, prj_ID_ignored)
 
 ##################################################
 ### summarise the data into individual samples ###

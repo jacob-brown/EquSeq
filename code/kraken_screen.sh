@@ -52,7 +52,7 @@ echo -e "\nRun Kraken\n"
 
 kraken2 --db $DIR/minikraken2_v2_8GB \
 		--report $DIR/kreport_out/$BASE.mini.report \
-		--quick \
+		#--quick \
 		--fastq-input \
 		--paired $FILE_1 $FILE_2 \
 		> $DIR/kraken_out/$BASE.mini.kraken

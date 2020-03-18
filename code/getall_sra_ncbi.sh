@@ -7,4 +7,7 @@ echo '=================================='
 echo -e "\nLoad modules\n"
 module load sra-toolkit/2.8.1
 
-prefetch SRS1818804
+prefetch ERS1599680
+
+
+

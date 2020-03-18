@@ -35,19 +35,21 @@ kraken2-build --download-library fungi --db $DBNAME
 echo -e "\nplant\n"
 kraken2-build --download-library plant --db $DBNAME
 
-echo -e "\nhuman\n"
-kraken2-build --download-library human --db $DBNAME
+#echo -e "\nhuman\n"
+#kraken2-build --download-library human --db $DBNAME
 
 echo -e "\nhorse\n"
 # update taxanomic info in fasta file
 # taxanomic IDs from:
 	#https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi
 # Update header 
-var=">EquCab2|kraken:taxid|9796  Horse reference genome"
-sed "1c$var" $EPHEMERAL/kraken/EquCab2.fna > horse.fa # line 1 and change
+#var=">EquCab2|kraken:taxid|9796  Horse reference genome"
+#sed "1c$var" $EPHEMERAL/kraken/EquCab2.fna > horse.fa # line 1 and change
 # add to database
 kraken2-build --add-to-library $EPHEMERAL/kraken/horse.fa --db $DBNAME
 
+echo -e "\nhuman\n"
+kraken2-build --add-to-library $EPHEMERAL/kraken/homo_sap.fa --db $DBNAME
 
 echo '=================================='
 echo -e "\nclose conda\n"
