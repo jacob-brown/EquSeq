@@ -7,7 +7,10 @@
 
 
 
-"""  """
+""" Summarise inforun tables into:
+	1) all data
+	2) individual sample level
+	3) population/breed and age level """
 
 ###########################################
 ################# Modules #################
@@ -17,6 +20,7 @@
 import numpy as np
 import os
 import csv
+import pandas as pd
 
 ###########################################
 ############## Function(s) ################
@@ -167,16 +171,17 @@ for pid in prj_ID:
 	for i in range(0, len(store)):
 		if store[i][7] == 'both': # check both
 			if store[i][4] == 'Ancient horse from Yakutia': 
-				store[i][6] = 'ancient' # update
+				store[i][7] = 'ancient' # update
 			elif store[i][4] == 'Yakutian horse':
-				store[i][6] = 'modern' # update	
-			store[i][7] = 'both_updated' # note the update
+				store[i][7] = 'modern' # update	
 
 
 # end iteration # 
 
 ### re-add the header ###
-store.insert(0, select_list)
+select_list = [i.replace(' ','_') for i in select_list] # replace spaces
+store.insert(0, select_list) # header to store
+
 
 ### save to csv ###
 with open('../data/cleaned_data/info_all.csv', 'w', newline='') as csvfile:
@@ -198,57 +203,43 @@ issue_BioProjects(run_files, prj_ID, prj_ID_ignored)
 ##################################################
 ### summarise the data into individual samples ###
 
-# strip run and data_type in prep for groupnby
-grp_by_vars = [i for i in head[1:] if i !='data_type'] 
+# convert to pandas df for easy group by
+store_df = pd.DataFrame(store[1:],columns=store[0])
 
-# count number of runs and concatenate data_type
-grp_df = df_store.groupby(grp_by_vars, as_index = False).agg({'data_type': ','.join, 'Run' : 'count'})
 
-### only unique values in datatype ###
-# pull out datatypes
-df_data_type = grp_df.data_type.tolist()
+#--- individual sample grouping ---# 
+	# group by everything except Run and DATASTORE_filetype
+	# concatenate DATASTORE_filetype
 
-# iterate through removing duplicates
-for i in range(0,len(df_data_type)):
-	string = df_data_type[i]
-	tmp = string.split(',') # break into list
-	uniq = set(tmp) # remove duplicates
-	df_data_type[i] = ','.join(uniq) # rejoin and update df
-
-# update pandas df
-grp_df.data_type = df_data_type
+# variables to group by
+group_vars_ind = np.delete(store[0], [0, 5]) # head except run and DATASTORE_filetype
+group_vars_ind = list(group_vars_ind) # ensure non-numpy
+# group by
+ind_df = store_df.groupby(group_vars_ind, as_index = False)\
+			.agg({'DATASTORE_filetype': ','.join, 'Run' : 'count'})
 
 # update column name
-grp_df.rename(columns={'Run':'run_count'}, inplace=True)
-
-# sort df
-grp_df = grp_df.sort_values(by=['era', 'species', 'sub_group', 'data_type', 'BioProject', 'BioSample'], ascending=False)
-
-# rearrange column order and remove age
-grp_df = grp_df[['BioSample', 'BioProject', 'species', 'sub_group', 'era', 'data_type', 'run_count','comments']]
+ind_df.rename(columns={'Run':'run_count'}, inplace=True)
 
 # save to csv
-grp_df.to_csv('../data/cleaned_data/info_individual_grouped.csv', index=False)
+ind_df.to_csv('../data/cleaned_data/info_individual_grouped.csv', index=False)
 
 
-############################################
-### summarise at group and species level ###
+#--- population grouping ---#
+# variables to group by
 
-# group by 
-grp_pop_level = grp_df.groupby(['species', 'sub_group', 'era'], as_index = False).count()
+pop_df = ind_df.groupby(['Organism', 'sub_group', 'era', 'age'], \
+	as_index = False).count()
 
 # select only some vars
-grp_pop_level = grp_pop_level[['species', 'sub_group', 'era', 'run_count']]
+pop_df = pop_df[['Organism', 'sub_group', 'era', 'age', 'run_count']]
 
 # rename count
-grp_pop_level.rename(columns={'run_count':'individ_count'}, inplace=True)
+pop_df.rename(columns={'run_count':'individ_count'}, inplace=True)
 
 # sort
-grp_pop_level = grp_pop_level.sort_values(by=['era', 'species', 'sub_group'], ascending=False)
+pop_df = pop_df.sort_values(by=['era', 'Organism', 'sub_group'], \
+	ascending=False)
 
 # save
-grp_pop_level.to_csv('../data/cleaned_data/info_pop_grouped.csv', index=False)
-
-
-
-
+pop_df.to_csv('../data/cleaned_data/info_pop_grouped.csv', index=False)
