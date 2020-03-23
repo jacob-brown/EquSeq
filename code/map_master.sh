@@ -1,6 +1,10 @@
 #!/bin/bash
-#PBS -l walltime=02:00:00
+#PBS -l walltime=06:00:00
 #PBS -l select=1:ncpus=32:mem=62gb
+
+# Run job for 2 files at once _1 and _2
+# after the mapping this will make it easier to handle
+# i.e. trimming will handle 2 files at once
 
 echo '=================================='
 echo -e "\nLoading modules\n"
@@ -9,21 +13,33 @@ module load bwa/0.7.8 # alignment
 module load samtools/1.3.1 # general
 module load java/jdk-8u144 # picard associated
 module load picard/2.6.0 # cleaning
+module load anaconda3/personal # python
+
+
+echo '=================================='
+echo -e "\nMove scripts to TMPDIR\n"
+mv $HOME/genomics/code/map_* $TMPDIR
+
 
 echo '=================================='
 echo -e "\nDefine paths and files\n"
 
-
-PICARD=$PICARD_HOME/picard.jar
+#PICARD=$PICARD_HOME/picard.jar
 DIR=$EPHEMERAL/mapping/
-REF=$EPHEMERAL/ref_genome/EquCab2.fna
 
-# get pairs of reads
+# file names based on job number 
+FILE=($(python3 map_names.py | tr -d "[''],"))
 
-DATA_ALL=($DIR/reads/*) # array of all data _1 and _2 extensions
-FILE=${DATA[$PBS_ARRAY_INDEX]} # select the data by the job number
-NOEXT=$(echo $f | cut -f 1 -d '.') # remove extension
-BASE=$(basename "$NOEXT") # remove path
+# pair ended reads
+READ1=${FILE[0]} # 1st pair ended read
+READ2=${FILE[1]} # 2nd pair ended read
+
+# new shorter file name
+FILE_PREFIX=${FILE[2]}
+
+#echo $READ1
+#echo $READ2
+#echo $FILE_PREFIX
 
 # index reference genome
 # trim
@@ -40,9 +56,6 @@ BASE=$(basename "$NOEXT") # remove path
 	# unmapped
 	# merge
 
-echo '=================================='
-echo -e "\nMove scripts to TMPDIR\n"
-mv $HOME/genomics/code/map_* $TMPDIR
 
 echo '==================================================='
 echo '==================================================='
@@ -50,51 +63,26 @@ echo -e '\n---------- Begin Running Scripts ----------\n'
 echo '==================================================='
 echo '==================================================='
 
+
+echo '=================================='
+echo -e "\nTrimming\n"
+
 # trimming reads
-	# file in and file out required
-bash map_trim.sh $FILE $DIR/trimmed/$BASE.fq
+	# files in and file out required
+bash map_trim.sh $DIR/reads/$READ1 $DIR/reads/$READ2 $FILE_PREFIX
+
+echo '=================================='
+echo -e "\nAligning\n"
+
+bash map_align.sh $FILE_PREFIX
 
 
 echo '=================================='
-echo -e "\nFixmate info\n"
+echo -e "\nCleaning\n"
+
+bash map_clean.sh $FILE_PREFIX
 
 
-java -Xmx60g -jar $PICARD FixMateInformation \
-			INPUT=$DIR/read_out.sorted.bam \
-			OUTPUT=$DIR/read_out.fix.bam  \
-			SORT_ORDER=coordinate \
-			TMP_DIR=$TMPDIR # resolves memory issues
-
-echo '=================================='
-echo -e "\nRemove Duplicates\n"
-
-# mark duplicates
-java -Xmx60g \
-			-jar $PICARD MarkDuplicates \
-			INPUT=$DIR/read_out.fix.bam \
-			OUTPUT=$DIR/read_out.fix.md.bam  \
-			M=metrics \
-			REMOVE_DUPLICATES=true \
-			TMP_DIR=$TMPDIR
-
-
-echo '=================================='
-echo -e "\nCheck for duplicates\n"
-# duplicates
-
-samtools view -f 1024 $DIR/read_out.fix.md.bam | wc -l > $DIR/duplicate_count.txt
-
-echo '=================================='
-echo -e "\nUnmapped\n"
-# unmapped 
-samtools view -F 4 $DIR/read_out.fix.md.bam | wc -l > $DIR/unmapped_count.txt
-samtools view -F 4 $DIR/read_out.fix.md.bam > $DIR/unmapped.bam
-
-echo '=================================='
-echo -e "\nMapped\n"
-# mapped 
-samtools view -f 4 $DIR/read_out.fix.md.bam | wc -l > $DIR/mapped_count.txt
-samtools view -f 4 $DIR/read_out.fix.md.bam > $DIR/mapped.bam
 
 
 

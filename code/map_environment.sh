@@ -19,6 +19,8 @@ $DIR/ref_genome/ \
 $DIR/sorted/ \
 $DIR/stats/ \
 $DIR/trimmed/ \
+$DIR/tmp_cleaning/\
+$DIR/cleaned/
 
 
 echo '=================================='

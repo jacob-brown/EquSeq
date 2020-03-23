@@ -2,39 +2,41 @@
 # align pair-ended reads, convert to bam, index, summary stats
 
 
-DIR=$EPHEMERAL/mapping/
-
-
 # catch input files 
-read REF_GEN BASE_NAME
+BASE_NAME=$1 
+
+DIR=$EPHEMERAL/mapping/
+REF_GEN=$DIR/ref_genome/EquCab2.fna
 
 # create names and paths
-FILE_1=$EPHEMERAL/mapping/trimmed/$BASE_NAME
-FILE_2
+FILE_1=$DIR/trimmed/$BASE_NAME'_1.trim.fq'
+FILE_2=$DIR/trimmed/$BASE_NAME'_2.trim.fq'
 
-echo '=================================='
+echo '-----------------------'
 echo -e "\nAlign sequences\n"
 
-bwa mem $REF_GEN $FILE_1 $FILE_2 > $DIR/read_out.sam
+bwa mem $REF_GEN $FILE_1 $FILE_2 > $DIR/aligned/$BASE_NAME'.sam'
 
-echo '=================================='
+echo '-----------------------'
 echo -e "\nConvert to bam\n"
 
 
-samtools view -Sb $DIR/read_out.sam > $DIR/read_out.bam
+samtools view -Sb $DIR/aligned/$BASE_NAME'.sam' > $DIR/converted/$BASE_NAME'.bam'
 
 
-echo '=================================='
+echo '-----------------------'
 echo -e "\nSorting\n"
 
-samtools sort -m 60GiB  $DIR/read_out.bam -o  $DIR/read_out.sorted.bam
+samtools sort -m 60GiB  $DIR/converted/$BASE_NAME'.bam' -o  \
+		$DIR/sorted/$BASE_NAME'.sorted.bam'
 
-echo '=================================='
+echo '-----------------------'
 echo -e "\nIndex\n"
 
-samtools index $DIR/read_out.sorted.bam
+samtools index $DIR/sorted/$BASE_NAME'.sorted.bam'
 
-echo '=================================='
+echo '-----------------------'
 echo -e "\nFlagstat\n"
 
-samtools flagstat $DIR/read_out.sorted.bam > $DIR/read_stat.txt
+samtools flagstat $DIR/sorted/$BASE_NAME'.sorted.bam' > \
+		$DIR/stats/$BASE_NAME'.stat.txt'

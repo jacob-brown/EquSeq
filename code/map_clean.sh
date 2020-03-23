@@ -1,52 +1,60 @@
 #!/bin/bash
-#PBS -l walltime=12:00:00
-#PBS -l select=1:ncpus=5:mem=7gb
-
 # remove duplicates and poor quality reads
 
-
-#----- load modules ----#
-echo '=================================='
-echo -e "\nLoad modules\n"
-module load samtools/1.3.1
-module load java/jdk-8u144
-module load picard/2.6.0
-
-#----- variables ----#
+DIR=$EPHEMERAL/mapping/
 PICARD=$PICARD_HOME/picard.jar
-DIR=$EPHEMERAL/test_align/
 
+# catch input files 
+BASE_NAME=$1 
 
-
-
-echo '=================================='
+echo '-----------------------'
 echo -e "\nFixmate info\n"
 
 
 java -Xmx60g -jar $PICARD FixMateInformation \
-			INPUT=$DIR/read_out.sorted.bam \
-			OUTPUT=$DIR/read_out.fix.bam  \
-			SORT_ORDER=coordinate \
-			TMP_DIR=$TMPDIR # resolves memory issues
+		INPUT=$DIR/sorted/$BASE_NAME'.sorted.bam' \
+		OUTPUT=$DIR/tmp_cleaning/$BASE_NAME'.fix.bam'  \
+		SORT_ORDER=coordinate \
+		TMP_DIR=$TMPDIR # resolves memory issues
 
-echo '=================================='
+echo '-----------------------'
 echo -e "\nRemove Duplicates\n"
 
 # mark duplicates
 java -Xmx60g \
-			-jar $PICARD MarkDuplicates \
-			INPUT=$DIR/read_out.fix.bam \
-			OUTPUT=$DIR/read_out.fix.md.bam  \
-			M=metrics \
-			REMOVE_DUPLICATES=true \
-			TMP_DIR=$TMPDIR
+		-jar $PICARD MarkDuplicates \
+		INPUT=$DIR/tmp_cleaning/$BASE_NAME'.fix.bam' \
+		OUTPUT=$DIR/tmp_cleaning/$BASE_NAME'.fix.md.bam'  \
+		M=metrics \
+		REMOVE_DUPLICATES=true \
+		TMP_DIR=$TMPDIR
 
 
-# Summarise alignments
-echo '=================================='
-echo -e "\nSummarise\n"
+echo '-----------------------'
+echo -e "\nCheck for duplicates\n"
+# duplicates
 
-#java -jar $PICARD CollectAlignmentSummaryMetrics \
-#          R=$EPHEMERAL/screen/EquCab2.fna \
-#          I=$EPHEMERAL/merged/merged_reads.bam \
-#          O=$EPHEMERAL/merged/output.txt
+samtools view -f 1024 $DIR/tmp_cleaning/$BASE_NAME'.fix.md.bam' | \
+		wc -l > $DIR/stats/$BASE_NAME'.dup_n.txt'
+
+echo "duplicats"
+cat $DIR/stats/$BASE_NAME'.dup_n.txt'
+
+echo '-----------------------'
+echo -e "\nUnmapped\n"
+
+# unmapped 
+samtools view -F 4 $DIR/tmp_cleaning/$BASE_NAME'.fix.md.bam' > \
+		$DIR/tmp_cleaning/$BASE_NAME'.unmapped.bam'
+
+echo '-----------------------'
+echo -e "\nMapped\n"
+
+# mapped 
+samtools view -f 4 $DIR/tmp_cleaning/$BASE_NAME'.fix.md.bam' > \
+		$DIR/cleaned/$BASE_NAME'mapped.bam'
+
+
+
+
+
