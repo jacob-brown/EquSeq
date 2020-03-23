@@ -23,21 +23,22 @@ echo '=================================='
 echo -e "\nFixmate info\n"
 
 
-java -Xmx6g -jar $PICARD FixMateInformation \
+java -Xmx60g -jar $PICARD FixMateInformation \
 			INPUT=$DIR/read_out.sorted.bam \
 			OUTPUT=$DIR/read_out.fix.bam  \
 			SORT_ORDER=coordinate \
 			TMP_DIR=$TMPDIR # resolves memory issues
 
 echo '=================================='
-echo -e "\nMark Duplicates\n"
+echo -e "\nRemove Duplicates\n"
 
 # mark duplicates
-java -Xmx6g \
+java -Xmx60g \
 			-jar $PICARD MarkDuplicates \
 			INPUT=$DIR/read_out.fix.bam \
 			OUTPUT=$DIR/read_out.fix.md.bam  \
 			M=metrics \
+			REMOVE_DUPLICATES=true \
 			TMP_DIR=$TMPDIR
 
 

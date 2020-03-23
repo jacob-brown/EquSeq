@@ -75,7 +75,13 @@ Collection - runinfo tables manually from run selector pasting in all bioproject
 
 * `expand_projects.py` - expand the project codes and prepare list for a deeper search.
 
-
+### Mapping 
+Script run order: 
+1) map_environment
+2) map_unzip
+3) map_index
+4) map_master
+5) map_merge
 
 
 ### Data

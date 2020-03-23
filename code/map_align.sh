@@ -1,33 +1,40 @@
 #!/bin/bash
-#PBS -l walltime=12:00:00
-#PBS -l select=1:ncpus=5:mem=6gb
-
-#### remember job numbers 0 to 23 ###
-# qsub -J 0-23 map_align.sh
-	# the 48 reads are paired
-	# python index at 0
-
-# completed
-# 0-5 completed 
-
-#----- load modules ----#
-echo '=================================='
-echo -e "\nPython script\n"
-
-module load anaconda3/personal
-
-echo '=================================='
-echo -e "\nLoading BWA\n"
-module load bwa/0.7.8
+# align pair-ended reads, convert to bam, index, summary stats
 
 
-echo '=================================='
-echo -e "\nCopying script\n"
-cp /rds/general/user/jb1919/home/genomics/code/map_align.py $TMPDIR
+DIR=$EPHEMERAL/mapping/
 
+
+# catch input files 
+read REF_GEN BASE_NAME
+
+# create names and paths
+FILE_1=$EPHEMERAL/mapping/trimmed/$BASE_NAME
+FILE_2
 
 echo '=================================='
 echo -e "\nAlign sequences\n"
 
-python3 map_align.py 
+bwa mem $REF_GEN $FILE_1 $FILE_2 > $DIR/read_out.sam
 
+echo '=================================='
+echo -e "\nConvert to bam\n"
+
+
+samtools view -Sb $DIR/read_out.sam > $DIR/read_out.bam
+
+
+echo '=================================='
+echo -e "\nSorting\n"
+
+samtools sort -m 60GiB  $DIR/read_out.bam -o  $DIR/read_out.sorted.bam
+
+echo '=================================='
+echo -e "\nIndex\n"
+
+samtools index $DIR/read_out.sorted.bam
+
+echo '=================================='
+echo -e "\nFlagstat\n"
+
+samtools flagstat $DIR/read_out.sorted.bam > $DIR/read_stat.txt
