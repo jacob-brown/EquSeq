@@ -24,7 +24,7 @@ fastx_trimmer -l 90 -i $READ1 -o $FILE_OUT1
 		# ~ 8 mins per read
 
 echo 'read 2'
-fastx_trimmer -l 90 -i $READ1 -o $FILE_OUT1
+fastx_trimmer -l 90 -i $READ2 -o $FILE_OUT2
 
 exit
 

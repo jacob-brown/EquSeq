@@ -1,11 +1,26 @@
 #!/bin/bash
-#PBS -l walltime=06:00:00
+#PBS -l walltime=22:00:00
 #PBS -l select=1:ncpus=32:mem=62gb
 
 # Run job for 2 files at once _1 and _2
 # after the mapping this will make it easier to handle
 # i.e. trimming will handle 2 files at once
 
+###########################################
+# timer function
+
+time_start=$SECONDS
+
+function timer {
+	duration=$(($SECONDS - $time_start))
+	echo -e "\n..........................\n"
+ 	echo "Time elapsed: " $duration " sec"
+ 	echo -e "\n..........................\n"
+}
+
+
+
+###########################################
 echo '=================================='
 echo -e "\nLoading modules\n"
 module load fastx/0.0.14 # trimming 
@@ -18,13 +33,16 @@ module load anaconda3/personal # python
 
 echo '=================================='
 echo -e "\nMove scripts to TMPDIR\n"
-mv $HOME/genomics/code/map_* $TMPDIR
+cp $HOME/genomics/code/map_names.py \
+   $HOME/genomics/code/map_trim.sh \
+   $HOME/genomics/code/map_align.sh \
+   $HOME/genomics/code/map_clean.sh \
+   $TMPDIR
 
 
 echo '=================================='
 echo -e "\nDefine paths and files\n"
 
-#PICARD=$PICARD_HOME/picard.jar
 DIR=$EPHEMERAL/mapping/
 
 # file names based on job number 
@@ -37,9 +55,9 @@ READ2=${FILE[1]} # 2nd pair ended read
 # new shorter file name
 FILE_PREFIX=${FILE[2]}
 
-#echo $READ1
-#echo $READ2
-#echo $FILE_PREFIX
+echo "read1: "$READ1
+echo "read2: "$READ2
+echo "prefix: "$FILE_PREFIX
 
 # index reference genome
 # trim
@@ -56,12 +74,15 @@ FILE_PREFIX=${FILE[2]}
 	# unmapped
 	# merge
 
+# timer
+timer 
 
 echo '==================================================='
 echo '==================================================='
 echo -e '\n---------- Begin Running Scripts ----------\n'
 echo '==================================================='
 echo '==================================================='
+
 
 
 echo '=================================='
@@ -71,19 +92,24 @@ echo -e "\nTrimming\n"
 	# files in and file out required
 bash map_trim.sh $DIR/reads/$READ1 $DIR/reads/$READ2 $FILE_PREFIX
 
+# timer
+timer 
+
 echo '=================================='
 echo -e "\nAligning\n"
 
 bash map_align.sh $FILE_PREFIX
 
+# timer
+timer 
 
 echo '=================================='
 echo -e "\nCleaning\n"
 
 bash map_clean.sh $FILE_PREFIX
 
-
-
+# timer
+timer 
 
 
 

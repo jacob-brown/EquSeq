@@ -37,7 +37,7 @@ echo -e "\nCheck for duplicates\n"
 samtools view -f 1024 $DIR/tmp_cleaning/$BASE_NAME'.fix.md.bam' | \
 		wc -l > $DIR/stats/$BASE_NAME'.dup_n.txt'
 
-echo "duplicats"
+echo "duplicates"
 cat $DIR/stats/$BASE_NAME'.dup_n.txt'
 
 echo '-----------------------'
@@ -52,7 +52,7 @@ echo -e "\nMapped\n"
 
 # mapped 
 samtools view -f 4 $DIR/tmp_cleaning/$BASE_NAME'.fix.md.bam' > \
-		$DIR/cleaned/$BASE_NAME'mapped.bam'
+		$DIR/cleaned/$BASE_NAME'.mapped.bam'
 
 
 

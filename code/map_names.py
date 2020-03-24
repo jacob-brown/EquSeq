@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-03-23
-# Last Modified: 2020-03-23
+# Last Modified: 2020-03-24
 
 
 
@@ -78,10 +78,10 @@ def main(argv):
 	""" Run pairs functions return 
 		job number specific pair """ 
 	# catch the job number
-	#job_num = int(os.environ['PBS_ARRAY_INDEX'])
-	job_num = 0
+	job_num = int(os.environ['PBS_ARRAY_INDEX'])
+	#job_num = 0
 	job_pair = pairs(job_num)
-
+	
 	print(job_pair) # return the pair list
 	return 0
 
