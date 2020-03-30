@@ -103,13 +103,13 @@ bash map_align.sh $FILE_PREFIX
 # timer
 timer 
 
-echo '=================================='
-echo -e "\nCleaning\n"
+#echo '=================================='
+#echo -e "\nCleaning\n"
 
-bash map_clean.sh $FILE_PREFIX
+#bash map_clean.sh $FILE_PREFIX
 
 # timer
-timer 
+#timer 
 
 
 

@@ -25,6 +25,8 @@ echo -e "\nIndex ref genome\n"
 bwa index $DIR_REF/EquCab2.fna
 # roughly 30 mins
 
+
+
 echo '=================================='
 echo -e "\nExit\n"
 
