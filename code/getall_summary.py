@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-01-22
-# Last Modified: 2020-03-18
+# Last Modified: 2020-03-31
 
 
 
@@ -218,12 +218,22 @@ group_vars_ind = list(group_vars_ind) # ensure non-numpy
 ind_df = store_df.groupby(group_vars_ind, as_index = False)\
 			.agg({'DATASTORE_filetype': ','.join, 'Run' : 'count'})
 
+# correct the datastore file type
+dt_array = []
+for i in np.array(ind_df.DATASTORE_filetype):
+	tmp = i.split(',')
+	tmp = np.unique(tmp)
+	tmp = str(tmp).strip("[ ]")
+	dt_array.append(tmp)
+
+# update main variable
+ind_df.DATASTORE_filetype = dt_array
+
 # update column name
 ind_df.rename(columns={'Run':'run_count'}, inplace=True)
 
 # save to csv
 ind_df.to_csv('../data/cleaned_data/info_individual_grouped.csv', index=False)
-
 
 #--- population grouping ---#
 # variables to group by

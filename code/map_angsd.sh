@@ -41,14 +41,14 @@ REF=$EPHEMERAL/mapping/ref_genome/EquCab2.fna
 
 
 
-echo '=================================='
-echo -e "\nsamtools index\n"
+#echo '=================================='
+#echo -e "\nsamtools index\n"
 
 #samtools faidx $REF
 # generates .fai
 
 # timer
-timer
+#timer
 
 
 
@@ -74,6 +74,26 @@ ls $RES_DIR/ALL.*
 
 # timer
 timer
+
+#echo '=================================='
+#echo -e "\nspecific sites\n"
+
+# add chromosome and location
+#echo chr3 79504108 79618886 > $RES_DIR/snp.txt # KIT
+
+#echo chr16 21548000 21757591 >> $RES_DIR/snp.txt # MITF
+
+#https://www.ensembl.org/Equus_caballus/Gene/Summary?db=core;g=ENSECAG00000005360;r=16:21548000-21757591
+
+#angsd sites index $RES_DIR/snp.txt
+
+#angsd -i $FILES -ref $REF -out $RES_DIR/restrict.sites \
+#		-uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
+#		-trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 13 \
+#		-sites $RES_DIR/snp.txt \
+#		-doQsDist 1 -doDepth 1 -doCounts 1 \
+#		-GL 1 -doGlf 4 -doMajorMinor 1 -doMaf 1 \
+#		-doGeno 32 -doPost 1
 
 
 #echo '=================================='

@@ -14,10 +14,9 @@ function timer {
  	echo -e "\n..........................\n"
 }
 
-
-
-
 ###########################################
+
+
 echo '=================================='
 echo -e "\nLoading modules\n"
 
@@ -51,40 +50,39 @@ DIC_OUT=$EPHEMERAL/mapping/ref_genome/EquCab2.dict
 #samtools faidx $REF
 #samtools sort -m 40GiB  $FILES -o  \
 #		$FILES'.sorted.bam'
-echo '=================================='
-echo -e "\npicard reference dict\n"
+#echo '=================================='
+#echo -e "\npicard reference dict\n"
 
 
 # prepare the reference genome
-java -Xmx60g -jar $PICARD CreateSequenceDictionary \
-      R=$REF \
-      O=$DIC_OUT\
-      TMP_DIR=$TMP_DIR # resolves memory issues
+#java -Xmx60g -jar $PICARD CreateSequenceDictionary \
+#      R=$REF \
+#      O=$DIC_OUT\
+#      TMP_DIR=$TMP_DIR # resolves memory issues
 
 # timer
-timer
+#timer
 
-#java -Xmx48g -jar $PICARD ValidateSamFile \
-#      I=$FILES \
-#      MODE=SUMMARY \
-#      TMP_DIR=$EPHEMERAL/mapping/merged/tmp # resolves memory issues
+#echo '=================================='
+#echo -e "\nreordering\n"
+
+
+#java -Xmx60g -jar $PICARD ReorderSam \
+#	  I=$DIR/new.rg.bam \
+#	  O=$DIR/reordered.bam \
+#	  R=$REF 
+
+# timer
+#timer
 
 #java -Xmx48g -jar $PICARD CleanSam \
 #		I=$FILES \
 #		O=$FILES'.cleaned.bam'
 
-# fix the read groups
-#java -Xmx58g -jar $PICARD AddOrReplaceReadGroups \
-#	I=$FILES \
-#	O=$FILES'_RG.bam' \
-#	RGLB=lib1 \
-#	RGPL=illumina \
-#	RGPU=unit1 \
-#	RGSM=fixflag \
-#	SORT_ORDER=coordinate \
-#	CREATE_INDEX=True \
-#	TMP_DIR=$EPHEMERAL/mapping/merged/tmp # resolves memory issues
+echo '=================================='
+echo -e "\nIndex\n"
 
+samtools index -m 60GiB $DIR/reordered.bam
 
 echo '=================================='
 echo -e "\ngatk\n"
@@ -94,10 +92,10 @@ source activate myenv # activate conda environment
 # generate the VCF
 gatk HaplotypeCaller \
 	--reference $REF \
-	--input $DIR/new.rg.bam \
+	--input $DIR/reordered.bam \
 	--output $DIR/raw_variants.vcf \
-	--tmp-dir $TMPDIR
-	
+	--tmp-dir $TMPDIR #\
+	#--intervals 3 
 	
 # timer
 timer

@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-01-21
-# Last Modified: 2020-03-09
+# Last Modified: 2020-03-31
 # Desc: Script that runs everything. Should be run if data is added/removed.
 
 ### clean all the old data ###
@@ -23,4 +23,5 @@ python3 getall_cleaning_joining.py
 # generate a master list and summarise the run info data
 python3 getall_summary.py
 
-
+# extract breeds of interest from list 
+python3 getall_breeds.py  
