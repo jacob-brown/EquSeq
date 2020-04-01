@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -l walltime=01:00:00
+#PBS -l walltime=03:00:00
 #PBS -l select=1:ncpus=5:mem=5gb
 
 
@@ -33,8 +33,10 @@ echo -e "\nDirectories\n"
 
 cp $HOME/genomics/code/plotQC.R $TMPDIR
 
-FILES=$EPHEMERAL/mapping/merged/new.rg.bam
-RES_DIR=$EPHEMERAL/mapping/merged/
+#FILES=$EPHEMERAL/mapping/merged/new.rg.bam
+FILES=$EPHEMERAL/sra_data/ERR868003.bam
+#RES_DIR=$EPHEMERAL/mapping/merged/
+RES_DIR=$EPHEMERAL/sra_data/
 
 # refernece genome
 REF=$EPHEMERAL/mapping/ref_genome/EquCab2.fna
@@ -63,9 +65,9 @@ echo -e "\nANGSD\n"
 angsd -i $FILES -ref $REF -out $RES_DIR/ALL.qc \
 		-uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
 		-trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 13 \
-		-doQsDist 1 -doDepth 1 -doCounts 1 \
-		-GL 1 -doGlf 4 -doMajorMinor 1 -doMaf 1 \
-		-doGeno 32 -doPost 1
+		-doQsDist 1 -doDepth 1 -doCounts 1 #\
+		#-GL 1 -doGlf 4 -doMajorMinor 1 -doMaf 1 \
+		#-doGeno 32 -doPost 1
 
 #-SNP_pval 1e-3 \
 	# SNPs uncertanity,
@@ -123,6 +125,6 @@ timer
 #less -S $RES_DIR/ALL.qc.depthGlobal
 
 #It is convenient to compute the percentiles of these distribution
-#Rscript plotQC.R $RES_DIR/ALL.qc 
+Rscript plotQC.R $RES_DIR/ALL.qc 
 
 #less -S ALL.qc.mafs.gz

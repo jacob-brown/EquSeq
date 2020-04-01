@@ -1,6 +1,6 @@
 #!/bin/bash
-#PBS -lwalltime=48:00:00
-#PBS -lselect=1:ncpus=1:mem=1gb
+#PBS -lwalltime=12:00:00
+#PBS -lselect=1:ncpus=5:mem=5gb
 
 # Desc: Get files from ncbi sra
 
@@ -37,7 +37,8 @@ echo -e "\nFetching\n"
 
 # run code
 #prefetch ERR868003
-sam-dump ERR868003 | samtools view -bS - > $DIR/ERR868003.bam
+#sam-dump ERR868003 | samtools view -m 4GiB -bS - > $DIR/ERR868003.bam
+sam-dump ERR2179543 | samtools view -m 4GiB -bS - > $DIR/ERR2179543.bam
 
 timer
 

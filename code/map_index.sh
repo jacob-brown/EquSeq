@@ -16,13 +16,17 @@ module load bwa/0.7.8
 echo '=================================='
 echo -e "\nUnzipping reference genome\n"
 
-#gunzip $DIR_REF/GCF_000002305.2_EquCab2.0_genomic.fna.gz > \
-#		$DIR_REF/EquCab2.fna
+gunzip $DIR_REF/GCF_000002305.2_EquCab2.0_genomic.fna.gz 
+
+echo '=================================='
+echo -e "\nRename\n"
+
+mv $DIR_REF/GCF_000002305.2_EquCab2.0_genomic.fna $DIR_REF/EquCab2.fna
 
 # index reference genome
 echo '=================================='
 echo -e "\nIndex ref genome\n"
-bwa index $DIR_REF/EquCab2.fna
+#bwa index $DIR_REF/EquCab2.fna
 # roughly 30 mins
 
 

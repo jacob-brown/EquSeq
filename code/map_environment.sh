@@ -27,7 +27,8 @@ echo '=================================='
 echo -e "\nCopy reads from HOME\n"
 
 # copy read files to ephemeral
-cp /rds/general/user/jb1919/home/genomics/sequences/cdts-hk.genomics.cn/Clean/F19FTSEUHT1854-swab-horse-1A/* $DIR/reads/
+cp /rds/general/user/jb1919/home/genomics/sequences/\
+	cdts-hk.genomics.cn/Clean/F19FTSEUHT1854-swab-horse-1A/* $DIR/reads/
 
 
 echo '=================================='
@@ -39,7 +40,7 @@ echo -e "\nDownload reference genome\n"
 # specific file 
 rsync --copy-links --times --verbose \
 	rsync://ftp.ncbi.nlm.nih.gov/genomes/refseq/vertebrate_mammalian/Equus_caballus/all_assembly_versions/suppressed/GCF_000002305.2_EquCab2.0/GCF_000002305.2_EquCab2.0_genomic.fna.gz \
-	$DIR/ref_genome/
+			$DIR/ref_genome/
 
 
 #-------------- EquCab3 --------------#

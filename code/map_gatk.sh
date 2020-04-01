@@ -94,8 +94,8 @@ gatk HaplotypeCaller \
 	--reference $REF \
 	--input $DIR/reordered.bam \
 	--output $DIR/raw_variants.vcf \
-	--tmp-dir $TMPDIR #\
-	#--intervals 3 
+	--tmp-dir $TMPDIR \
+	--intervals chr3 
 	
 # timer
 timer
