@@ -1,6 +1,6 @@
 #! /bin/bash
 #PBS -l walltime=12:00:00
-#PBS -l select=1:ncpus=5:mem=62gb
+#PBS -l select=1:ncpus=32:mem=62gb
 
 ###########################################
 # timer function
@@ -38,30 +38,37 @@ echo '=================================='
 echo -e "\nDirectories\n"
 
 #FILES=$EPHEMERAL/mapping/merged/merged_reads.bam #merged_reads.rmdup.mapped.bam
+#DIR=$EPHEMERAL/mapping/merged/
+#REF=$EPHEMERAL/mapping/ref_genome/EquCab2.fna
+#DIC_OUT=$EPHEMERAL/mapping/ref_genome/EquCab2.dict
+
 DIR=$EPHEMERAL/mapping/merged/
 REF=$EPHEMERAL/mapping/ref_genome/EquCab2.fna
 DIC_OUT=$EPHEMERAL/mapping/ref_genome/EquCab2.dict
-
+FILES=$EPHEMERAL/mapping/merged/new.rg.bam
 
 
 #echo '=================================='
 #echo -e "\nsamtools\n"
 
 #samtools faidx $REF
-#samtools sort -m 40GiB  $FILES -o  \
-#		$FILES'.sorted.bam'
-#echo '=================================='
-#echo -e "\npicard reference dict\n"
+#samtools sort -m 40GiB --threads 32 $FILES -o  \
+		#$FILES'.sorted.bam'
+
+#timer
+
+echo '=================================='
+echo -e "\npicard reference dict\n"
 
 
 # prepare the reference genome
-#java -Xmx60g -jar $PICARD CreateSequenceDictionary \
-#      R=$REF \
-#      O=$DIC_OUT\
-#      TMP_DIR=$TMP_DIR # resolves memory issues
+java -Xmx60g -jar $PICARD CreateSequenceDictionary \
+      R=$REF \
+      O=$DIC_OUT\
+      TMP_DIR=$TMP_DIR # resolves memory issues
 
 # timer
-#timer
+timer
 
 #echo '=================================='
 #echo -e "\nreordering\n"
@@ -79,10 +86,14 @@ DIC_OUT=$EPHEMERAL/mapping/ref_genome/EquCab2.dict
 #		I=$FILES \
 #		O=$FILES'.cleaned.bam'
 
-echo '=================================='
-echo -e "\nIndex\n"
+#echo '=================================='
+#echo -e "\nIndex\n"
 
-samtools index -m 60GiB $DIR/reordered.bam
+#samtools index --threads 32 $DIR/reordered.bam
+
+#samtools index --threads 32 $FILES
+
+#timer
 
 echo '=================================='
 echo -e "\ngatk\n"
@@ -90,12 +101,17 @@ echo -e "\ngatk\n"
 source activate myenv # activate conda environment
 
 # generate the VCF
+#gatk HaplotypeCaller \
+#	--reference $REF \
+#	--input $DIR/reordered.bam \
+#	--output $DIR/raw_variants.vcf \
+#	--tmp-dir $TMPDIR \
+#	--intervals chr3 
 gatk HaplotypeCaller \
 	--reference $REF \
-	--input $DIR/reordered.bam \
+	--input $FILES \
 	--output $DIR/raw_variants.vcf \
 	--tmp-dir $TMPDIR \
-	--intervals chr3 
-	
+	--intervals chr3 	
 # timer
 timer

@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -lwalltime=12:00:00
-#PBS -lselect=1:ncpus=5:mem=5gb
+#PBS -lselect=1:ncpus=32:mem=62gb
 
 # Desc: Get files from ncbi sra
 
@@ -30,20 +30,32 @@ module load samtools/1.3.1
 echo '=================================='
 echo -e "\nClear the environment\n"
 
-rm -f $HOME/ncbi/public/sra/* # force for no errors
+rm -f $HOME/ncbi/public/sra/*.lock # force for no errors
 
 echo '=================================='
 echo -e "\nFetching\n"
 
 # run code
 #prefetch ERR868003
-#sam-dump ERR868003 | samtools view -m 4GiB -bS - > $DIR/ERR868003.bam
-sam-dump ERR2179543 | samtools view -m 4GiB -bS - > $DIR/ERR2179543.bam
+#sam-dump ERR868003 | samtools view --threads 31 -bS - > $DIR/ERR868003.bam
+#sam-dump ERR2179543 | samtools view --threads 31 -bS - > $DIR/ERR2179543.bam
+
+#DATA=(SRR1790681 SRR1769892 SRR1769893 SRR1769922)
+
+DATA=($DIR/*.sra)
+
+# array of all data
+FILE=${DATA[$PBS_ARRAY_INDEX]} # select the data by the job number
+
+#sam-dump $FILE | samtools view --threads 31 -bS - > $DIR/$FILE.bam
+#prefetch $FILE
+
+sam-dump $FILE | samtools view --threads 31 -bS - > $FILE.bam
 
 timer
 
-ls $HOME/ncbi/public/sra/*
-ls $DIR
+#ls $HOME/ncbi/public/sra/*
+#ls $DIR
 
 #echo '=================================='
 #echo -e "\nMoving\n"

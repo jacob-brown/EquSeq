@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-03-23
-# Last Modified: 2020-03-24
+# Last Modified: 2020-04-02
 
 
 
@@ -21,13 +21,17 @@ import sys
 ############## Function(s) ################
 ###########################################
 
-def pairs(job_number, path='/rds/general/user/jb1919/ephemeral/mapping/reads/'):
+def pairs(job_number, path='/rds/general/user/jb1919/home/genomics/sequences/cdts-hk.genomics.cn/Clean/F19FTSEUHT1854-swab-horse-1A/'):
 
 	""" Determine the pair-ended read names """
 
 	# list of files
 	files = os.listdir(path)  
 	files.sort()
+	
+	# remove unwanted .file
+	if '.listing' in files:
+		files.remove('.listing')
 
 	### new name to create pairs form ###
 	# regex patterns
@@ -79,10 +83,11 @@ def main(argv):
 		job number specific pair """ 
 	# catch the job number
 	job_num = int(os.environ['PBS_ARRAY_INDEX'])
-	#job_num = 0
+
 	job_pair = pairs(job_num)
 	
 	print(job_pair) # return the pair list
+
 	return 0
 
 

@@ -7,7 +7,7 @@
 
 # use aligned as only _1 and _2 extensions are absent
 DATA=($EPHEMERAL/aligned/*) # array of all data
-${DATA[$PBS_ARRAY_INDEX]} # select the data by the job number
+FILE=${DATA[$PBS_ARRAY_INDEX]} # select the data by the job number
 NOEXT=$(echo $FILE | cut -f 1 -d '.') # remove extension 
 BASE=$(basename "$NOEXT") # remove path
 

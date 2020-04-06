@@ -2,7 +2,7 @@
 # trim fastq files
 
 # catch input files 
-READ1=$1 
+READ1=$1
 READ2=$2
 BASE_NAME=$3
 

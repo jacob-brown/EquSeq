@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-01
-# Last Modified: 2020-04-01
+# Last Modified: 2020-04-02
 # Desc: Update the bam files with the chromosome location
 	# rather than ncbis assecison codes
 
@@ -27,7 +27,6 @@ HEADER=header.bam
 
 
 echo '=================================='
-#echo -e "\nIs this a reference genome? (y/n)\n"
 read -r -p "Is this a reference genome? [y/N] " response
 
 

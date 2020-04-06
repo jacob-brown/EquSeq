@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -l walltime=02:00:00
+#PBS -l walltime=03:00:00
 #PBS -l select=1:ncpus=1:mem=5gb
 
 # index the reference genome
@@ -16,19 +16,20 @@ module load bwa/0.7.8
 echo '=================================='
 echo -e "\nUnzipping reference genome\n"
 
-gunzip $DIR_REF/GCF_000002305.2_EquCab2.0_genomic.fna.gz 
+#gunzip $DIR_REF/GCF_000002305.2_EquCab2.0_genomic.fna.gz 
 
 echo '=================================='
 echo -e "\nRename\n"
 
-mv $DIR_REF/GCF_000002305.2_EquCab2.0_genomic.fna $DIR_REF/EquCab2.fna
+#mv $DIR_REF/GCF_000002305.2_EquCab2.0_genomic.fna $DIR_REF/EquCab2.fna
 
 # index reference genome
 echo '=================================='
 echo -e "\nIndex ref genome\n"
-#bwa index $DIR_REF/EquCab2.fna
-# roughly 30 mins
 
+
+bwa index $DIR_REF/EquCab2.fna
+# roughly 30 mins
 
 
 echo '=================================='

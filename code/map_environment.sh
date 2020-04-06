@@ -23,12 +23,7 @@ $DIR/tmp_cleaning/\
 $DIR/cleaned/
 
 
-echo '=================================='
-echo -e "\nCopy reads from HOME\n"
 
-# copy read files to ephemeral
-cp /rds/general/user/jb1919/home/genomics/sequences/\
-	cdts-hk.genomics.cn/Clean/F19FTSEUHT1854-swab-horse-1A/* $DIR/reads/
 
 
 echo '=================================='

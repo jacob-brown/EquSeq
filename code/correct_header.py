@@ -108,7 +108,7 @@ def fasta_head(ref_table, fasta_file):
 	    counter = 0
 
 	    print("ID changes:")
-	    
+
 	    # iterate through records
 	    for record in records:
 	    	
@@ -119,7 +119,7 @@ def fasta_head(ref_table, fasta_file):
 	    	if 'chr' in record.id:
 	    		print(record.id)
 	    	elif 'scaffold' in record.id and counter == 0:
-	    		print('un-assigning scaffolds. Printing once.')
+	    		print('un-assigning scaffolds. (Printing once as many)')
 	    		counter += 1
 	    	
 	    	# write to new fasta

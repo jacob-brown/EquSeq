@@ -34,6 +34,15 @@ PICARD=$PICARD_HOME/picard.jar
 timer
 
 echo '-----------------------'
+echo -e "\nCheck for duplicates\n"
+# duplicates
+
+echo "duplicates: "
+samtools view -f 1024 --threads 31 $DIR/merged_reads.bam | \
+		wc -l 
+
+
+echo '-----------------------'
 echo -e "\nFixmate info\n"
 
 
@@ -67,13 +76,9 @@ echo '-----------------------'
 echo -e "\nCheck for duplicates\n"
 # duplicates
 
-
-samtools view -f 1024 $DIR/merged_reads.rmdup.bam | \
-		wc -l > $DIR/dup_n.txt
-
-
-echo "duplicates"
-cat $DIR/dup_n.txt
+echo "duplicates: "
+samtools view -f 1024 --threads 31 $DIR/merged_reads.rmdup.bam | \
+		wc -l 
 
 
 # timer
@@ -85,7 +90,7 @@ echo -e "\nNew file\n"
 # -h to include header., -q 10 quality above 10, 
 # Make a new bamfile, where you only the reads where both ends maps, 
 # and filter out those with a mapping quality below 10, and removing duplicates
-samtools view -h -f 2 -F 1024 $DIR/merged_reads.rmdup.bam -q 10 > $DIR/new.bam
+samtools view -h -f 2 -F 1024 --threads 31 $DIR/merged_reads.rmdup.bam -q 10 > $DIR/new.bam
 
 # timer
 timer
@@ -109,7 +114,7 @@ java -Xmx120g -jar $PICARD AddOrReplaceReadGroups \
 echo '-----------------------'
 echo -e "\nIndex with samtools\n"
 
-samtools index $DIR/new.rg.bam
+samtools index --threads 31 $DIR/new.rg.bam
 
 # timer
 timer
