@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-03-31
-# Last Modified: 2020-03-31
+# Last Modified: 2020-04-06
 
 
 
@@ -122,9 +122,43 @@ store.insert(0, header)
 write_csv(store, '../data/cleaned_data/breed_ratios.csv')
 
 
+#----- save a list to use TEMP ------#
+
+# headers to keep
+list_head = ['sub_group', 'Run', 'BioSample', 'DATASTORE_filetype']
+
+# list of index positions
+list_i = [store[0].index(i) for i in list_head]
+
+# extract the values
+store_filter = []
+
+for elem in store:
+	tmp = [elem[i] for i in list_i]
+	store_filter.append(tmp)
 
 
+### get a couple of extra sampels as out groups ###
+# use BioSample
+
+####### remove later #############
+out_samples = ['SAMEA104357346', 'SAMEA3504070']
+out_info = [i for i in individs if i[1] in out_samples]
+
+tmp_store = []
+for elem in out_info:
+	tmp = [elem[i] for i in [0, 1, 4, 5]]
+	tmp = [tmp[2], tmp[0], tmp[1], tmp[3]]
+	tmp_store.append(tmp)
 
 
+store_filter.append(tmp_store[0])
+store_filter.append(tmp_store[1])
 
+# write to csv
+write_csv(store_filter, '../data/cleaned_data/breed_sra_to_use.csv')
 
+# write simple text file
+runs = [i[1] for i in store_filter[1:]]
+import numpy as np
+np.savetxt('../data/cleaned_data/sra_runs.txt', runs, fmt='%s')

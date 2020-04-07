@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -l walltime=05:00:00
+#PBS -l walltime=12:00:00
 #PBS -l select=1:ncpus=32:mem=124gb
 
 
@@ -38,17 +38,16 @@ echo -e "\nCheck for duplicates\n"
 # duplicates
 
 echo "duplicates: "
-samtools view -f 1024 --threads 31 $DIR/merged_reads.bam | \
-		wc -l 
+samtools view -f 1024 --threads 31 $DIR/merged.bam | wc -l 
 
 
 echo '-----------------------'
 echo -e "\nFixmate info\n"
-
+# check mate-pair information is in sync between each read and its mate pair
 
 java -Xmx120g -jar $PICARD FixMateInformation \
-		INPUT=$DIR/merged_reads.bam \
-		OUTPUT=$DIR/merged_reads.fix.bam  \
+		INPUT=$DIR/merged.bam \
+		OUTPUT=$DIR/merged.fix.bam  \
 		SORT_ORDER=coordinate \
 		TMP_DIR=$TMPDIR # resolves memory issues
 
@@ -62,8 +61,8 @@ echo -e "\nRemove Duplicates\n"
 # mark duplicates
 java -Xmx120g \
 		-jar $PICARD MarkDuplicates \
-		INPUT=$DIR/merged_reads.fix.bam \
-		OUTPUT=$DIR/merged_reads.rmdup.bam  \
+		INPUT=$DIR/merged.fix.bam \
+		OUTPUT=$DIR/merged.rmdup.bam  \
 		M=metrics \
 		REMOVE_DUPLICATES=true \
 		TMP_DIR=$TMPDIR
@@ -77,8 +76,7 @@ echo -e "\nCheck for duplicates\n"
 # duplicates
 
 echo "duplicates: "
-samtools view -f 1024 --threads 31 $DIR/merged_reads.rmdup.bam | \
-		wc -l 
+samtools view -f 1024 --threads 31 $DIR/merged.rmdup.bam | wc -l 
 
 
 # timer
@@ -87,10 +85,12 @@ timer
 echo '-----------------------'
 echo -e "\nNew file\n"
 
-# -h to include header., -q 10 quality above 10, 
+# -h to include header., -q 20 quality above 20, 
 # Make a new bamfile, where you only the reads where both ends maps, 
-# and filter out those with a mapping quality below 10, and removing duplicates
-samtools view -h -f 2 -F 1024 --threads 31 $DIR/merged_reads.rmdup.bam -q 10 > $DIR/new.bam
+# and filter out those with a mapping quality below 20, and removing duplicates
+samtools view -h -f 2 -F 1024 --threads 31 \
+		$DIR/merged.rmdup.bam -q 20 > \
+		$DIR/new.bam
 
 # timer
 timer

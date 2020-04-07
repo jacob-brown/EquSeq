@@ -9,7 +9,7 @@
 
 
 # qsub -J 0-23 map_master.sh
-# qsub -J 0-5 map_master.sh 06/04/20
+
 ###########################################
 # timer function
 
@@ -113,8 +113,8 @@ echo -e "\nTrimming\n"
 
 # trimming reads
 	# files in and file out required
-#bash map_trim.sh $DIR/reads/$FILE_PREFIX'_1.fq' \
-#	$DIR/reads/$FILE_PREFIX'_2.fq' $FILE_PREFIX
+bash map_trim.sh $DIR/reads/$FILE_PREFIX'_1.fq' \
+	$DIR/reads/$FILE_PREFIX'_2.fq' $FILE_PREFIX
 
 # timer
 timer 

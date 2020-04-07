@@ -55,7 +55,7 @@ timer
 echo '-----------------------'
 echo -e "\nIndex\n"
 
-samtools index --threads 31 $DIR/sorted/$BASE_NAME'.sorted.bam'
+samtools index $DIR/sorted/$BASE_NAME'.sorted.bam'
 
 timer
 

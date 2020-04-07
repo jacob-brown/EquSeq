@@ -1,8 +1,10 @@
 #!/bin/bash
-#PBS -lwalltime=12:00:00
-#PBS -lselect=1:ncpus=32:mem=62gb
+#PBS -lwalltime=20:00:00
+#PBS -lselect=1:ncpus=8:mem=30gb
 
 # Desc: Get files from ncbi sra
+
+# qsub -J 0-47 getall_sra_ncbi.sh
 
 ###########################################
 # timer function
@@ -19,50 +21,60 @@ function timer {
 ###########################################
 
 DIR=$EPHEMERAL/sra_data/
+RES_DIR=$DIR/files/
 
 
 #----- load modules ----#
 echo '=================================='
 echo -e "\nLoad modules\n"
 module load sra-toolkit/2.8.1
-module load samtools/1.3.1 
+#module load samtools/1.3.1 
 
 echo '=================================='
 echo -e "\nClear the environment\n"
 
-rm -f $HOME/ncbi/public/sra/*.lock # force for no errors
+rm -f $HOME/ncbi/public/sra/*.lock # force for no error printing
+
+echo '=================================='
+echo -e "\nSelect the run code\n"
+
+# array of data and select
+mapfile -t DATA < $DIR/sra_runs.txt 
+#echo "${#DATA[@]}" # length of array
+#FILE=${DATA[$PBS_ARRAY_INDEX]} # select the data by the job number
+
+for FILE in "${DATA[@]}"
+do
+
+
+echo '=================================='
+echo -e "\nFile: " $FILE
+echo -e '\n=================================='
+
 
 echo '=================================='
 echo -e "\nFetching\n"
 
-# run code
-#prefetch ERR868003
-#sam-dump ERR868003 | samtools view --threads 31 -bS - > $DIR/ERR868003.bam
-#sam-dump ERR2179543 | samtools view --threads 31 -bS - > $DIR/ERR2179543.bam
+# retrieve the SRA data in raw format
+#prefetch $FILE --max-size 100G
 
-#DATA=(SRR1790681 SRR1769892 SRR1769893 SRR1769922)
-
-DATA=($DIR/*.sra)
-
-# array of all data
-FILE=${DATA[$PBS_ARRAY_INDEX]} # select the data by the job number
-
-#sam-dump $FILE | samtools view --threads 31 -bS - > $DIR/$FILE.bam
-#prefetch $FILE
-
-sam-dump $FILE | samtools view --threads 31 -bS - > $FILE.bam
+fastq-dump -X 5 -Z $FILE > $RES_DIR/$FILE'.fq'
 
 timer
 
-#ls $HOME/ncbi/public/sra/*
-#ls $DIR
-
+done
 #echo '=================================='
 #echo -e "\nMoving\n"
-#mv * $EPHEMERAL/sra_data/
-#prefetch --type bam ERR868004 
-#prefetch ERR868004
+#
+#mv $HOME/ncbi/public/sra/$FILE'.sra' $RES_DIR
+#
+#timer
 
-#fastq-dump -X 5 -Z ERR868003
 
-#prefetch --option-file SraAccList.txt
+
+#sam-dump $FILE | samtools view --threads 31 -bS - > $FILE.bam
+#sam-dump ERR868003 | samtools view --threads 31 -bS - > $DIR/ERR868003.bam
+#sam-dump ERR2179543 | samtools view --threads 31 -bS - > $DIR/ERR2179543.bam
+
+
+

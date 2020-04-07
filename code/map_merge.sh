@@ -5,7 +5,7 @@
 
 #DATA=($EPHEMERAL/mapping/cleaned/*.bam) # array of all data
 DATA=($EPHEMERAL/mapping/sorted/*.bam)
-FILE_OUT=($EPHEMERAL/mapping/merged/merged_reads.bam)
+FILE_OUT=$EPHEMERAL/mapping/merged/merged.bam
 
 #----- load modules ----#
 echo '=================================='
@@ -16,16 +16,15 @@ module load samtools/1.3.1
 echo '=================================='
 echo -e "\nMerge Files\n"
 
-samtools merge -r --threads 32 $FILE_OUT $DATA
+samtools merge --threads 31 $FILE_OUT $DATA
 
 echo '=================================='
 echo -e "\nIndex\n"
 
-samtools index --threads 32 $FILE_OUT $FILE_OUT.bai
+samtools index $FILE_OUT $FILE_OUT.bai
 
 
 echo '=================================='
 echo -e "\nflagstat\n"
 
-samtools flagstat $FILE_OUT > \
-		$EPHEMERAL/merged/merged_reads'.stat.txt'
+samtools flagstat $FILE_OUT > $EPHEMERAL/mapping/merged/merged'.stat.txt'

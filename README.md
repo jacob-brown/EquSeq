@@ -78,10 +78,11 @@ Collection - runinfo tables manually from run selector pasting in all bioproject
 ### Mapping 
 Script run order: 
 1) map_environment
-2) map_unzip
+2) check the reference sequence, if the IDs are not chrX then run map_correct_header.sh 
 3) map_index
 4) map_master
 5) map_merge
+6) map_clean
 
 
 ### Data
