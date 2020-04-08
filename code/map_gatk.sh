@@ -89,9 +89,9 @@ timer
 #echo '=================================='
 #echo -e "\nIndex\n"
 
-#samtools index --threads 32 $DIR/reordered.bam
+#samtools index  $DIR/reordered.bam
 
-#samtools index --threads 32 $FILES
+#samtools index  $FILES
 
 #timer
 

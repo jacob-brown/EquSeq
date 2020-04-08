@@ -114,7 +114,7 @@ java -Xmx120g -jar $PICARD AddOrReplaceReadGroups \
 echo '-----------------------'
 echo -e "\nIndex with samtools\n"
 
-samtools index --threads 31 $DIR/new.rg.bam
+samtools index $DIR/new.rg.bam
 
 # timer
 timer

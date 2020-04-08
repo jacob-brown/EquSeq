@@ -14,7 +14,9 @@ To Look into
 
 possibly use
 * SRA Toolkit
-* Entrez Direct
+
+Conda environment
+* conda install -c hcc aspera-cli
 
 
 

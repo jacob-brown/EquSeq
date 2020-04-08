@@ -1,6 +1,6 @@
 #!/bin/bash
-#PBS -lwalltime=20:00:00
-#PBS -lselect=1:ncpus=8:mem=30gb
+#PBS -lwalltime=24:00:00
+#PBS -lselect=1:ncpus=1:mem=10gb
 
 # Desc: Get files from ncbi sra
 
@@ -27,42 +27,58 @@ RES_DIR=$DIR/files/
 #----- load modules ----#
 echo '=================================='
 echo -e "\nLoad modules\n"
-module load sra-toolkit/2.8.1
-#module load samtools/1.3.1 
+#module load sra-toolkit/2.8.1
+module load anaconda3/personal
 
-echo '=================================='
-echo -e "\nClear the environment\n"
-
-rm -f $HOME/ncbi/public/sra/*.lock # force for no error printing
-
-echo '=================================='
-echo -e "\nSelect the run code\n"
-
-# array of data and select
-mapfile -t DATA < $DIR/sra_runs.txt 
-#echo "${#DATA[@]}" # length of array
-#FILE=${DATA[$PBS_ARRAY_INDEX]} # select the data by the job number
-
-for FILE in "${DATA[@]}"
-do
 
 
 echo '=================================='
-echo -e "\nFile: " $FILE
-echo -e '\n=================================='
+echo -e "\nGet Fasta files\n"
 
+cp $HOME/genomics/code/getall_fasta.py $TMPDIR
 
-echo '=================================='
-echo -e "\nFetching\n"
-
-# retrieve the SRA data in raw format
-#prefetch $FILE --max-size 100G
-
-fastq-dump -X 5 -Z $FILE > $RES_DIR/$FILE'.fq'
+# arg1 sra_list location
+# arg2 fasta path out
+python3 getall_fasta.py $EPHEMERAL/sra_data/sra_runs.txt $EPHEMERAL/sra_data/files/
 
 timer
 
-done
+
+#echo '=================================='
+#echo -e "\nClear the environment\n"
+#
+#rm -f $HOME/ncbi/public/sra/*.lock # force for no error printing
+#
+#
+#
+#echo '=================================='
+#echo -e "\nSelect the run code\n"
+#
+## array of data and select
+#mapfile -t DATA < $DIR/sra_runs.txt 
+##echo "${#DATA[@]}" # length of array
+##FILE=${DATA[$PBS_ARRAY_INDEX]} # select the data by the job number
+#
+#for FILE in "${DATA[@]}"
+#do
+#
+#
+#echo '=================================='
+#echo -e "\nFile: " $FILE
+#echo -e '\n=================================='
+#
+#
+#echo '=================================='
+#echo -e "\nFetching\n"
+#
+## retrieve the SRA data in raw format
+##prefetch $FILE --max-size 100G
+#
+#fastq-dump -X 5 -Z $FILE > $RES_DIR/$FILE'.fq'
+#
+#timer
+#
+#done
 #echo '=================================='
 #echo -e "\nMoving\n"
 #
