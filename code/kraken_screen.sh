@@ -27,7 +27,6 @@ echo -e "\nLoad modules\n"
 module load anaconda3/personal
 source activate myenv # activate conda environment
 
-DIR=$EPHEMERAL/kraken/
 
 echo '=================================='
 echo -e "\nRun Kraken\n"
