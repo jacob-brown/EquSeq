@@ -2,19 +2,8 @@
 #PBS -l walltime=12:00:00
 #PBS -l select=1:ncpus=32:mem=62gb
 
-###########################################
-# timer function
-
-time_start=$SECONDS
-
-function timer {
-	duration=$(($SECONDS - $time_start))
-	echo -e "\n..........................\n"
- 	echo "Time elapsed: " $duration " sec"
- 	echo -e "\n..........................\n"
-}
-
-###########################################
+# import unix functions
+source ../scripts/unix_functions.sh
 
 
 echo '=================================='

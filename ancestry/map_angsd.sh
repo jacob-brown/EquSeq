@@ -6,20 +6,10 @@
 # specify reference and ancestral sequences
 	# these can be the same for my purposes
 
-###########################################
-# timer function
 
-time_start=$SECONDS
+# import unix functions
+source ../scripts/unix_functions.sh
 
-function timer {
-	duration=$(($SECONDS - $time_start))
-	echo -e "\n..........................\n"
- 	echo "Time elapsed: " $duration " sec"
- 	echo -e "\n..........................\n"
-}
-
-
-###########################################
 
 
 echo '=================================='
