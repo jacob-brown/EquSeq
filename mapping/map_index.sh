@@ -2,6 +2,9 @@
 #PBS -l walltime=03:00:00
 #PBS -l select=1:ncpus=1:mem=5gb
 
+# import unix functions
+source ../scripts/unix_functions.sh
+
 # index the reference genome
 
 # ref genome

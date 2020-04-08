@@ -6,19 +6,8 @@
 
 # qsub -J 0-47 getall_sra_ncbi.sh
 
-###########################################
-# timer function
-
-time_start=$SECONDS
-
-function timer {
-	duration=$(($SECONDS - $time_start))
-	echo -e "\n..........................\n"
- 	echo "Time elapsed: " $duration " sec"
- 	echo -e "\n..........................\n"
-}
-
-###########################################
+# import unix functions
+source ../scripts/unix_functions.sh
 
 DIR=$EPHEMERAL/sra_data/
 RES_DIR=$DIR/files/

@@ -10,22 +10,8 @@
 
 # qsub -J 0-23 map_master.sh
 
-###########################################
-# timer function
-
-time_start=$SECONDS
-
-function timer {
-	duration=$(($SECONDS - $time_start))
-	echo -e "\n..........................\n"
- 	echo "Time elapsed: " $duration " sec"
- 	echo -e "\n..........................\n"
-}
-
-
-
-###########################################
-
+# import unix functions
+source ../scripts/unix_functions.sh
 
 echo '=================================='
 echo -e "\nLoading modules\n"

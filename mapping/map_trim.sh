@@ -1,6 +1,9 @@
 #!/bin/bash
 # trim fastq files
 
+# import unix functions
+source ../scripts/unix_functions.sh
+
 # catch input files 
 READ1=$1
 READ2=$2
@@ -23,8 +26,12 @@ echo 'read 1'
 fastx_trimmer -l 90 -i $READ1 -o $FILE_OUT1
 		# ~ 8 mins per read
 
+timer
+
 echo 'read 2'
 fastx_trimmer -l 90 -i $READ2 -o $FILE_OUT2
+
+timer
 
 exit
 
