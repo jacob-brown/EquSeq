@@ -74,26 +74,26 @@ echo -e '\n---------- Begin Running Scripts ----------\n'
 echo '==================================================='
 echo '==================================================='
 
-#echo '=================================='
-#echo -e "\nCopy reads from HOME\n"
-#
-## copy read files to ephemeral
-## read 1
-#cp $HOME/genomics/sequences/cdts-hk.genomics.cn/Clean/F19FTSEUHT1854-swab-horse-1A/$READ1 \
-#	$DIR/reads/$FILE_PREFIX'_1.fq.gz'
-#
-## read 2
-#cp $HOME/genomics/sequences/cdts-hk.genomics.cn/Clean/F19FTSEUHT1854-swab-horse-1A/$READ2 \
-#	$DIR/reads/$FILE_PREFIX'_2.fq.gz'
-#
-#timer 
-#echo '=================================='
-#echo -e "\nUnzipping\n"
-#
-#gunzip $DIR/reads/$FILE_PREFIX'_1.fq.gz'
-#gunzip $DIR/reads/$FILE_PREFIX'_2.fq.gz'
-#
-#timer 
+echo '=================================='
+echo -e "\nCopy reads from HOME\n"
+
+# copy read files to ephemeral
+# read 1
+cp $HOME/genomics/sequences/cdts-hk.genomics.cn/Clean/F19FTSEUHT1854-swab-horse-1A/$READ1 \
+	$DIR/reads/$FILE_PREFIX'_1.fq.gz'
+
+# read 2
+cp $HOME/genomics/sequences/cdts-hk.genomics.cn/Clean/F19FTSEUHT1854-swab-horse-1A/$READ2 \
+	$DIR/reads/$FILE_PREFIX'_2.fq.gz'
+
+timer 
+echo '=================================='
+echo -e "\nUnzipping\n"
+
+gunzip $DIR/reads/$FILE_PREFIX'_1.fq.gz'
+gunzip $DIR/reads/$FILE_PREFIX'_2.fq.gz'
+
+timer 
 echo '=================================='
 echo -e "\nTrimming\n"
 
