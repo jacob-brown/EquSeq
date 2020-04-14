@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-01-21
-# Last Modified: 2020-03-31
+# Last Modified: 2020-04-14
 # Desc: Script that runs everything. Should be run if data is added/removed.
 
 ### clean all the old data ###
@@ -15,13 +15,13 @@ mkdir ../data/cleaned_data/infotables_update
 
 # BioProject codes from supplementary materials is added
 	# expanding and updating the master list
-python3 getall_expand_projects.py 
+python3 expandProject.py
 
 # clean data and join supplementary tables
-python3 getall_cleaning_joining.py
+python3 cleaningJoining.py
 
 # generate a master list and summarise the run info data
-python3 getall_summary.py
+python3 summaries.py
 
 # extract breeds of interest from list 
-python3 getall_breeds.py  
+python3 breeds.py

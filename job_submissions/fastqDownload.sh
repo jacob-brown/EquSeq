@@ -24,11 +24,11 @@ module load anaconda3/personal
 echo '=================================='
 echo -e "\nGet Fasta files\n"
 
-cp $HOME/genomics/code/getall_fasta.py $TMPDIR
+cp $HOME/genomics/code/getFastq.py $TMPDIR
 
 # arg1 sra_list location
 # arg2 fasta path out
-python3 getall_fasta.py $EPHEMERAL/sra_data/sra_runs.txt $EPHEMERAL/sra_data/files/
+python3 getFastq.py $EPHEMERAL/sra_data/sra_runs.txt $EPHEMERAL/sra_data/files/
 
 timer
 
