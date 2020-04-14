@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-07
-# Last Modified: 2020-04-08
+# Last Modified: 2020-04-09
 
 """ get raw fasta data from ENA """
 
@@ -21,19 +21,23 @@ import csv
 ############## Function(s) ################
 ###########################################
 
-def getTableInfo(code, getall=True):
+def getTableInfo(code, *fields):
 
-	""" get run info data from ENA """
+	""" get run info data from ENA and return fields """
 
 	print("requesting infotable")
 
-	# get all the run info data, or just the fastq_ftp info
-	if getall: 
+	# if fields is blank, return all fields
+	if len(fields) == 0:
 		link = "https://www.ebi.ac.uk/ena/data/warehouse/"\
 		"filereport?result=read_run&accession={}".format(code)
 	else:
-		link = "https://www.ebi.ac.uk/ena/data/warehouse/"\
-		"filereport?result=read_run&fields=fastq_ftp&accession={}".format(code)
+		# return specified fields
+		st_fields = ",".join(fields) # join args
+		link = "http://www.ebi.ac.uk/ena/data/warehouse/"\
+				"filereport?accession={}&result=read_run&"\
+				"fields={}".format(code, st_fields) 
+
 	r = requests.get(link)
 	text = r.text # single string text of table
 	head_body = text.split('\n') # split into head and body
@@ -41,11 +45,12 @@ def getTableInfo(code, getall=True):
 	list_out = [i.split('\t') for i in head_body if i != '']
 	return list_out
 
+
 def getFasta(code, path_out):
 
 	print("requesting fasta: " + code)
 
-	info_run = getTableInfo(code, getall=False)
+	info_run = getTableInfo(code, 'fastq_ftp')
 
 	# avoid blank infotable returns
 	if len(info_run) > 1 :
@@ -69,6 +74,8 @@ def getFasta(code, path_out):
 		
 	else: 
 		return 'Info table empty for: ' + code + '\n check code.'
+
+
 
 def accessionCode(jobN, file):
 

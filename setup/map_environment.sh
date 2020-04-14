@@ -4,10 +4,12 @@
 
 # Desc: # Establish the environment for running the cleaning and mapping 
 
-DIR=$EPHEMERAL/mapping/
+
 
 echo '=================================='
 echo -e "\nCreate directories\n"
+
+DIR=$EPHEMERAL/mapping/
 
 # create the folder directories
 mkdir \
@@ -19,10 +21,37 @@ $DIR/ref_genome/ \
 $DIR/sorted/ \
 $DIR/stats/ \
 $DIR/trimmed/ \
-$DIR/tmp_cleaning/\
 $DIR/cleaned/
 
+# novel sample
+mkdir $EPHEMERAL/mapping/ &&\
+DIR_SAMPLE=$EPHEMERAL/mapping/
 
+# all data 
+mkdir $EPHEMERAL/sra_data/ &&\
+DIR_ALL=$EPHEMERAL/sra_data/
+
+mkdir \
+$DIR_SAMPLE/aligned/ \
+$DIR_SAMPLE/converted/ \
+$DIR_SAMPLE/merged/ \
+$DIR_SAMPLE/reads/ \
+$DIR_SAMPLE/ref_genome/ \
+$DIR_SAMPLE/sorted/ \
+$DIR_SAMPLE/stats/ \
+$DIR_SAMPLE/trimmed/ \
+$DIR_SAMPLE/cleaned/ 
+
+mkdir \
+$DIR_ALL/aligned/ \
+$DIR_ALL/converted/ \
+$DIR_ALL/merged/ \
+$DIR_ALL/files/ \
+$DIR_ALL/ref_genome/ \
+$DIR_ALL/sorted/ \
+$DIR_ALL/stats/ \
+$DIR_ALL/cleaned/ 
+##$DIR_ALL/trimmed/ \
 
 
 
