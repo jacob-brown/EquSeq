@@ -1,5 +1,10 @@
 # Horse Genomics
 
+`git clone `
+
+
+
+
 ## Software and Downloads
 Used
 * fastqc - quality scores
@@ -97,7 +102,7 @@ Script run order:
 
 ### File structure
 
-[comment]: # tree -I 'sandbox|written_project' -d -o tree.md
+[]: # (tree -I 'sandbox|written_project' -d -o tree.md)
 
 ```
 

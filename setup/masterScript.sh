@@ -21,7 +21,8 @@ python3 expandProject.py
 python3 cleaningJoining.py
 
 # generate a master list and summarise the run info data
-python3 summaries.py
+python3 summarise.py
 
 # extract breeds of interest from list 
 python3 breeds.py
+
