@@ -8,7 +8,7 @@
 # i.e. trimming will handle 2 files at once
 
 
-# qsub -J 0-23 map_master.sh
+# qsub -J 0-23 master.sh
 
 # import unix functions
 source ../scripts/unix_functions.sh
@@ -25,9 +25,9 @@ module load anaconda3/personal # python
 
 echo '=================================='
 echo -e "\nMove scripts to TMPDIR\n"
-cp $HOME/genomics/code/map_names.py \
-   $HOME/genomics/code/map_trim.sh \
-   $HOME/genomics/code/map_align.sh \
+cp $HOME/genomics/code/names.py \
+   $HOME/genomics/code/trim.sh \
+   $HOME/genomics/code/align.sh \
    $TMPDIR
 
 
@@ -37,7 +37,7 @@ echo -e "\nDefine paths and files\n"
 DIR=$EPHEMERAL/mapping/
 
 # file names based on job number 
-FILE=($(python3 map_names.py | tr -d "[''],"))
+FILE=($(python3 names.py | tr -d "[''],"))
 
 # pair ended reads
 READ1=${FILE[0]} # 1st pair ended read
@@ -99,7 +99,7 @@ echo -e "\nTrimming\n"
 
 # trimming reads
 	# files in and file out required
-bash map_trim.sh $DIR/reads/$FILE_PREFIX'_1.fq' \
+bash trim.sh $DIR/reads/$FILE_PREFIX'_1.fq' \
 	$DIR/reads/$FILE_PREFIX'_2.fq' $FILE_PREFIX
 
 # timer
@@ -108,7 +108,7 @@ timer
 echo '=================================='
 echo -e "\nAligning\n"
 
-bash map_align.sh $FILE_PREFIX
+bash align.sh $FILE_PREFIX
 
 # timer
 timer 
