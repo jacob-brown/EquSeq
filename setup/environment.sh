@@ -9,49 +9,35 @@
 echo '=================================='
 echo -e "\nCreate directories\n"
 
-DIR=$EPHEMERAL/mapping/
+# novel sample(s)
+mkdir $EPHEMERAL/new_data/ &&\
+DIR_SAMPLE=$EPHEMERAL/new_data/
 
-# create the folder directories
-mkdir \
-$DIR/aligned/ \
-$DIR/converted/ \
-$DIR/merged/ \
-$DIR/reads/ \
-$DIR/ref_genome/ \
-$DIR/sorted/ \
-$DIR/stats/ \
-$DIR/trimmed/ \
-$DIR/cleaned/
-
-# novel sample
-mkdir $EPHEMERAL/mapping/ &&\
-DIR_SAMPLE=$EPHEMERAL/mapping/
-
-# all data 
-mkdir $EPHEMERAL/sra_data/ &&\
-DIR_ALL=$EPHEMERAL/sra_data/
+# all available data 
+mkdir $EPHEMERAL/all_data/ &&\
+DIR_ALL=$EPHEMERAL/all_data/
 
 mkdir \
-$DIR_SAMPLE/aligned/ \
-$DIR_SAMPLE/converted/ \
-$DIR_SAMPLE/merged/ \
-$DIR_SAMPLE/reads/ \
-$DIR_SAMPLE/ref_genome/ \
-$DIR_SAMPLE/sorted/ \
-$DIR_SAMPLE/stats/ \
-$DIR_SAMPLE/trimmed/ \
-$DIR_SAMPLE/cleaned/ 
+	$DIR_SAMPLE/aligned/ \
+	$DIR_SAMPLE/converted/ \
+	$DIR_SAMPLE/merged/ \
+	$DIR_SAMPLE/reads/ \
+	$DIR_SAMPLE/ref_genome/ \
+	$DIR_SAMPLE/sorted/ \
+	$DIR_SAMPLE/stats/ \
+	$DIR_SAMPLE/trimmed/ \
+	$DIR_SAMPLE/cleaned/ 
 
 mkdir \
-$DIR_ALL/aligned/ \
-$DIR_ALL/converted/ \
-$DIR_ALL/merged/ \
-$DIR_ALL/files/ \
-$DIR_ALL/ref_genome/ \
-$DIR_ALL/sorted/ \
-$DIR_ALL/stats/ \
-$DIR_ALL/cleaned/ 
-##$DIR_ALL/trimmed/ \
+	$DIR_ALL/aligned/ \
+	$DIR_ALL/converted/ \
+	$DIR_ALL/files/ \
+	$DIR_ALL/sorted/ \
+	$DIR_ALL/stats/ \
+	$DIR_ALL/cleaned/ 
+	#$DIR_ALL/merged/ \
+	##$DIR_ALL/trimmed/ \
+	#$DIR_ALL/ref_genome/ \
 
 
 

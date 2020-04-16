@@ -28,22 +28,22 @@ echo '=================================='
 echo -e "\nBuild taxonomy database\n"
 
 # pull taxonomy structure 
-#kraken2-build --download-taxonomy --db $DBNAME
+kraken2-build --download-taxonomy --db $DBNAME
 
-#echo '=================================='
-#echo -e "\nAdd libraries\n"
+echo '=================================='
+echo -e "\nAdd libraries\n"
 # add reference libraries
 
-#echo -e "\narchaea\n"
-#kraken2-build --download-library archaea --db $DBNAME
-#echo -e "\nbacteria\n"
-#kraken2-build --download-library bacteria --db $DBNAME
-#echo -e "\nviral\n"
-#kraken2-build --download-library viral --db $DBNAME
-#echo -e "\nfungi\n"
-#kraken2-build --download-library fungi --db $DBNAME
-#echo -e "\nplant\n"
-#kraken2-build --download-library plant --db $DBNAME
+echo -e "\narchaea\n"
+kraken2-build --download-library archaea --db $DBNAME
+echo -e "\nbacteria\n"
+kraken2-build --download-library bacteria --db $DBNAME
+echo -e "\nviral\n"
+kraken2-build --download-library viral --db $DBNAME
+echo -e "\nfungi\n"
+kraken2-build --download-library fungi --db $DBNAME
+echo -e "\nplant\n"
+kraken2-build --download-library plant --db $DBNAME
 #echo -e "\nhuman\n"
 #kraken2-build --download-library human --db $DBNAME
 
@@ -56,7 +56,7 @@ echo -e "\nBuild taxonomy database\n"
 #sed "1c$var" $EPHEMERAL/kraken/EquCab2.fna > horse.fa
 
 #echo -e "\nhorse\n"
-#kraken2-build --add-to-library $EPHEMERAL/kraken/horse.fa --db $DBNAME
+kraken2-build --add-to-library $EPHEMERAL/kraken/horse.fa --db $DBNAME
 
 echo '=================================='
 echo -e "\nFinal Build\n"

@@ -89,12 +89,12 @@ def main(argv):
 	""" Run pairs functions return 
 		job number specific pair """ 
 	# catch the job number
-	runs_file = "/rds/general/user/jb1919/ephemeral/sra_data/sra_runs.txt"
+	runs_file = "/rds/general/user/jb1919/ephemeral/all_data/sra_runs.txt"
 
 	with open(runs_file) as f:
 		runs = f.read().splitlines()
 
-	files = os.listdir("/rds/general/user/jb1919/ephemeral/sra_data/files/")
+	files = os.listdir("/rds/general/user/jb1919/ephemeral/all_data/files/")
 
 	pairs = pairFiles(files, runs)
 	job_num = int(os.environ['PBS_ARRAY_INDEX'])
