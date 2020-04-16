@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-03-31
-# Last Modified: 2020-04-06
+# Last Modified: 2020-04-16
 
 
 
@@ -16,6 +16,7 @@
 
 from fuzzywuzzy import fuzz, process
 import csv
+import numpy as np
 
 ###########################################
 ############## Function(s) ################
@@ -160,5 +161,5 @@ write_csv(store_filter, '../data/cleaned_data/breed_sra_to_use.csv')
 
 # write simple text file
 runs = [i[1] for i in store_filter[1:]]
-import numpy as np
+
 np.savetxt('../data/cleaned_data/sra_runs.txt', runs, fmt='%s')

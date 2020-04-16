@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-01-21
-# Last Modified: 2020-04-14
+# Last Modified: 2020-04-16
 # Desc: Script that runs everything. Should be run if data is added/removed.
 
 ### clean all the old data ###
