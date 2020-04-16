@@ -1,3 +1,0 @@
-From the list of genes variants and associated traits how do I compare to our sample?
-	What softwares would you recommend?
-	Can I do this in a batch?
