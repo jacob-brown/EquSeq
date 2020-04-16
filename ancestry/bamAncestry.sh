@@ -26,11 +26,11 @@ echo -e "\nDirectories\n"
 
 #FILES=$EPHEMERAL/mapping/merged/new.rg.bam
 #FILES=$EPHEMERAL/mapping/merged_v1/gatk_test/file.bam
-DIR=$EPHEMERAL/sra_data/
+DIR=$EPHEMERAL/all_data/
 #DIR=$EPHEMERAL/mapping/merged_v1/gatk_test/
 
 # refernece genome
-REF=$EPHEMERAL/sra_data/EquCab2.fna
+REF=$EPHEMERAL/all_data/EquCab2.fna
 
 #cp $DIR/plotQC.R $TMPDIR
 
@@ -93,7 +93,7 @@ echo '=================================='
 
 echo '=================================='
 echo -e "\npcangsd - covariance matrix and admixture\n"
-PCANGSD=$EPHEMERAL/sra_data/pcangsd/pcangsd.py
+PCANGSD=$EPHEMERAL/all_data/pcangsd/pcangsd.py
 
 # Estimate covariance matrix and individual admixture proportions
 python $PCANGSD -beagle $DIR/results/data.beagle.gz \

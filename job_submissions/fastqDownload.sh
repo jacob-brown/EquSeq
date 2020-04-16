@@ -9,7 +9,7 @@
 # import unix functions
 source ../scripts/unix_functions.sh
 
-DIR=$EPHEMERAL/sra_data/
+DIR=$EPHEMERAL/all_data/
 RES_DIR=$DIR/files/
 
 
@@ -28,7 +28,7 @@ cp $HOME/genomics/code/getFastq.py $TMPDIR
 
 # arg1 sra_list location
 # arg2 fasta path out
-python3 getFastq.py $EPHEMERAL/sra_data/sra_runs.txt $EPHEMERAL/sra_data/files/
+python3 getFastq.py $EPHEMERAL/all_data/sra_runs.txt $EPHEMERAL/all_data/files/
 
 timer
 
