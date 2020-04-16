@@ -1,0 +1,18 @@
+.
+├── ancestry
+├── data
+│   ├── cleaned_data
+│   │   └── infotables_update
+│   ├── gene_variants
+│   ├── metadata
+│   └── raw_data
+│       ├── infotables_original
+│       └── supplementary_data_from_studies
+├── gene_to_trait
+├── job_submissions
+├── mapping
+├── oral_diversity
+├── scripts
+└── setup
+
+15 directories
