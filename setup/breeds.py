@@ -17,6 +17,8 @@
 from fuzzywuzzy import fuzz, process
 import csv
 import numpy as np
+#import py_functions
+
 
 ###########################################
 ############## Function(s) ################
@@ -74,8 +76,8 @@ ukiebreeds = ['Shetland',
 			'Kerry bog pony']
 
 
-#individs = open_csv('../data/cleaned_data/info_individual_grouped.csv')
-individs = open_csv('../data/cleaned_data/info_all.csv')
+#individs = open_csv('data/cleaned_data/info_individual_grouped.csv')
+individs = open_csv('data/cleaned_data/info_all.csv')
 
 # store header
 head_individs = individs[0]
@@ -120,7 +122,7 @@ header = ['sub_group', 'guess_grp', 'ratio'] + head_individs
 store.insert(0, header)
 
 # write to csv
-write_csv(store, '../data/cleaned_data/breed_ratios.csv')
+write_csv(store, 'data/cleaned_data/breed_ratios.csv')
 
 
 #----- save a list to use TEMP ------#
@@ -157,9 +159,10 @@ store_filter.append(tmp_store[0])
 store_filter.append(tmp_store[1])
 
 # write to csv
-write_csv(store_filter, '../data/cleaned_data/breed_sra_to_use.csv')
+write_csv(store_filter, 'data/cleaned_data/breed_sra_to_use.csv')
 
 # write simple text file
 runs = [i[1] for i in store_filter[1:]]
 
-np.savetxt('../data/cleaned_data/sra_runs.txt', runs, fmt='%s')
+#scripts.py_functions.saveTxt('data/cleaned_data/sra_runs.txt', runs)
+np.savetxt('data/cleaned_data/sra_runs.txt', runs, fmt='%s')

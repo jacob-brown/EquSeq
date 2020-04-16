@@ -4,29 +4,40 @@
 
 # Desc: # Establish the environment for running the cleaning and mapping 
 
-
+module load anaconda3/personal # python
 
 echo '=================================='
 echo -e "\nCreate directories\n"
 
 # novel sample(s)
 mkdir $EPHEMERAL/new_data/ &&\
-DIR_SAMPLE=$EPHEMERAL/new_data/
+DIR_SAM=$EPHEMERAL/new_data/
+
+# reference genome
+mkdir $EPHEMERAL/ref_genome/ &&\
+DIR_REF=$EPHEMERAL/ref_genome/
 
 # all available data 
 mkdir $EPHEMERAL/all_data/ &&\
 DIR_ALL=$EPHEMERAL/all_data/
 
+# ancestry data store
+mkdir $EPHEMERAL/ancestry/
+
+# dependencies
+mkdir $EPHEMERAL/dependencies/ &&\
+DIR_DEP=$EPHEMERAL/dependencies/
+
 mkdir \
-	$DIR_SAMPLE/aligned/ \
-	$DIR_SAMPLE/converted/ \
-	$DIR_SAMPLE/merged/ \
-	$DIR_SAMPLE/reads/ \
-	$DIR_SAMPLE/ref_genome/ \
-	$DIR_SAMPLE/sorted/ \
-	$DIR_SAMPLE/stats/ \
-	$DIR_SAMPLE/trimmed/ \
-	$DIR_SAMPLE/cleaned/ 
+	$DIR_SAM/aligned/ \
+	$DIR_SAM/converted/ \
+	$DIR_SAM/merged/ \
+	$DIR_SAM/reads/ \
+	$DIR_SAM/ref_genome/ \
+	$DIR_SAM/sorted/ \
+	$DIR_SAM/stats/ \
+	$DIR_SAM/trimmed/ \
+	$DIR_SAM/cleaned/ 
 
 mkdir \
 	$DIR_ALL/aligned/ \
@@ -40,22 +51,16 @@ mkdir \
 	#$DIR_ALL/ref_genome/ \
 
 
-
 echo '=================================='
-echo -e "\nDownload reference genome\n"
-
-# get reference genome
-#-------------- EquCab2 --------------#
-
-# specific file 
-rsync --copy-links --times --verbose \
-	rsync://ftp.ncbi.nlm.nih.gov/genomes/refseq/vertebrate_mammalian/Equus_caballus/all_assembly_versions/suppressed/GCF_000002305.2_EquCab2.0/GCF_000002305.2_EquCab2.0_genomic.fna.gz \
-			$DIR/ref_genome/
+echo -e "\nBuild pcangsd\n"
 
 
-#-------------- EquCab3 --------------#
-# specific file 
-#rsync --copy-links --times --verbose rsync://ftp.ncbi.nlm.nih.gov/genomes/refseq/vertebrate_mammalian/Equus_caballus/latest_assembly_versions/GCF_002863925.1_EquCab3.0/GCF_002863925.1_EquCab3.0_genomic.fna.gz .
+git clone https://github.com/Rosemeis/pcangsd.git $DIR_DEP/pcangsd
+
+python $DIR_DEP/pcangsd/setup.py build_ext --inplace
+
+# check if functional
+# python pcangsd.py -h
 
 
 

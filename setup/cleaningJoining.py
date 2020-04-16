@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-01-27
-# Last Modified: 2020-03-17
+# Last Modified: 2020-04-16
 
 
 
@@ -39,15 +39,15 @@ def open_csv(file):
 ###########################################
 
 # original downloaded txt infotable files
-files = os.listdir('../data/raw_data/infotables_original')
+files = os.listdir('data/raw_data/infotables_original')
 files.remove('.DS_Store')
 
 # Orlando supplementary info
 	# spans several project IDs 
-df_S1_Orl = open_csv('../data/raw_data/supplementary_data_from_studies/TableS1.final.csv')
+df_S1_Orl = open_csv('data/raw_data/supplementary_data_from_studies/TableS1.final.csv')
 
 # reference table for joining orlando 
-ref_orlando = open_csv('../data/raw_data/reference_orlando.csv')
+ref_orlando = open_csv('data/raw_data/reference_orlando.csv')
 
 ###########################################
 ################# Wraggling ###############
@@ -93,9 +93,9 @@ for i in files:
 		#ipdb.set_trace()
 	################################
 	### open and save file paths ###
-	path_open = '../data/raw_data/infotables_original/{}'.format(i) # open path
+	path_open = 'data/raw_data/infotables_original/{}'.format(i) # open path
 	no_ext = i.strip('.txt') # strip txt extension
-	path_save = '../data/cleaned_data/infotables_update/{}.csv'.format(no_ext) # save path
+	path_save = 'data/cleaned_data/infotables_update/{}.csv'.format(no_ext) # save path
 
 	########################
 	### open the txt file ###
@@ -118,7 +118,7 @@ for i in files:
 		# '1-mmc1.csv' and PRJEB31613 - Source_Ref = 16
 	if no_ext == 'PRJEB31613':
 
-		sup16 = pd.read_csv('../data/raw_data/supplementary_data_from_studies/1-mmc1.csv')
+		sup16 = pd.read_csv('data/raw_data/supplementary_data_from_studies/1-mmc1.csv')
 
 		# only the desired columns
 		sup16 = sup16[['Sample name', 'Registration number', 'Period', 'Age (years ago) ',
@@ -132,9 +132,9 @@ for i in files:
 		# mod: TableS1.1.csv and ancient: TableS1.2.csv 
 	if no_ext == 'PRJEB10854':
 
-		#df6 = pd.read_csv('../data/infotables_update/PRJEB10854.csv')
-		sup6_1 = pd.read_csv('../data/raw_data/supplementary_data_from_studies/TableS1.1.csv')
-		sup6_2 = pd.read_csv('../data/raw_data/supplementary_data_from_studies/TableS1.2.csv')
+		#df6 = pd.read_csv('data/infotables_update/PRJEB10854.csv')
+		sup6_1 = pd.read_csv('data/raw_data/supplementary_data_from_studies/TableS1.1.csv')
+		sup6_2 = pd.read_csv('data/raw_data/supplementary_data_from_studies/TableS1.2.csv')
 
 		# trim to important data
 		sup6_2 = sup6_2[['Horse ID', 'Site name and coordinates', 'Region of Origin', 'Age',]]

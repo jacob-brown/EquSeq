@@ -24,16 +24,12 @@
 ############## Function(s) ################
 ###########################################
 
+https://www.ebi.ac.uk/ena/data/warehouse/search?query=%22tax_tree(9796)%22&domain=read&download=txt
 
-http://www.ebi.ac.uk/ena/data/search?query=<query string>&result=<result>[Pagination options][Display options][Download options]
 
-http://www.ebi.ac.uk/ena/data/warehouse/search?query="tax_eq(9796)"&result=read_run&display=report
+####
 
-http://www.ebi.ac.uk/ena/data/warehouse/search?query=<query string>&result=<result>&fields=<fields>&display=report[&sortfields=<sortfields>][&download=txt][Pagination options]
 
-http://www.ebi.ac.uk/ena/data/warehouse/search?query=%22tax_tree(7147)%20AND%20dataclass=%22STD%22%22&result=coding_update&display=fasta
-
-http://www.ebi.ac.uk/ena/data/warehouse/search?query="geo_circ(-0.587,-90.5713,170)"&result=sequence_release&display=text&download=gzip
 
 
 

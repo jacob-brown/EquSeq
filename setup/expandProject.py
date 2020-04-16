@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-01-14
-# Last Modified: 2020-01-31
+# Last Modified: 2020-04-16
 
 
 
@@ -27,7 +27,7 @@ from copy import deepcopy as dc
 
 project_list = [] # initialise the list
 
-with open('../data/raw_data/papers_projects.csv', 'r') as file:
+with open('data/raw_data/papers_projects.csv', 'r') as file:
 	reader = csv.reader(file)
 	for row in reader:
 		project_list.append(row) # add row to list
@@ -35,7 +35,7 @@ with open('../data/raw_data/papers_projects.csv', 'r') as file:
 ##################################
 ### secondary list of projects ###
 
-loc_orlando = '../data/raw_data/{}'.format(project_list[1][-3]) # location of orlando bioproject codes for Origins paper
+loc_orlando = 'data/raw_data/{}'.format(project_list[1][-3]) # location of orlando bioproject codes for Origins paper
 
 project_orlando_all = [] # all data
 project_orlando = [] # just the project codes
@@ -77,7 +77,7 @@ for i in range(0, len(project_list)):
 		project_list[i].insert(0, i) # numerical reference
 
 
-with open('../data/cleaned_data/papers_projects_update.csv', 'w') as file:
+with open('data/cleaned_data/papers_projects_update.csv', 'w') as file:
 	writer = csv.writer(file, delimiter=',')
 	for i in project_list:
 		writer.writerow(i)
@@ -100,14 +100,13 @@ all_project.sort()
 modern = [i[1] for i in project_list if i[2] =='modern' or i[2] == 'both'] # modern project codes
 
 modern = np.unique(modern)
-np.savetxt('../data/cleaned_data/prj_modern.txt', modern, fmt='%s') # save to txt
-
+np.savetxt('data/cleaned_data/prj_modern.txt', modern, fmt='%s') # save to txt
 
 # ancient
 ancient = [i[1] for i in project_list if i[2] =='ancient' or i[2] == 'both'] # ancient project codes
 
 ancient = np.unique(ancient)
-np.savetxt('../data/cleaned_data/prj_ancient.txt', ancient, fmt='%s')
+np.savetxt('data/cleaned_data/prj_ancient.txt', ancient, fmt='%s')
 
 
 

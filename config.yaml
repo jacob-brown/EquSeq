@@ -1,15 +1,13 @@
 --- 
-new_sample: xxx
-directory: default
+new_sample: 
+setup: default
+master-directory: $EPHEMERAL
+ref-genome: 
+  name: GCF_000002305.2_EquCab2.0_genomic   # or EquCab3
+  rename: EquCab2
 
 mapping: 
- - yes
- - horse
-xmas-fifth-day: 
- calling-birds: four
- french-hens: 1
- golden-rings: 5
- partridges: 
-   count: 1
-   location: "a pear tree"
- turtle-doves: two
+  aligner: bwa
+    - mem
+ancestry: true
+oral-comparison: true

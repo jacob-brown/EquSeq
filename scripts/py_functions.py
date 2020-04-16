@@ -3,11 +3,12 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-14
-# Last Modified: 2020-04-14
+# Last Modified: 2020-04-16
 
 
 
-"""  """
+""" helpful functions defined by Jacob Brown """
+
 
 # timer
 import time
@@ -24,3 +25,15 @@ def timer():
 			.format(duration)
 
 	print(string)
+
+
+### save a text file without a new line at the end
+def saveTxt(dirfile, listToSave, sep='\n'):
+	with open(dirfile, 'w') as f:
+		for num, val in enumerate(listToSave):
+			if num == len(listToSave) - 1:
+				f.write(val)
+			else:
+				f.write(val + sep)
+
+

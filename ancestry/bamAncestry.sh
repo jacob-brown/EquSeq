@@ -21,83 +21,118 @@ module load anaconda3/personal
 echo '=================================='
 echo -e "\nDirectories\n"
 
-#cp $HOME/genomics/code/plotQC.R $TMPDIR
-
-
-#FILES=$EPHEMERAL/mapping/merged/new.rg.bam
-#FILES=$EPHEMERAL/mapping/merged_v1/gatk_test/file.bam
 DIR=$EPHEMERAL/all_data/
-#DIR=$EPHEMERAL/mapping/merged_v1/gatk_test/
+ANC_DIR=$EPHEMERAL/ancestry/
 
 # refernece genome
-REF=$EPHEMERAL/all_data/EquCab2.fna
-
-#cp $DIR/plotQC.R $TMPDIR
-
-
-#echo '=================================='
-#echo -e "\nsamtools index\n"
-
-#samtools faidx $REF
-# generates .fai
-
-# timer
-#timer
-
+REF=$EPHEMERAL/mapping/ref_genome/EquCab2.fna
 
 
 echo '=================================='
+echo '=================================='
 echo -e "\nANGSD\n"
-
-# P 4 - 4 threads -maxDepth 500
-# -minMapQ 20 min quality 
-# -trim 0 no trimming of reads
-# -maxDepth 500 : bin together depths of equal or greater
-
-#angsd -P 4 -i $FILES -ref $REF -out $DIR/ALL.qc \
-#		-uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
-#		-trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 13 \
-#		-doQsDist 1 -doDepth 1 -doCounts 1 #\
-#		#-GL 1 -doGlf 4 -doMajorMinor 1 -doMaf 1 \
-		#-doGeno 32 -doPost 1
-
+echo '=================================='
+echo '=================================='
 
 # create a list of bam files 
-#ls -d $PWD/*.bam > bam.filelist
-
-angsd -nThreads 31 -bam $DIR/bam.filelist -ref $REF -out $DIR/results/data \
-		-uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
-		-trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 13 \
-		-doQsDist 1 -doDepth 1 -doCounts 1 \
-		-checkBamHeaders 0 -SNP_pval 1e-3 \
-		-GL 2 -doGlf 2 -doMajorMinor 1 -doMaf 1 \
-		-doGeno 32 -doPost 1
+#echo "Create bam list from: " $DIR/sorted/ "to: " $ANC_DIR
+#ls -d $DIR/sorted/*.bam > $ANC_DIR/bam.list
 
 
 
-# timer
-timer
 
-echo '=================================='
-echo '=================================='
-echo -e "\nPCA\n"
-echo '=================================='
-echo '=================================='
 
-#echo '=================================='
-#echo -e "\nBuild pcangsd\n"
-#git clone https://github.com/Rosemeis/pcangsd.git
+function qualityCheck(){
+	# check quality of bam files
+		# P 4 - 4 threads -maxDepth 500
+		# -minMapQ 20 min quality 
+		# -trim 0 no trimming of reads
+		# -maxDepth 500 : bin together depths of equal or greater
+	
+	echo '=================================='
+	echo -e "\nChecking Quality \n"
 
-#cd pcangsd/
-#python setup.py build_ext --inplace
+	angsd -P 4 -b $ANC_DIR/bam.list -ref $REF -out $ANC_DIR/ALL.qc -r 11\
+	        -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
+	        -trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 20 \
+	        -doQsDist 1 -doDepth 1 -doCounts 1 -checkBamHeaders 0
 
-echo '=================================='
-echo -e "\npcangsd - covariance matrix and admixture\n"
-PCANGSD=$EPHEMERAL/all_data/pcangsd/pcangsd.py
 
-# Estimate covariance matrix and individual admixture proportions
-python $PCANGSD -beagle $DIR/results/data.beagle.gz \
-		-admix -o $DIR/results/test -threads 31
+
+	echo '=================================='
+	echo -e "\nplotting\n"
+	cp $HOME/genomics/code/plotQC.R $TMPDIR
+
+	#It is convenient to compute the percentiles of these distribution
+	Rscript plotQC.R $ANC_DIR/ALL.qc
+
+
+}
+
+function genotypeLH(){
+
+	# filter with the above and:
+		# -doMaf 1: Frequency (fixed major and minor)
+		# -doPost 1: estimate per-site allele frequency as a 
+			#prior for genotype proportions
+		# -GL 2 : genotype likelihood model - GATK
+		# -doGlf 2 : beagle likelihood file dump file
+		# -doMajorMinor 1 : assign the major and minor alleles from GL
+		# -doGeno 32 : genotype probabilities in binary format
+
+	echo '=================================='
+	echo -e "\nGenerating Genotype Liklihoods\n"
+
+	angsd -nThreads 31 -bam $DIR/bam.filelist -ref $REF \
+			-out $ANC_DIR/ALL \
+			-uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
+			-trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 20 \
+			-doQsDist 1 -doDepth 1 -doCounts 1 \
+			-checkBamHeaders 0 -SNP_pval 1e-3 \
+			-GL 2 -doGlf 2 -doMajorMinor 1 -doMaf 1 \
+			-doGeno 32 -doPost 1
+
+}
+
+
+function pcaGL(){
+
+
+	echo '=================================='
+	echo -e "\npcangsd - covariance matrix and admixture\n"
+	PCANGSD=$EPHEMERAL/dependencies/pcangsd/pcangsd.py
+
+	# Estimate covariance matrix and individual admixture proportions
+	python $PCANGSD -beagle $ANC_DIR/ALL.beagle.gz \
+			-admix -o $ANC_DIR/ -threads 31
+
+}
+
+
+#############################
+############ Main ###########
+#############################
+
+while getopts ":qgp" opt; do
+  case ${opt} in
+    q ) # quality control
+       	qualityCheck
+      ;;
+    g ) # genotype liklihoods
+      genotypeLH
+      ;;
+    p) # pcangsd
+    	pcaGL
+    ;;
+    \? ) echo "Usage: cmd [-q] [-g] [-p]"
+      ;;
+  esac
+done
+
+
+
+
+
 
 
 
@@ -137,19 +172,4 @@ python $PCANGSD -beagle $DIR/results/data.beagle.gz \
 #done
 
 
-#echo '=================================='
-#echo -e "\nplotting\n"
 
-# counts of quality scores
-#less -S $DIR/ALL.qc.qs
-# counts of per-sample depth
-#less -S $DIR/ALL.qc.depthSample 
-#wc -l $DIR/ALL.qc.depthSample # 30 $DIR/ALL.qc.depthSample
-
-# counts of global depth
-#less -S $DIR/ALL.qc.depthGlobal
-
-#It is convenient to compute the percentiles of these distribution
-#Rscript plotQC.R $DIR/ALL.qc 
-
-#less -S ALL.qc.mafs.gz

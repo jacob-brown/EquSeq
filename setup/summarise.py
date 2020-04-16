@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-01-22
-# Last Modified: 2020-03-31
+# Last Modified: 2020-04-16
 
 
 
@@ -60,7 +60,7 @@ def no_group(data):
 	return np.unique(tmp)
 
 def issue_BioProjects(all_files, ID_keep, ID_ignore, \
-						out='../data/cleaned_data/issue_BioProject.txt'):
+						out='data/cleaned_data/issue_BioProject.txt'):
 	
 	""" save file of BioProjectIDs that still need work.
 		those that are present but are not used """
@@ -90,7 +90,7 @@ def issue_BioProjects(all_files, ID_keep, ID_ignore, \
 
 
 ### runinfo table files ###
-run_files = os.listdir('../data/cleaned_data/infotables_update')
+run_files = os.listdir('data/cleaned_data/infotables_update')
 
 
 # remove DS_Store if present
@@ -98,7 +98,7 @@ if '.DS_Store' in run_files:
 	run_files.remove('.DS_Store')
 
 # reference table - details columns of interest 
-ref_tab_all = open_csv('../data/raw_data/reference_infotable.csv')
+ref_tab_all = open_csv('data/raw_data/reference_infotable.csv')
 
 # remove the ignore=yes projects and strip ignore column 
 ref_tab = [i[0:6] for i in ref_tab_all if i[6] != 'y'] 
@@ -122,7 +122,7 @@ store = []
 for pid in prj_ID:
 
 	# open file
-	file_in = open_csv('../data/cleaned_data/infotables_update/{}.csv'\
+	file_in = open_csv('data/cleaned_data/infotables_update/{}.csv'\
 		.format(pid)) 
 	header = file_in[0] # header list
 	del file_in[0] # strip header
@@ -184,7 +184,7 @@ store.insert(0, select_list) # header to store
 
 
 ### save to csv ###
-with open('../data/cleaned_data/info_all.csv', 'w', newline='') as csvfile:
+with open('data/cleaned_data/info_all.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile)
     writer.writerows(store)
 
@@ -233,7 +233,7 @@ ind_df.DATASTORE_filetype = dt_array
 ind_df.rename(columns={'Run':'run_count'}, inplace=True)
 
 # save to csv
-ind_df.to_csv('../data/cleaned_data/info_individual_grouped.csv', index=False)
+ind_df.to_csv('data/cleaned_data/info_individual_grouped.csv', index=False)
 
 #--- population grouping ---#
 # variables to group by
@@ -252,4 +252,4 @@ pop_df = pop_df.sort_values(by=['era', 'Organism', 'sub_group'], \
 	ascending=False)
 
 # save
-pop_df.to_csv('../data/cleaned_data/info_pop_grouped.csv', index=False)
+pop_df.to_csv('data/cleaned_data/info_pop_grouped.csv', index=False)
