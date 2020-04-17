@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-01-21
-# Last Modified: 2020-04-16
+# Last Modified: 2020-04-17
 # Desc: Script that runs everything. Should be run if data is added/removed.
 
 ### clean all the old data ###
@@ -26,3 +26,5 @@ python3 setup/summarise.py
 # extract breeds of interest from list  - potentially tmp script
 python3 setup/breeds.py
 
+# which other files do we need?
+python3 setup/getAllFastq.py

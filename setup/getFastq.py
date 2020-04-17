@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-07
-# Last Modified: 2020-04-09
+# Last Modified: 2020-04-17
 
 """ get raw fasta data from ENA """
 
@@ -15,7 +15,6 @@ import requests
 import os 
 import sys
 import csv
-#from optparse import OptionParser 
 
 ###########################################
 ############## Function(s) ################

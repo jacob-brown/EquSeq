@@ -1,22 +1,28 @@
 #!/bin/bash
 #PBS -lwalltime=24:00:00
-#PBS -lselect=1:ncpus=1:mem=10gb
+#PBS -lselect=1:ncpus=1:mem=1gb
 
 # Desc: Get files from ncbi sra
 
-# qsub -J 0-47 getall_sra_ncbi.sh
+# for sra_runs.txt
+# qsub -J 0-47 fastqDownload.sh
+
+
+# for sra_runs_to_do.txt
+# qsub -J 0-581 fastqDownload.sh
+	# 0-10 test
+
 
 # import unix functions
-source ../scripts/unix_functions.sh
+cp $HOME/genomics/code/unix_functions.sh $TMPDIR
+source unix_functions.sh
 
 DIR=$EPHEMERAL/all_data/
 RES_DIR=$DIR/files/
 
 
-#----- load modules ----#
 echo '=================================='
 echo -e "\nLoad modules\n"
-#module load sra-toolkit/2.8.1
 module load anaconda3/personal
 
 
@@ -24,62 +30,24 @@ module load anaconda3/personal
 echo '=================================='
 echo -e "\nGet Fasta files\n"
 
+#cp $HOME/genomics/code/getFastq.py $TMPDIR
+
+# arg1 sra_list location
+# arg2 fasta path out
+#python3 getFastq.py $EPHEMERAL/all_data/sra_runs.txt $EPHEMERAL/all_data/files/
+
+#timer
+
+
+
+echo '=================================='
+echo -e "\nGet rest of Fasta files\n"
+
 cp $HOME/genomics/code/getFastq.py $TMPDIR
 
 # arg1 sra_list location
 # arg2 fasta path out
-python3 getFastq.py $EPHEMERAL/all_data/sra_runs.txt $EPHEMERAL/all_data/files/
+python3 getFastq.py $EPHEMERAL/all_data/sra_runs_to_do.txt $EPHEMERAL/all_data/files_to_align/
 
 timer
-
-
-#echo '=================================='
-#echo -e "\nClear the environment\n"
-#
-#rm -f $HOME/ncbi/public/sra/*.lock # force for no error printing
-#
-#
-#
-#echo '=================================='
-#echo -e "\nSelect the run code\n"
-#
-## array of data and select
-#mapfile -t DATA < $DIR/sra_runs.txt 
-##echo "${#DATA[@]}" # length of array
-##FILE=${DATA[$PBS_ARRAY_INDEX]} # select the data by the job number
-#
-#for FILE in "${DATA[@]}"
-#do
-#
-#
-#echo '=================================='
-#echo -e "\nFile: " $FILE
-#echo -e '\n=================================='
-#
-#
-#echo '=================================='
-#echo -e "\nFetching\n"
-#
-## retrieve the SRA data in raw format
-##prefetch $FILE --max-size 100G
-#
-#fastq-dump -X 5 -Z $FILE > $RES_DIR/$FILE'.fq'
-#
-#timer
-#
-#done
-#echo '=================================='
-#echo -e "\nMoving\n"
-#
-#mv $HOME/ncbi/public/sra/$FILE'.sra' $RES_DIR
-#
-#timer
-
-
-
-#sam-dump $FILE | samtools view --threads 31 -bS - > $FILE.bam
-#sam-dump ERR868003 | samtools view --threads 31 -bS - > $DIR/ERR868003.bam
-#sam-dump ERR2179543 | samtools view --threads 31 -bS - > $DIR/ERR2179543.bam
-
-
 

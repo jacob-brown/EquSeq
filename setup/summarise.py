@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-01-22
-# Last Modified: 2020-04-16
+# Last Modified: 2020-04-17
 
 
 
@@ -16,7 +16,7 @@
 ################# Modules #################
 ###########################################
 
-#import pandas as pd
+
 import numpy as np
 import os
 import csv

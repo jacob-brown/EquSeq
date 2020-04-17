@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-16
-# Last Modified: 2020-04-16
+# Last Modified: 2020-04-17
 
 
 
@@ -46,12 +46,12 @@ def write_csv(list_file, path):
 ######### Input(s) and Parameters #########
 ###########################################
 
-code_file = '../data/cleaned_data/sra_runs.txt'
+code_file = 'data/cleaned_data/sra_runs.txt'
 
 with open(code_file, 'r') as f:
 	codes = f.readlines() # read file
 
-info_all_path = '../data/cleaned_data/info_all.csv'
+info_all_path = 'data/cleaned_data/info_all.csv'
 
 info_all = open_csv(info_all_path)
 
@@ -69,7 +69,25 @@ modern = [i for i in info_all if i[i_era] == 'modern']
 codes = [i.strip('\n') for i in codes] # filter and strip new line
 
 i_run = info_all[0].index('Run')
-modern_unused = [i for i in modern if i[i_run] not in codes]
+i_org = info_all[0].index('Organism')
+i_sub = info_all[0].index('sub_group')
+
+#modern_unused = []
+#for elm in modern:
+#	if elm[i_run] not in codes:
+#		if elm[i_sub] == '' and elm[i_org] == 'Equus caballus':
+#			# not a generic horse 
+#			pass
+#		else:
+#			modern_unused.append(elm)
+
+
+# not already in code list
+modern_unused = [i for i in modern if i[i_run] not in codes] 
+
+# not a generic horse 
+modern_unused = [i for i in modern_unused if i[i_sub]!= '']
+
 modern_unused.insert(0, info_all[0])
 
 # codes only
@@ -77,9 +95,9 @@ codes_to_use = [i[0] for i in modern_unused[1:]]
 
 
 # all data still to use
-write_csv(modern_unused, "../data/cleaned_data/breeds_to_use.csv")
+write_csv(modern_unused, "data/cleaned_data/breeds_to_use.csv")
 
 # codes only
-np.savetxt('../data/cleaned_data/sra_runs_to_do.txt', codes_to_use, fmt='%s')
+np.savetxt('data/cleaned_data/sra_runs_to_do.txt', codes_to_use, fmt='%s')
 
 

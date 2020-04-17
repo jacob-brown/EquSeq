@@ -3,7 +3,7 @@
 `git clone `
 
 
-
+Always run the scripts from the parent directory, i.e. from within HorseGenomics.
 
 ## Software and Downloads
 Used

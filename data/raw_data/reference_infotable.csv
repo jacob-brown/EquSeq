@@ -34,4 +34,4 @@ PRJNA357976,Breed,modern,,,,
 PRJNA205517,,,,Age,many helpful fields,y
 PRJNA225855,,,ancient,,"appears ancient, check paper",y
 SRP012260,Breed_Info,modern,,,,y
-SRA082086,,,,,,y
+SRA082086,Breed,both,,Age,,y

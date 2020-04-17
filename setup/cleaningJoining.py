@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-01-27
-# Last Modified: 2020-04-16
+# Last Modified: 2020-04-17
 
 
 
@@ -106,6 +106,7 @@ for i in files:
 	### conditions for if a supplementary table should be joined ###
 		# some contain additional helpful information
 
+
 	########################
 	### Orlando Table S1 ###
 	if no_ext in orlando_bio_projects and no_ext != 'SRP012260': # ensure it is in the ref table and not a project giving issues
@@ -113,6 +114,9 @@ for i in files:
 
 		df = pd.merge(df, df_S1_Orl, how='left', left_on=['BioProject', biop[0]], right_on=['BioProject','ID_approx'])
 	
+
+
+
 	###################################
 	### PRJEB31613 & Source_Ref = 16 ###
 		# '1-mmc1.csv' and PRJEB31613 - Source_Ref = 16
