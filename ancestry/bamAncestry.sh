@@ -1,45 +1,41 @@
-#!/bin/bash
-#PBS -l walltime=48:00:00
-#PBS -l select=1:ncpus=32:mem=62gb
-
-
 # specify reference and ancestral sequences
 	# these can be the same for my purposes
 
 
 # import unix functions
-source ../scripts/unix_functions.sh
+source unix_functions.sh
 
-
-
-echo '=================================='
-echo -e "\nLoading modules\n"
-module load angsd/915
+#echo '=================================='
+#echo -e "\nLoading modules\n"
+#module load angsd/915
+ANGSD=$EPHEMERAL/dependencies/angsd/angsd
 module load samtools/1.3.1 
 module load anaconda3/personal
 
-echo '=================================='
-echo -e "\nDirectories\n"
+#echo '=================================='
+#echo -e "\nDirectories\n"
 
 DIR=$EPHEMERAL/all_data/
 ANC_DIR=$EPHEMERAL/ancestry/
 
+
 # refernece genome
 REF=$EPHEMERAL/mapping/ref_genome/EquCab2.fna
+SAMPLE=$EPHEMERAL/mapping/merged/new.rg.bam
 
+ 
 
-echo '=================================='
-echo '=================================='
-echo -e "\nANGSD\n"
-echo '=================================='
-echo '=================================='
+function makeBamList(){
 
-# create a list of bam files 
-#echo "Create bam list from: " $DIR/sorted/ "to: " $ANC_DIR
-#ls -d $DIR/sorted/*.bam > $ANC_DIR/bam.list
+	echo '=================================='
+	echo -e "\nMaking BAM list\n"
+	echo "Create bam list from: " $DIR/sorted/ "to: " $ANC_DIR
+	ls -d $DIR/sorted/*.bam > $ANC_DIR/bam.list
 
+	echo "Adding novel samples to list."
+	echo $SAMPLE >> $ANC_DIR/bam.list
 
-
+}	
 
 
 function qualityCheck(){
@@ -52,7 +48,7 @@ function qualityCheck(){
 	echo '=================================='
 	echo -e "\nChecking Quality \n"
 
-	angsd -P 4 -b $ANC_DIR/bam.list -ref $REF -out $ANC_DIR/ALL.qc -r 11\
+	$ANGSD -nThreads 4 -bam $ANC_DIR/bam.list -ref $REF -out $ANC_DIR/ALL.qc \
 	        -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
 	        -trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 20 \
 	        -doQsDist 1 -doDepth 1 -doCounts 1 -checkBamHeaders 0
@@ -83,7 +79,7 @@ function genotypeLH(){
 	echo '=================================='
 	echo -e "\nGenerating Genotype Liklihoods\n"
 
-	angsd -nThreads 31 -bam $DIR/bam.filelist -ref $REF \
+	$ANGSD -nThreads 31 -bam $DIR/bam.list -ref $REF \
 			-out $ANC_DIR/ALL \
 			-uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
 			-trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 20 \
@@ -113,17 +109,20 @@ function pcaGL(){
 ############ Main ###########
 #############################
 
-while getopts ":qgp" opt; do
+while getopts ":mqgp" opt; do
   case ${opt} in
+  	m) # make bam list
+		makeBamList
+		;;
     q ) # quality control
        	qualityCheck
-      ;;
+      	;;
     g ) # genotype liklihoods
-      genotypeLH
-      ;;
+      	genotypeLH
+      	;;
     p) # pcangsd
     	pcaGL
-    ;;
+    	;;
     \? ) echo "Usage: cmd [-q] [-g] [-p]"
       ;;
   esac

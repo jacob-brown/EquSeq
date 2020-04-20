@@ -62,6 +62,16 @@ python $DIR_DEP/pcangsd/setup.py build_ext --inplace
 # check if functional
 # python pcangsd.py -h
 
+echo '=================================='
+echo -e "\nBuild angsd\n"
+
+wget http://popgen.dk/software/download/angsd/angsd0.930.tar.gz 
+tar xf angsd0.930.tar.gz
+cd htslib;make;cd ..
+cd angsd
+make HTSSRC=../htslib
+cd ..
+rm angsd0.930.tar.gz
 
 
 echo '=================================='

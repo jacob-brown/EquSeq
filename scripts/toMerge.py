@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-16
-# Last Modified: 2020-04-16
+# Last Modified: 2020-04-20
 
 
 
@@ -90,6 +90,10 @@ def write_csv(list_file, path):
 #echo ERR2179543.bam  SRR1769892.bam  SRR1769922.bam  SRR515202.bam  SRR515204.bam  SRR515206.bam  SRR515209.bam  SRR515212.bam  SRR515214.bam  SRR515216.bam ERR2731056.bam  SRR1769893.bam  SRR1790681.bam  SRR515203.bam  SRR515205.bam  SRR515208.bam  SRR515211.bam  SRR515213.bam  SRR515215.bam  ERR979130.bam ERR979131.bam ERR979133.bam ERR979134.bam  ERR979218.bam ERR979219.bam ERR979220.bam ERR979221.bam ERR979223.bam ERR979224.bam ERR979225.bam > ../sandbox/bam.list.txt
 
 # python3 toMerge.py -b ../sandbox/bam.list.txt -o ../data/cleaned_data/to_merge.csv -i ../data/cleaned_data/info_all.csv -r Run -g BioSample
+
+# HPC
+# ls 
+
 
 info_all = open_csv(args.infile)
 

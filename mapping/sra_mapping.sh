@@ -1,11 +1,14 @@
 #!/bin/bash
 #PBS -l walltime=22:00:00
-#PBS -lselect=1:ncpus=30:ompthreads=30:mem=360gb
+#PBS -lselect=1:ncpus=32:mem=62gb
+
 
 # ERR868003, ERR868004 - memory maxed when aligning
 
 # qsub -J 0-47 sra_mapping.sh
 
+# qsub -J 0-582 sra_mapping.sh
+#qsub -J 0-5 sra_mapping.sh
 
 echo '=================================='
 echo -e "\nLoading modules\n"
@@ -29,10 +32,11 @@ source unix_functions.sh
 echo '=================================='
 echo -e "\nDefine paths and files\n"
 
-DIR=$EPHEMERAL/all_data/
+DIR=$EPHEMERAL/all_data/files_to_align/files/
+LIST_FASTQ=$EPHEMERAL/all_data/sra_runs_to_do.txt # sra_runs.txt
 
 # file names based on job number 
-FILE=($(python3 sra_mapping.py | tr -d "[''],"))
+FILE=($(python3 sra_mapping.py $LIST_FASTQ $DIR | tr -d "[''],"))
 
 # pair ended reads
 READ1=${FILE[0]} # 1st pair ended read
