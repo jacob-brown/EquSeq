@@ -24,6 +24,9 @@ DIR_ALL=$EPHEMERAL/all_data/
 # ancestry data store
 mkdir $EPHEMERAL/ancestry/
 
+# gene to trait data store
+mkdir $EPHEMERAL/gene_to_trait/
+
 # dependencies
 mkdir $EPHEMERAL/dependencies/ &&\
 DIR_DEP=$EPHEMERAL/dependencies/

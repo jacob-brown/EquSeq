@@ -1,14 +1,15 @@
 #!/bin/bash
-#PBS -l walltime=22:00:00
-#PBS -lselect=1:ncpus=32:mem=62gb
-
+#PBS -l walltime=24:00:00
+#PBS -lselect=1:ncpus=8:mem=20gb
 
 # ERR868003, ERR868004 - memory maxed when aligning
 
 # qsub -J 0-47 sra_mapping.sh
+	# complete for sta_runs 
+	# 0-1 for sra_runs_to_do
 
 # qsub -J 0-582 sra_mapping.sh
-#qsub -J 0-5 sra_mapping.sh
+#qsub -J 2-582 sra_mapping.sh
 
 echo '=================================='
 echo -e "\nLoading modules\n"
@@ -58,12 +59,6 @@ echo '==================================================='
 echo '==================================================='
 
 
-# quick catch for errors
-if [ "$FILE_PREFIX" == "ERR868003" ] || [ "$FILE_PREFIX" == "ERR868004" ]
-then
-	exit
-fi
-
 echo '=================================='
 echo -e "\nAligning\n"
 
@@ -73,4 +68,5 @@ bash sra_align.sh $READ1 $READ2 $FILE_PREFIX
 timer 
 
 
+mv $HOME/genomics/code/sra_mapping.sh.* logfiles/align_all/
 
