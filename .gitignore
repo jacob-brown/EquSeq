@@ -3,4 +3,5 @@
 __pycache__
 written_project/
 tree.txt
-
+*.bam*
+/data/processed_sequences/

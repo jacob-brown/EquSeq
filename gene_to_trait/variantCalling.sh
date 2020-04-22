@@ -1,9 +1,12 @@
 #! /bin/bash
-#PBS -l walltime=12:00:00
-#PBS -l select=1:ncpus=32:mem=62gb
+#PBS -l walltime=72:00:00
+#PBS -l select=1:ncpus=32:mem=124gb
 
 # import unix functions
-source ../scripts/unix_functions.sh
+
+cp $HOME/genomics/code/unix_functions.sh $TMPDIR
+
+source unix_functions.sh
 
 
 echo '=================================='
@@ -32,32 +35,25 @@ echo -e "\nDirectories\n"
 #DIC_OUT=$EPHEMERAL/mapping/ref_genome/EquCab2.dict
 
 DIR=$EPHEMERAL/mapping/merged/
+DIR_OUT=$EPHEMERAL/gene_to_trait/
 REF=$EPHEMERAL/mapping/ref_genome/EquCab2.fna
 DIC_OUT=$EPHEMERAL/mapping/ref_genome/EquCab2.dict
 FILES=$EPHEMERAL/mapping/merged/new.rg.bam
 
 
+
 #echo '=================================='
-#echo -e "\nsamtools\n"
-
-#samtools faidx $REF
-#samtools sort -m 40GiB --threads 32 $FILES -o  \
-		#$FILES'.sorted.bam'
-
-#timer
-
-echo '=================================='
-echo -e "\npicard reference dict\n"
-
-
+#echo -e "\npicard reference dict\n"
+#
+#
 # prepare the reference genome
-java -Xmx60g -jar $PICARD CreateSequenceDictionary \
-      R=$REF \
-      O=$DIC_OUT\
-      TMP_DIR=$TMP_DIR # resolves memory issues
-
-# timer
-timer
+#java -Xmx60g -jar $PICARD CreateSequenceDictionary \
+#      R=$REF \
+#      O=$DIC_OUT\
+#      TMP_DIR=$TMP_DIR # resolves memory issues
+#
+## timer
+#timer
 
 #echo '=================================='
 #echo -e "\nreordering\n"
@@ -96,11 +92,10 @@ source activate myenv # activate conda environment
 #	--output $DIR/raw_variants.vcf \
 #	--tmp-dir $TMPDIR \
 #	--intervals chr3 
-gatk HaplotypeCaller \
+gatk --java-options "-Xmx120g" HaplotypeCaller \
 	--reference $REF \
 	--input $FILES \
-	--output $DIR/raw_variants.vcf \
-	--tmp-dir $TMPDIR \
-	--intervals chr3 	
+	--output $DIR_OUT/raw_variants.vcf \
+	--tmp-dir $TMPDIR 	
 # timer
 timer

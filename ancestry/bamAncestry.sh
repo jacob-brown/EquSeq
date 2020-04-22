@@ -47,8 +47,8 @@ function qualityCheck(){
 	
 	echo '=================================='
 	echo -e "\nChecking Quality \n"
-
-	$ANGSD -nThreads 4 -bam $ANC_DIR/bam.list -ref $REF -out $ANC_DIR/ALL.qc \
+	# rmove -r chr1 after
+	$ANGSD -nThreads 4 -bam $ANC_DIR/bam.list -ref $REF -out $ANC_DIR/ALL.qc\
 	        -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
 	        -trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 20 \
 	        -doQsDist 1 -doDepth 1 -doCounts 1 -checkBamHeaders 0
@@ -71,7 +71,7 @@ function genotypeLH(){
 		# -doMaf 1: Frequency (fixed major and minor)
 		# -doPost 1: estimate per-site allele frequency as a 
 			#prior for genotype proportions
-		# -GL 2 : genotype likelihood model - GATK
+		# -GL 1 : genotype likelihood model - Samtools
 		# -doGlf 2 : beagle likelihood file dump file
 		# -doMajorMinor 1 : assign the major and minor alleles from GL
 		# -doGeno 32 : genotype probabilities in binary format
@@ -79,13 +79,13 @@ function genotypeLH(){
 	echo '=================================='
 	echo -e "\nGenerating Genotype Liklihoods\n"
 
-	$ANGSD -nThreads 31 -bam $DIR/bam.list -ref $REF \
+	$ANGSD -nThreads 31 -bam $ANC_DIR/bam.list -ref $REF \
 			-out $ANC_DIR/ALL \
 			-uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
 			-trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 20 \
 			-doQsDist 1 -doDepth 1 -doCounts 1 \
 			-checkBamHeaders 0 -SNP_pval 1e-3 \
-			-GL 2 -doGlf 2 -doMajorMinor 1 -doMaf 1 \
+			-GL 1 -doGlf 2 -doMajorMinor 1 -doMaf 1 \
 			-doGeno 32 -doPost 1
 
 }
