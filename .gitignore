@@ -5,3 +5,4 @@ written_project/
 tree.txt
 *.bam*
 /data/processed_sequences/
+/data/omia_sql/
