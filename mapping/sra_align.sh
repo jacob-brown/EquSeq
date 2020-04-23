@@ -13,17 +13,21 @@ FILE_1=$DIR/files/$1
 FILE_2=$DIR/files/$2
 BASE_NAME=$3
 
+#echo '-----------------------'
+#echo -e "\nAlign sequences\n"
+
+#bwa mem $REF_GEN $FILE_1 $FILE_2 -t 7 > $DIR/aligned/$BASE_NAME'.sam'
+
+#timer
 echo '-----------------------'
-echo -e "\nAlign sequences\n"
+echo -e "\nAligning, sorting, converting bam\n"
 
-bwa mem $REF_GEN $FILE_1 $FILE_2 -t 7 > $DIR/aligned/$BASE_NAME'.sam'
-
+bwa mem -t 7 $REF_GEN $FILE_1 $FILE_2 | samtools sort -m 1G -@ 4 -O BAM -o $DIR/sorted/$BASE_NAME'.sorted.bam' -
+#bwa mem $REF_GEN $FILE_1 $FILE_2 | samtools view -bS - > out.bam
 timer
 
-
-
-echo '-----------------------'
-echo -e "\nConvert to bam\n"
+#echo '-----------------------'
+#echo -e "\nConvert to bam\n"
 
 
 #samtools view -bS --threads 29 $DIR/aligned/$BASE_NAME'.sam' > \

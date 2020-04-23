@@ -8,7 +8,7 @@ SELECT *,
 FROM OMIA.Variant
 LEFT JOIN (
 
-	SELECT breed_id, variant_id, breed_name, 'horse' AS conf_horse
+	SELECT breed_id, variant_id, breed_name, "horse" AS conf_horse
 	FROM OMIA.Variant_Breed
 	INNER JOIN (
 		SELECT * 
@@ -22,16 +22,14 @@ LEFT JOIN (
 	SELECT gene_id, synonym AS gene
 	FROM OMIA.GeneSynonym
     ) AS genes USING(gene_id)
-    
+
 LEFT JOIN(
-		SELECT mutation_type_id AS type_id, mutation_type_name
-		FROM OMIA.Mutation_Type
-        ) AS variant_types USING(type_id)
-        
+	SELECT variant_type_id as type_id, variant_type_name
+	FROM OMIA.Variant_Type
+) AS var_types USING(type_id)
+
 HAVING horse_filter = "horse"
 
 
 
 
-# SELECT * FROM OMIA.Phene WHERE gb_species_id = 9796
-# phens has way more, as does the omia site - look into this

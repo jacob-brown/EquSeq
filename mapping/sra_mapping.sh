@@ -8,6 +8,7 @@
 	# complete for sta_runs 
 	# 0-1 for sra_runs_to_do
 
+#qsub -J 0-5 sra_mapping.sh
 # qsub -J 0-582 sra_mapping.sh
 #qsub -J 2-582 sra_mapping.sh
 
@@ -68,5 +69,4 @@ bash sra_align.sh $READ1 $READ2 $FILE_PREFIX
 timer 
 
 
-mv $HOME/genomics/code/sra_mapping.sh.* logfiles/align_all/
 

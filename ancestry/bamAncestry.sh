@@ -39,6 +39,8 @@ function makeBamList(){
 
 
 function qualityCheck(){
+
+	CHR=$1
 	# check quality of bam files
 		# P 4 - 4 threads -maxDepth 500
 		# -minMapQ 20 min quality 
@@ -48,8 +50,8 @@ function qualityCheck(){
 	echo '=================================='
 	echo -e "\nChecking Quality \n"
 	# rmove -r chr1 after
-	$ANGSD -nThreads 4 -bam $ANC_DIR/bam.list -ref $REF -out $ANC_DIR/ALL.qc\
-	        -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
+	$ANGSD -nThreads 31 -bam $ANC_DIR/bam.list -ref $REF -out $ANC_DIR/ALL.qc\
+	        -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -r $CHR \
 	        -trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 20 \
 	        -doQsDist 1 -doDepth 1 -doCounts 1 -checkBamHeaders 0
 
@@ -67,6 +69,8 @@ function qualityCheck(){
 
 function genotypeLH(){
 
+	CHR=$1
+
 	# filter with the above and:
 		# -doMaf 1: Frequency (fixed major and minor)
 		# -doPost 1: estimate per-site allele frequency as a 
@@ -80,13 +84,19 @@ function genotypeLH(){
 	echo -e "\nGenerating Genotype Liklihoods\n"
 
 	$ANGSD -nThreads 31 -bam $ANC_DIR/bam.list -ref $REF \
-			-out $ANC_DIR/ALL \
+			-out $ANC_DIR/ALL -r CHR \
 			-uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
 			-trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 20 \
-			-doQsDist 1 -doDepth 1 -doCounts 1 \
 			-checkBamHeaders 0 -SNP_pval 1e-3 \
-			-GL 1 -doGlf 2 -doMajorMinor 1 -doMaf 1 \
-			-doGeno 32 -doPost 1
+			-GL 1 -doGlf 4
+
+	#$ANGSD -nThreads 31 -bam $ANC_DIR/bam.list -ref $REF \
+	#		-out $ANC_DIR/ALL -r CHR \
+	#		-uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
+	#		-trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 20 \
+	#		-checkBamHeaders 0 -SNP_pval 1e-3 \
+	#		-GL 1 -doGlf 2 -doMajorMinor 1 -doMaf 1 \
+	#		-doGeno 32 -doPost 1
 
 }
 
@@ -109,21 +119,21 @@ function pcaGL(){
 ############ Main ###########
 #############################
 
-while getopts ":mqgp" opt; do
+while getopts "mq:g:p" opt; do
   case ${opt} in
   	m) # make bam list
 		makeBamList
 		;;
-    q ) # quality control
-       	qualityCheck
+    q ) # quality control 
+       	qualityCheck $OPTARG
       	;;
     g ) # genotype liklihoods
-      	genotypeLH
+      	genotypeLH $OPTARG
       	;;
     p) # pcangsd
     	pcaGL
     	;;
-    \? ) echo "Usage: cmd [-q] [-g] [-p]"
+    \? ) echo "Usage: cmd [-m] [-q] chrN [-g] chrN [-p]"
       ;;
   esac
 done

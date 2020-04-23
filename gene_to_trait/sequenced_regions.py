@@ -1,0 +1,95 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Author: Jacob Brown
+# Email j.brown19@imperial.ac.uk
+# Date:   2020-04-22
+# Last Modified: 2020-04-23
+
+
+
+""" check bam file for regions sequenced, 
+	comparing to desired variants """
+
+###########################################
+################# Modules #################
+###########################################
+
+import pysam
+import mysql.connector
+import re
+
+###########################################
+############## Function(s) ################
+###########################################
+
+
+
+###########################################
+######### Input(s) and Parameters #########
+###########################################
+
+db = mysql.connector.connect(
+	host="localhost",
+	username="root",
+	passwd="Bamboo91",
+	database="OMIA")
+
+cursor = db.cursor()
+
+sql_File = "gene_to_trait/variants.sql"
+
+bamfile = pysam.AlignmentFile("data/processed_sequences/new.rg.bam", "rb")
+
+
+###########################################
+############### Wraggling #################
+###########################################
+
+sql_Qry = open(sql_File, "r").read() # read string
+cursor.execute(sql_Qry) # execute qry
+results = cursor.fetchall()
+
+header = cursor.column_names
+
+i_chr = header.index('chromosome')
+i_pos = header.index('g_or_m')
+i_type = header.index('variant_type_name')
+i_phene =  header.index('phenotype')
+
+### quick filter of the variants ### -UPDATE LATER!!!!!!!! 
+store = []
+for elem in results:
+	if(elem[i_type] == 'missense' \
+		and elem[i_pos] != '' \
+		and elem[i_chr] != ''):
+		tmp_Pos = int(re.search('\d+', elem[i_pos]).group())
+		store.append([elem[i_chr], tmp_Pos, elem[i_phene]])
+
+depth_store = []
+for variant in store:
+	chrom_pos = "chr"+str(variant[0])
+	pos = variant[1]
+	
+	# open bam and determine depth
+	depth = 0 # return value to 0 prior to running
+	
+	for read in bamfile.fetch(chrom_pos, pos, pos+1):
+		depth = len([i for i in read.get_reference_positions() if i == pos])
+
+	variant.insert(len(variant), depth)
+	depth_store.append(variant)
+
+
+bamfile.close()
+
+
+
+###########################################
+############### Analysis ##################
+###########################################
+
+
+
+###########################################
+############### Plotting ##################
+###########################################
