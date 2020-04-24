@@ -84,19 +84,12 @@ function genotypeLH(){
 	echo -e "\nGenerating Genotype Liklihoods\n"
 
 	$ANGSD -nThreads 31 -bam $ANC_DIR/bam.list -ref $REF \
-			-out $ANC_DIR/ALL -r CHR \
+			-out $ANC_DIR/ALL_$CHR -r $CHR \
 			-uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
 			-trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 20 \
 			-checkBamHeaders 0 -SNP_pval 1e-3 \
 			-GL 1 -doGlf 4
 
-	#$ANGSD -nThreads 31 -bam $ANC_DIR/bam.list -ref $REF \
-	#		-out $ANC_DIR/ALL -r CHR \
-	#		-uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
-	#		-trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 20 \
-	#		-checkBamHeaders 0 -SNP_pval 1e-3 \
-	#		-GL 1 -doGlf 2 -doMajorMinor 1 -doMaf 1 \
-	#		-doGeno 32 -doPost 1
 
 }
 

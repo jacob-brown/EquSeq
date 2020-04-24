@@ -7,3 +7,5 @@ tree.txt
 /data/processed_sequences/
 /data/omia_sql/
 /sandbox/
+ancestry_novel.sh
+data/gene_variants/snp.list

@@ -1,6 +1,6 @@
 #!/bin/bash
 #PBS -l walltime=24:00:00
-#PBS -lselect=1:ncpus=8:mem=20gb
+#PBS -lselect=1:ncpus=30:mem=360gb
 
 # ERR868003, ERR868004 - memory maxed when aligning
 

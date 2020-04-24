@@ -12,4 +12,15 @@ REF_GEN=$EPHEMERAL/mapping/ref_genome/EquCab2.fna
 BAM=$EPHEMERAL/mapping/merged/new.rg.bam
 OUT_FQ=$EPHEMERAL/gene_to_trait/cns.fq
 
-samtools mpileup -uf $REF_GEN $BAM | bcftools call -c - | vcfutils.pl vcf2fq > $OUT_FQ
+samtools mpileup -uf $REF_GEN $BAM | \
+	bcftools call -c - | \
+	vcfutils.pl vcf2fq > $OUT_FQ
+
+
+#samtools mpileup -su -l snp.list -f $REF_GEN new.rg.bam | bcftools view - > test.vcf
+
+samtools mpileup -suO -l snp.list -f $REF_GEN new.rg.bam | bcftools view - > test.vcf
+
+#samtools mpileup -s -l snp.list -f $REF_GEN new.rg.bam | \
+#	bcftools view - > test1.vcf
+

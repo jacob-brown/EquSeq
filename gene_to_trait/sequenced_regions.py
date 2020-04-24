@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-22
-# Last Modified: 2020-04-23
+# Last Modified: 2020-04-24
 
 
 
@@ -22,6 +22,14 @@ import re
 ############## Function(s) ################
 ###########################################
 
+### save a text file without a new line at the end
+def saveTxt(dirfile, listToSave, sep='\n'):
+	with open(dirfile, 'w') as f:
+		for num, val in enumerate(listToSave):
+			if num == len(listToSave) - 1:
+				f.write(val)
+			else:
+				f.write(val + sep)
 
 
 ###########################################
@@ -63,7 +71,12 @@ for elem in results:
 		and elem[i_pos] != '' \
 		and elem[i_chr] != ''):
 		tmp_Pos = int(re.search('\d+', elem[i_pos]).group())
-		store.append([elem[i_chr], tmp_Pos, elem[i_phene]])
+		tmp_chr = int(elem[i_chr])
+		store.append([tmp_chr, tmp_Pos, elem[i_phene]])
+
+
+# sort store list
+store.sort(key=lambda x: (x[0], x[1]))
 
 depth_store = []
 for variant in store:
@@ -80,15 +93,34 @@ for variant in store:
 	depth_store.append(variant)
 
 
-bamfile.close()
 
+store_best = [i for i in depth_store if i[len(depth_store[0])-1]  > 0]
 
+### write ### 
+position_String = ["chr" + str(i[0]) + " "  + str(i[1]) for i in store]
+
+saveTxt("data/gene_variants/snp.list", position_String)
 
 ###########################################
 ############### Analysis ##################
 ###########################################
 
+chrPos = "chr3"
+pos_interest = 36259552
 
+
+for pileupcolumn in bamfile.pileup(chrPos, pos_interest, pos_interest+1):
+	if(pileupcolumn.pos == pos_interest):
+	    print ("\ncoverage at base %s = %s" %
+	           (pileupcolumn.pos, pileupcolumn.n))
+	    for pileupread in pileupcolumn.pileups:
+	        if not pileupread.is_del and not pileupread.is_refskip:
+	            # query position is None if is_del or is_refskip is set.
+	            print ('\tbase in read %s = %s' %
+	                  (pileupread.alignment.query_name,
+	                   pileupread.alignment.query_sequence[pileupread.query_position]))
+
+#bamfile.close()
 
 ###########################################
 ############### Plotting ##################
