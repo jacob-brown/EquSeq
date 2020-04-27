@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -l walltime=24:00:00
+#PBS -l walltime=46:00:00
 #PBS -lselect=1:ncpus=30:mem=360gb
 
 # ERR868003, ERR868004 - memory maxed when aligning
@@ -8,9 +8,9 @@
 	# complete for sta_runs 
 	# 0-1 for sra_runs_to_do
 
-#qsub -J 0-5 sra_mapping.sh
-# qsub -J 0-582 sra_mapping.sh
-#qsub -J 2-582 sra_mapping.sh
+# qsub -J 0-49 sra_mapping.sh
+# qsub -J 0-581 sra_mapping.sh
+
 
 echo '=================================='
 echo -e "\nLoading modules\n"

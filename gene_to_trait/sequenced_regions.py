@@ -95,30 +95,35 @@ for variant in store:
 
 
 store_best = [i for i in depth_store if i[len(depth_store[0])-1]  > 0]
+store_notSeq = [i for i in depth_store if i[len(depth_store[0])-1]  == 0]
 
 ### write ### 
 position_String = ["chr" + str(i[0]) + " "  + str(i[1]) for i in store]
 
-saveTxt("data/gene_variants/snp.list", position_String)
+#saveTxt("data/gene_variants/snp.list", position_String)
 
 ###########################################
 ############### Analysis ##################
 ###########################################
 
-chrPos = "chr3"
-pos_interest = 36259552
+
+for variant in store:
+	#try:
+	chrPos = "chr" + str(variant[0])
+
+	for pileupcolumn in bamfile.pileup(chrPos, variant[1], variant[1]+1):
+		if(pileupcolumn.pos == variant[1]):
+			seq = pileupcolumn.get_query_sequences(mark_matches=True, mark_ends=True, add_indels=True)
+			mapQ = pileupcolumn.get_mapping_qualities()
+			baseQ = pileupcolumn.get_query_qualities() # qualities
+			depth = pileupcolumn.n
+			print("\nposition: %s depth: %s seq: %s mapQ: %s base qual: %s " %
+				(pileupcolumn.pos, str(depth), str(seq), str(mapQ), str(baseQ)))
+	#except TypeError:
+	#	pass
 
 
-for pileupcolumn in bamfile.pileup(chrPos, pos_interest, pos_interest+1):
-	if(pileupcolumn.pos == pos_interest):
-	    print ("\ncoverage at base %s = %s" %
-	           (pileupcolumn.pos, pileupcolumn.n))
-	    for pileupread in pileupcolumn.pileups:
-	        if not pileupread.is_del and not pileupread.is_refskip:
-	            # query position is None if is_del or is_refskip is set.
-	            print ('\tbase in read %s = %s' %
-	                  (pileupread.alignment.query_name,
-	                   pileupread.alignment.query_sequence[pileupread.query_position]))
+
 
 #bamfile.close()
 

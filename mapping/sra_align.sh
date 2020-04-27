@@ -20,7 +20,7 @@ BASE_NAME=$3
 
 #timer
 echo '-----------------------'
-echo -e "\nAligning, sorting, converting bam\n"
+echo -e "\nAligning, converting bam\n"
 
 #bwa mem -t 7 $REF_GEN $FILE_1 $FILE_2 | \
 #	samtools sort -O BAM -o $DIR/sorted/$BASE_NAME'.sorted.bam' -
