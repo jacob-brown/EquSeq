@@ -1,6 +1,9 @@
 #! /bin/bash
-#PBS -l walltime=48:00:00
-#PBS -l select=1:ncpus=8:mem=5gb
+#PBS -l walltime=70:00:00
+#PBS -l select=1:ncpus=32:mem=62gb
+
+
+# qsub ancestry.sh
 
 CODE_DIR=$HOME/genomics/code/
 

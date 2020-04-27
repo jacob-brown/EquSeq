@@ -87,7 +87,7 @@ function genotypeLH(){
 			-out $ANC_DIR/ALL_$CHR -r $CHR \
 			-uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
 			-trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 20 \
-			-checkBamHeaders 0 -SNP_pval 1e-3 \
+			-checkBamHeaders 0 \
 			-GL 1 -doGlf 4
 
 
