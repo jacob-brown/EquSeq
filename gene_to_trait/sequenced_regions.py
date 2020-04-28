@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-22
-# Last Modified: 2020-04-27
+# Last Modified: 2020-04-28
 
 
 
@@ -122,8 +122,8 @@ for variant in store:
 	depth_store.append(variant)
 
 
-store_best = [i for i in depth_store if i[10] > 0]
-store_notSeq = [i for i in depth_store if i[10]  == 0]
+store_best = [i for i in depth_store if i[8] > 0]
+store_notSeq = [i for i in depth_store if i[8]  == 0]
 
 ### write ### 
 #position_String = ["chr" + str(i[0]) + " "  + str(i[1]) for i in store]
@@ -133,7 +133,50 @@ store_notSeq = [i for i in depth_store if i[10]  == 0]
 ###########################################
 ############### Analysis ##################
 ###########################################
-variant = [i for i in store if i[0] == 890][0]
+
+
+def deletion():
+	ref = variant[6].upper() # reference from hgvs variant code
+	var = variant[7].upper() # variant from hgvs variant code
+	phen = variant[2]
+	# return true false for base deletion
+	baseDel = [i.is_del == 1 for i in pileupcolumn.pileups]
+
+	return [phen, "del" ,ref, var, seq, baseDel]
+
+def substitution():
+	ref = variant[6].upper() # reference from hgvs variant code
+	var = variant[7].upper() # variant from hgvs variant code
+	phen = variant[2]
+	store_list = [phen, "sub" ,ref, var, seq, [], []]
+
+	# iterate through each base prediction
+	for i in seq:
+		store_list[5].append(i == ref)
+		store_list[6].append(i == var)
+
+
+	return store_list #store_dict
+
+def detectMutation(mutation_type):
+
+	""" switch case control for mutation types """
+
+	switcher = {
+		"del": deletion,
+		"sub":substitution
+		#"ins":insertion,
+	}
+	func=switcher.get(mutation_type, \
+		lambda: mutation_type + ', mutation type currently not recognised (dev. write function).')
+	return func()
+
+
+
+
+
+
+variant = [i for i in store if i[0] == 856][0]
 
 for variant in store:
 	
@@ -142,6 +185,8 @@ for variant in store:
 	for pileupcolumn in bamfile.pileup(chrPos, variant[3], variant[4]+1):
 		if(pileupcolumn.pos >= variant[3] \
 			and pileupcolumn.pos <= variant[4]):
+
+
 			#for pileupread in pileupcolumn.pileups:
 			#	tmp_info = [pileupread.is_del, \
 			#					pileupread.query_position, \
@@ -150,15 +195,22 @@ for variant in store:
 			#	print(tmp_info)
 			seq = pileupcolumn.get_query_sequences(mark_matches=True, \
 				mark_ends=True, add_indels=True)
+			# convert - lower match on reverse
+			seq = [i.upper() for i in seq]
 			mapQ = pileupcolumn.get_mapping_qualities()
 			baseQ = pileupcolumn.get_query_qualities() # qualities
 			depth = pileupcolumn.n
 
-			print("\nposition: %s depth: %s seq: %s mapQ: %s base qual: %s " %
-				(pileupcolumn.pos, str(depth), str(seq), str(mapQ), str(baseQ)))
-			print(variant[2] + ", "+variant[5])
-			print("ref: " + variant[6] + " " + str(seq))
-			print("var: " + str(variant[7]) + " " + str(seq))
+
+			if variant[5] == 'sub':
+				print(detectMutation(variant[5]))
+
+			#print("\nposition: %s depth: %s seq: %s mapQ: %s base qual: %s " %
+			#	(pileupcolumn.pos, str(depth), str(seq), str(mapQ), str(baseQ)))
+			#print(variant[2] + ", "+variant[5])
+			#print("ref: " + variant[6] + " " + str(seq))
+			#print("var: " + str(variant[7]) + " " + str(seq))
+
 
 
 
@@ -173,7 +225,8 @@ for variant in store:
 #            print ('\tbase in read %s = %s' %
 #                  (pileupread.alignment.query_name,
 #                   pileupread.alignment.query_sequence[pileupread.query_position]))
-#
+#            
+
 
 
 #bamfile.close()

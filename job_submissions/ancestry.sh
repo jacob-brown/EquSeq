@@ -1,7 +1,6 @@
 #! /bin/bash
-#PBS -l walltime=70:00:00
+#PBS -l walltime=48:00:00
 #PBS -l select=1:ncpus=32:mem=62gb
-
 
 # qsub ancestry.sh
 
@@ -15,6 +14,24 @@ echo "Checking Quality"
 #bash bamAncestry.sh -q
 
 
+echo '=================================='
+echo -e "\nDetermining Chromosome number\n"
+
+if (($PBS_ARRAY_INDEX == 32)); then
+	CHR=chrX
+else
+	CHR=chr$PBS_ARRAY_INDEX	
+fi
+
+if (($PBS_ARRAY_INDEX == 3)); then
+	echo "Chromosome3 completed"
+	exit
+fi
+
+echo "Chromosome: " $CHR
+echo "Job Number: " $PBS_ARRAY_INDEX
+
 #bash bamAncestry.sh -q chr3
-bash bamAncestry.sh -g chr3
+bash bamAncestry.sh -g $CHR
+#bash bamAncestry.sh -c chr3
 

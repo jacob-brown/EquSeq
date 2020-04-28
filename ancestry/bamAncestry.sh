@@ -94,6 +94,20 @@ function genotypeLH(){
 }
 
 
+function genoCalling(){
+
+
+	echo '=================================='
+	echo -e "\nGenotype Calling\n"
+
+	$ANGSD -glf $ANC_DIR/ALL_XXXXX.glf.gz -fai $REF.fai \
+			-nInd 10 -out $ANC_DIR/ALL_CALL_$CHR \
+			-doMajorMinor 1 -doGeno 3 -doPost 2 -doMaf 1
+
+
+}
+
+
 function pcaGL(){
 
 
@@ -112,7 +126,7 @@ function pcaGL(){
 ############ Main ###########
 #############################
 
-while getopts "mq:g:p" opt; do
+while getopts "mq:g:c:p" opt; do
   case ${opt} in
   	m) # make bam list
 		makeBamList
@@ -123,6 +137,9 @@ while getopts "mq:g:p" opt; do
     g ) # genotype liklihoods
       	genotypeLH $OPTARG
       	;;
+    c) # genotype calling
+		genoCalling $OPTARG
+		;;
     p) # pcangsd
     	pcaGL
     	;;
@@ -130,48 +147,6 @@ while getopts "mq:g:p" opt; do
       ;;
   esac
 done
-
-
-
-
-
-
-
-
-
-#echo '=================================='
-#echo -e "\nspecific sites\n"
-
-# add chromosome and location
-#echo chr3 79504108 79618886 > $DIR/snp.txt # KIT
-
-#echo chr16 21548000 21757591 >> $DIR/snp.txt # MITF
-
-#https://www.ensembl.org/Equus_caballus/Gene/Summary?db=core;g=ENSECAG00000005360;r=16:21548000-21757591
-
-#angsd sites index $DIR/snp.txt
-
-#angsd -i $FILES -ref $REF -out $DIR/restrict.sites \
-#		-uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
-#		-trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 13 \
-#		-sites $DIR/snp.txt \
-#		-doQsDist 1 -doDepth 1 -doCounts 1 \
-#		-GL 1 -doGlf 4 -doMajorMinor 1 -doMaf 1 \
-#		-doGeno 32 -doPost 1
-
-
-#echo '=================================='
-#echo -e "\nSNP Calling significance\n"
-
-# iterate over some cutoffs (you can change these)
-#for PV in 0.05 1e-2 1e-4 1e-6
-#do
-#	if [ $PV == 0.05 ]; then echo SNP_pval NR_SNPs; fi
-#	angsd -glf $DIR/ALL.qc.glf.gz -nInd 1 -fai $REF.fai \
-#			-out $DIR/glf.$PV -doMajorMinor 1 -doMaf 1 \
-#			 -skipTriallelic 1 -SNP_pval $PV &> /dev/null
-#	echo $PV `zcat $DIR/glf.$PV.mafs.gz | tail -n+2 | wc -l`
-#done
 
 
 
