@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-22
-# Last Modified: 2020-04-28
+# Last Modified: 2020-04-29
 
 
 
@@ -144,21 +144,22 @@ def deletion():
 
 	return [phen, "del" ,ref, var, seq, baseDel]
 
-def substitution():
-	ref = variant[6].upper() # reference from hgvs variant code
-	var = variant[7].upper() # variant from hgvs variant code
-	phen = variant[2]
-	store_list = [phen, "sub" ,ref, var, seq, [], []]
+def substitution(var):
+	uniqID = var[0]
+	phen = var[2]
+	ref = var[6].upper() # reference from hgvs variant code
+	var_hgvs = var[7].upper() # variant from hgvs variant code
+	store_list = [uniqID, phen, "sub" ,ref, var_hgvs, seq, [], []]
 
 	# iterate through each base prediction
 	for i in seq:
-		store_list[5].append(i == ref)
-		store_list[6].append(i == var)
+		store_list[6].append(i == ref)
+		store_list[7].append(i == var_hgvs)
 
 
 	return store_list #store_dict
 
-def detectMutation(mutation_type):
+def detectMutation(mutation_type, variant):
 
 	""" switch case control for mutation types """
 
@@ -169,15 +170,16 @@ def detectMutation(mutation_type):
 	}
 	func=switcher.get(mutation_type, \
 		lambda: mutation_type + ', mutation type currently not recognised (dev. write function).')
-	return func()
+	return func(variant)
 
 
 
 
 
 
-variant = [i for i in store if i[0] == 856][0]
+variant = [i for i in store if i[0] == 892][0]
 
+store_PassFail = []
 for variant in store:
 	
 	chrPos = "chr" + str(variant[1])
@@ -186,13 +188,6 @@ for variant in store:
 		if(pileupcolumn.pos >= variant[3] \
 			and pileupcolumn.pos <= variant[4]):
 
-
-			#for pileupread in pileupcolumn.pileups:
-			#	tmp_info = [pileupread.is_del, \
-			#					pileupread.query_position, \
-			#	pileupread.alignment.query_sequence[pileupread.query_position]]
-			#					
-			#	print(tmp_info)
 			seq = pileupcolumn.get_query_sequences(mark_matches=True, \
 				mark_ends=True, add_indels=True)
 			# convert - lower match on reverse
@@ -201,9 +196,13 @@ for variant in store:
 			baseQ = pileupcolumn.get_query_qualities() # qualities
 			depth = pileupcolumn.n
 
-
 			if variant[5] == 'sub':
-				print(detectMutation(variant[5]))
+				#print(variant)
+				#import ipdb 
+				#ipdb.set_trace()
+				#print(detectMutation(variant[5], variant))
+				store_PassFail.append(detectMutation(variant[5], variant))
+
 
 			#print("\nposition: %s depth: %s seq: %s mapQ: %s base qual: %s " %
 			#	(pileupcolumn.pos, str(depth), str(seq), str(mapQ), str(baseQ)))
@@ -212,20 +211,6 @@ for variant in store:
 			#print("var: " + str(variant[7]) + " " + str(seq))
 
 
-
-
-
-
-#for pileupcolumn in bamfile.pileup(chrPos, variant[3], variant[4]+1):
-#    print ("\ncoverage at base %s = %s" %
-#           (pileupcolumn.pos, pileupcolumn.n))
-#    for pileupread in pileupcolumn.pileups:
-#        if not pileupread.is_del and not pileupread.is_refskip:
-#            # query position is None if is_del or is_refskip is set.
-#            print ('\tbase in read %s = %s' %
-#                  (pileupread.alignment.query_name,
-#                   pileupread.alignment.query_sequence[pileupread.query_position]))
-#            
 
 
 

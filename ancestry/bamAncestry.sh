@@ -84,11 +84,11 @@ function genotypeLH(){
 	echo -e "\nGenerating Genotype Liklihoods\n"
 
 	$ANGSD -nThreads 31 -bam $ANC_DIR/bam.list -ref $REF \
-			-out $ANC_DIR/ALL_$CHR -r $CHR \
+			-out $ANC_DIR/ALL_beg_$CHR -r $CHR \
 			-uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
 			-trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 20 \
 			-checkBamHeaders 0 \
-			-GL 1 -doGlf 4
+			-GL 1 -doGlf 2 -doMajorMinor 1  -doMaf 1 
 
 
 }
@@ -96,11 +96,12 @@ function genotypeLH(){
 
 function genoCalling(){
 
+	CHR=$1
 
 	echo '=================================='
 	echo -e "\nGenotype Calling\n"
 
-	$ANGSD -glf $ANC_DIR/ALL_XXXXX.glf.gz -fai $REF.fai \
+	$ANGSD -glf $ANC_DIR/ALL_$CHR.glf.gz -fai $REF.fai -r $CHR \
 			-nInd 10 -out $ANC_DIR/ALL_CALL_$CHR \
 			-doMajorMinor 1 -doGeno 3 -doPost 2 -doMaf 1
 

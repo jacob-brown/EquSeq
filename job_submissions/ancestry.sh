@@ -23,10 +23,6 @@ else
 	CHR=chr$PBS_ARRAY_INDEX	
 fi
 
-if (($PBS_ARRAY_INDEX == 3)); then
-	echo "Chromosome3 completed"
-	exit
-fi
 
 echo "Chromosome: " $CHR
 echo "Job Number: " $PBS_ARRAY_INDEX
