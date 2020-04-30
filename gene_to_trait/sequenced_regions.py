@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-22
-# Last Modified: 2020-04-29
+# Last Modified: 2020-04-30
 
 
 
@@ -177,7 +177,7 @@ def detectMutation(mutation_type, variant):
 
 
 
-variant = [i for i in store if i[0] == 892][0]
+variant = [i for i in store if i[0] == 1000][0]
 
 store_PassFail = []
 for variant in store:
@@ -209,10 +209,6 @@ for variant in store:
 			#print(variant[2] + ", "+variant[5])
 			#print("ref: " + variant[6] + " " + str(seq))
 			#print("var: " + str(variant[7]) + " " + str(seq))
-
-
-
-
 
 #bamfile.close()
 

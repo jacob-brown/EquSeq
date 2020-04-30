@@ -19,7 +19,12 @@ samtools mpileup -uf $REF_GEN $BAM | \
 
 #samtools mpileup -su -l snp.list -f $REF_GEN new.rg.bam | bcftools view - > test.vcf
 
-samtools mpileup -suO -l snp.list -f $REF_GEN new.rg.bam | bcftools view - > test.vcf
+samtools mpileup -suO -l snp.list2 -f $REF_GEN new.rg.bam -o test.mpileup
+
+
+samtools mpileup -suO -l snp.list -f $REF_GEN new.rg.bam | bcftools view -H -o test.vcf
+
+| bcftools view - > test.vcf
 
 #samtools mpileup -s -l snp.list -f $REF_GEN new.rg.bam | \
 #	bcftools view - > test1.vcf

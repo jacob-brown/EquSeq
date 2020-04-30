@@ -117,8 +117,13 @@ function pcaGL(){
 	PCANGSD=$EPHEMERAL/dependencies/pcangsd/pcangsd.py
 
 	# Estimate covariance matrix and individual admixture proportions
-	python $PCANGSD -beagle $ANC_DIR/ALL.beagle.gz \
-			-admix -o $ANC_DIR/ -threads 31
+	python $PCANGSD -beagle $ANC_DIR/ALL_beg_chr3.beagle.gz \
+					-o $ANC_DIR/pca -threads 29
+
+	# Rscript -e 'write.table(cbind(seq(1,30),rep(1,30),c(rep("LWK",10),rep("TSI",10),rep("PEL",10))), row.names=F, sep="\t", col.names=c("FID","IID","CLUSTER"), file="Results/ALL.clst", quote=F)'
+	#Rscript $NGSTOOLS/Scripts/plotPCA.R -i Results/ALL.covar -c 1-2 -a Results/ALL.clst -o Results/ALL.pca.pdf
+	#evince Results/ALL.pca.pdf
+
 
 }
 

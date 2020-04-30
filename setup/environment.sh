@@ -23,6 +23,8 @@ DIR_ALL=$EPHEMERAL/all_data/
 
 # ancestry data store
 mkdir $EPHEMERAL/ancestry/
+mkdir $EPHEMERAL/ancestry/pca
+mkdir $EPHEMERAL/ancestry/qualityChecks
 
 # gene to trait data store
 mkdir $EPHEMERAL/gene_to_trait/
@@ -76,6 +78,9 @@ make HTSSRC=../htslib
 cd ..
 rm angsd0.930.tar.gz
 
+echo '=================================='
+echo -e "\nBeagle Download\n"
+wget https://faculty.washington.edu/browning/beagle/beagle.27Apr20.b81.jar -O $DIR_DEP/beagle.jar
 
 echo '=================================='
 echo -e "\nExit\n"
