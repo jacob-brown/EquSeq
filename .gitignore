@@ -9,3 +9,5 @@ tree.txt
 /sandbox/
 ancestry_novel.sh
 data/gene_variants/snp.list
+data/snp.all.p
+data/snp.list

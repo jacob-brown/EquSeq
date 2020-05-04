@@ -1,6 +1,6 @@
 SELECT *, 
 	CASE 
-		WHEN LOWER(reference_sequence) LIKE "equcab%" THEN "horse"
+		WHEN LOWER(reference_sequence) LIKE "%e%cab%" THEN "horse"
         WHEN conf_horse = "horse" THEN "horse"
         ELSE null
 	END AS horse_filter

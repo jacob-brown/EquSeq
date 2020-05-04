@@ -4,7 +4,7 @@
 
 
 # import unix functions
-source ../scripts/unix_functions.sh
+source unix_functions.sh
 
 
 echo '=================================='
@@ -71,19 +71,20 @@ samtools view -f 1024 --threads 31 $DIR/merged.rmdup.bam | wc -l
 # timer
 timer
 
-echo '-----------------------'
-echo -e "\nNew file\n"
+#echo '-----------------------'
+#echo -e "\nNew file\n"
 
 # -h to include header., -q 20 quality above 20, 
 # Make a new bamfile, where you only the reads where both ends maps, 
 # and filter out those with a mapping quality below 20, and removing duplicates
+# -F 4 mapped only2
+
 samtools view -h -f 2 -F 1024 --threads 31 \
 		$DIR/merged.rmdup.bam -q 20 > \
 		$DIR/new.bam
 
-# timer
+ timer
 timer
-
 
 echo '-----------------------'
 echo -e "\nAdding RG flag\n"
@@ -100,10 +101,16 @@ java -Xmx120g -jar $PICARD AddOrReplaceReadGroups \
 	CREATE_INDEX=True \
 	TMP_DIR=$TMPDIR # resolves memory issues
 
+
+echo '-----------------------'
+echo -e "\nRemove Unmapped Reads\n"
+
+samtools view -b -F 4 new.rg.bam > final.bam
+
 echo '-----------------------'
 echo -e "\nIndex with samtools\n"
 
-samtools index $DIR/new.rg.bam
+samtools index $DIR/final.bam
 
 # timer
 timer

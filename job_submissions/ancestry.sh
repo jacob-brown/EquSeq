@@ -1,6 +1,6 @@
 #! /bin/bash
-#PBS -l walltime=48:00:00
-#PBS -l select=1:ncpus=30:mem=360gb
+#PBS -l walltime=24:00:00
+#PBS -l select=1:ncpus=32:mem=62gb
 
 # qsub ancestry.sh
 
@@ -31,5 +31,11 @@ echo "Checking Quality"
 #bash bamAncestry.sh -g $CHR
 #bash bamAncestry.sh -c chr3
 
-bash bamAncestry.sh -p # requires quite a bit of memory
+#bash bamAncestry.sh -p # requires quite a bit of memory
+#timer
+
+
+bash bamAncestry.sh -g 
+timer
+bash bamAncestry.sh -p
 timer
