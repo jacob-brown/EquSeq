@@ -1,6 +1,6 @@
 #! /bin/bash
-#PBS -l walltime=24:00:00
-#PBS -l select=1:ncpus=32:mem=62gb
+#PBS -l walltime=48:00:00
+#PBS -l select=1:ncpus=32:mem=124gb
 
 # qsub ancestry.sh
 
@@ -8,8 +8,9 @@ CODE_DIR=$HOME/genomics/code/
 
 cp $CODE_DIR/bamAncestry.sh $CODE_DIR/unix_functions.sh $TMPDIR
 
+source unix_functions.sh
 
-echo "Checking Quality"
+#echo "Checking Quality"
 
 #bash bamAncestry.sh -q
 
@@ -34,8 +35,9 @@ echo "Checking Quality"
 #bash bamAncestry.sh -p # requires quite a bit of memory
 #timer
 
-
+echo "GL"
 bash bamAncestry.sh -g 
 timer
+echo "PCA"
 bash bamAncestry.sh -p
 timer

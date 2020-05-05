@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-04
-# Last Modified: 2020-05-04
+# Last Modified: 2020-05-05
 
 
 
@@ -140,12 +140,12 @@ def subSample(pickleIn, listOut, snpCount):
 ###########################################
 
 #snpList(bamIn= "data/processed_sequences/new.rg.bam", \
-#			pickleOut="data/snp.all.p", baseDiff=10000)
+#			pickleOut="data/ancestry/snp.all.p", baseDiff=10000)
 
 
 ### subsample again ###
 ##### ALTER AS NEEDED ######
-subSample(pickleIn="data/snp.all.p", listOut="data/snp.list", snpCount=500)
+subSample(pickleIn="data/ancestry/snp.all.p", listOut="data/ancestry/snp.list", snpCount=50000)
 
 
 

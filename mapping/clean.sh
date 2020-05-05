@@ -83,7 +83,7 @@ samtools view -h -f 2 -F 1024 --threads 31 \
 		$DIR/merged.rmdup.bam -q 20 > \
 		$DIR/new.bam
 
- timer
+
 timer
 
 echo '-----------------------'

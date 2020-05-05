@@ -67,32 +67,6 @@ function qualityCheck(){
 
 }
 
-function v1_genotypeLH(){
-
-	CHR=$1
-
-	# filter with the above and:
-		# -doMaf 1: Frequency (fixed major and minor)
-		# -doPost 1: estimate per-site allele frequency as a 
-			#prior for genotype proportions
-		# -GL 1 : genotype likelihood model - Samtools
-		# -doGlf 2 : beagle likelihood file dump file
-		# -doMajorMinor 1 : assign the major and minor alleles from GL
-		# -doGeno 32 : genotype probabilities in binary format
-
-	echo '=================================='
-	echo -e "\nGenerating Genotype Liklihoods\n"
-
-	$ANGSD -nThreads 31 -bam $ANC_DIR/bam.list -ref $REF \
-			-out $ANC_DIR/ALL_beg_$CHR -r $CHR \
-			-uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
-			-trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 20 \
-			-checkBamHeaders 0 \
-			-GL 1 -doGlf 2 -doMajorMinor 1  -doMaf 1 
-
-
-}
-
 
 function genotypeLH(){
 
@@ -119,20 +93,6 @@ function genotypeLH(){
 }
 
 
-function genoCalling(){
-
-	CHR=$1
-
-	echo '=================================='
-	echo -e "\nGenotype Calling\n"
-
-	$ANGSD -glf $ANC_DIR/ALL_$CHR.glf.gz -fai $REF.fai -r $CHR \
-			-nInd 10 -out $ANC_DIR/ALL_CALL_$CHR \
-			-doMajorMinor 1 -doGeno 3 -doPost 2 -doMaf 1
-
-
-}
-
 
 function pcaGL(){
 
@@ -142,16 +102,25 @@ function pcaGL(){
 	PCANGSD=$EPHEMERAL/dependencies/pcangsd/pcangsd.py
 
 	# Estimate covariance matrix and individual admixture proportions
-	python $PCANGSD -beagle $ANC_DIR/ALL_beg.beagle.gz \
-					-o $ANC_DIR/pca -threads 31
-
-	# Rscript -e 'write.table(cbind(seq(1,30),rep(1,30),c(rep("LWK",10),rep("TSI",10),rep("PEL",10))), row.names=F, sep="\t", col.names=c("FID","IID","CLUSTER"), file="Results/ALL.clst", quote=F)'
-	#Rscript $NGSTOOLS/Scripts/plotPCA.R -i Results/ALL.covar -c 1-2 -a Results/ALL.clst -o Results/ALL.pca.pdf
-	#evince Results/ALL.pca.pdf
+	python $PCANGSD -beagle $ANC_DIR/ALL.beagle.gz \
+					-o $ANC_DIR/ALL -threads 30
 
 
 }
 
+#function genoCalling(){
+#
+#	CHR=$1
+#
+#	echo '=================================='
+#	echo -e "\nGenotype Calling\n"
+#
+#	$ANGSD -glf $ANC_DIR/ALL_$CHR.glf.gz -fai $REF.fai -r $CHR \
+#			-nInd 10 -out $ANC_DIR/ALL_CALL_$CHR \
+#			-doMajorMinor 1 -doGeno 3 -doPost 2 -doMaf 1
+#
+#
+#}
 
 #############################
 ############ Main ###########

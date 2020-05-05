@@ -57,17 +57,6 @@ mkdir \
 
 
 echo '=================================='
-echo -e "\nBuild pcangsd\n"
-
-
-git clone https://github.com/Rosemeis/pcangsd.git $DIR_DEP/pcangsd
-
-python $DIR_DEP/pcangsd/setup.py build_ext --inplace
-
-# check if functional
-# python pcangsd.py -h
-
-echo '=================================='
 echo -e "\nBuild angsd\n"
 
 wget http://popgen.dk/software/download/angsd/angsd0.930.tar.gz 
@@ -79,8 +68,19 @@ cd ..
 rm angsd0.930.tar.gz
 
 echo '=================================='
-echo -e "\nBeagle Download\n"
-wget https://faculty.washington.edu/browning/beagle/beagle.27Apr20.b81.jar -O $DIR_DEP/beagle.jar
+echo -e "\nBuild pcangsd\n"
+
+
+git clone https://github.com/Rosemeis/pcangsd.git $DIR_DEP/pcangsd
+
+python $DIR_DEP/pcangsd/setup.py build_ext --inplace
+
+# check if functional
+# python pcangsd.py -h
+
+#echo '=================================='
+#echo -e "\nBeagle Download\n"
+#wget https://faculty.washington.edu/browning/beagle/beagle.27Apr20.b81.jar -O $DIR_DEP/beagle.jar
 
 echo '=================================='
 echo -e "\nExit\n"
