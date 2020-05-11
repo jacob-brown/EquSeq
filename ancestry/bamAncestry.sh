@@ -3,7 +3,7 @@
 
 
 # import unix functions
-source unix_functions.sh
+
 
 #echo '=================================='
 #echo -e "\nLoading modules\n"
@@ -22,7 +22,7 @@ ANC_DIR=$EPHEMERAL/ancestry/
 # refernece genome
 REF=$EPHEMERAL/mapping/ref_genome/EquCab2.fna
 SAMPLE=$EPHEMERAL/mapping/merged/final.bam
-SNP_LIST=$ANC_DIR/snp.list
+#SNP_LIST=$ANC_DIR/snp.list
  
 
 function makeBamList(){
@@ -70,6 +70,10 @@ function qualityCheck(){
 
 function genotypeLH(){
 
+	SNP=$1
+	BASE=($( basename $SNP))
+	echo $BASE
+
 	# filter with the above and:
 		# -doMaf 1: Frequency (fixed major and minor)
 		# -doPost 1: estimate per-site allele frequency as a 
@@ -83,11 +87,12 @@ function genotypeLH(){
 	echo -e "\nGenerating Genotype Liklihoods\n"
 
 	$ANGSD -nThreads 31 -bam $ANC_DIR/bam.list -ref $REF \
-			-out $ANC_DIR/ALL -rf $SNP_LIST \
+			-out $ANC_DIR/$BASE -rf $SNP \
 			-uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
 			-trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 20 \
 			-checkBamHeaders 0 \
-			-GL 1 -doGlf 2 -doMajorMinor 1  -doMaf 1 
+			-GL 1 -doGlf 2 -doMajorMinor 1  -doMaf 1 \
+			-minMaf 0.02
 
 
 }
@@ -101,9 +106,11 @@ function pcaGL(){
 	echo -e "\npcangsd - covariance matrix and admixture\n"
 	PCANGSD=$EPHEMERAL/dependencies/pcangsd/pcangsd.py
 
+	BEAGLE_FILE=$1
+
 	# Estimate covariance matrix and individual admixture proportions
-	python $PCANGSD -beagle $ANC_DIR/ALL.beagle.gz \
-					-o $ANC_DIR/ALL -threads 30
+ 	python $PCANGSD -beagle $BEAGLE_FILE \
+					-o $ANC_DIR/ALL.RES -threads 30
 
 
 }
@@ -126,7 +133,7 @@ function pcaGL(){
 ############ Main ###########
 #############################
 
-while getopts "mq:gc:p" opt; do
+while getopts "mq:g:c:p:" opt; do
   case ${opt} in
   	m) # make bam list
 		makeBamList
@@ -135,13 +142,13 @@ while getopts "mq:gc:p" opt; do
        	qualityCheck $OPTARG
       	;;
     g ) # genotype liklihoods
-      	genotypeLH #$OPTARG
+      	genotypeLH $OPTARG
       	;;
     c) # genotype calling
 		genoCalling $OPTARG
 		;;
     p) # pcangsd
-    	pcaGL
+    	pcaGL $OPTARG
     	;;
     \? ) echo "Usage: cmd [-m] [-q] chrN [-g] chrN [-p]"
       ;;

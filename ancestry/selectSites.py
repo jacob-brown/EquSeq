@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-04
-# Last Modified: 2020-05-06
+# Last Modified: 2020-05-08
 
 
 
@@ -15,7 +15,6 @@
 ###########################################
 
 import pysam
-import pickle
 import numpy as np
 import time
 from natsort import natsorted
@@ -35,7 +34,7 @@ parser = argparse.ArgumentParser(description=\
 choose = ["snps", "subsample", "split"]
 parser.add_argument("-c", "--command", dest="command", type=str,
 					required=True, choices=choose, 
-					help="choice function. snps: generate pickle of all sites; subsample: "\
+					help="choice function. snps: generate txt list of all sites; subsample: "\
 						"the sites; chrmSplit: split outfiles by chromosome.")
 
 # input bam file
@@ -102,7 +101,7 @@ def saveTxt(dirfile, listToSave, sep='\n'):
 				f.write(val + sep)
 
 
-def snpList(bamIn, pickleOut, baseDiff):
+def snpList(bamIn, txtOut, baseDiff):
 
 	""" return snp list from in bam file with 
 		baseDiff number of bases apart"""
@@ -122,19 +121,18 @@ def snpList(bamIn, pickleOut, baseDiff):
 		tmp = [elem + ":" + str(i) for i in fuzzyList[num]]
 		fuzzyName.extend(tmp)
 
-	# pickle 
-	f = open(pickleOut,'wb') ## note the b: accept binary files
-	pickle.dump(fuzzyName, f)
-	f.close()
+	# save snps txt 
+	saveTxt(txtOut, fuzzyName)
 
 
 
-def subSample(pickleIn, listOut, snpCount):
+
+def subSample(txtIn, listOut, snpCount):
 	
 	""" return a subsampled list of length: snpCount """
 	
-	f = open(pickleIn, 'rb')
-	snps = pickle.load(f)
+	f = open(txtIn, "r")
+	snps = f.read().splitlines()
 	f.close()
 	
 	np.random.seed(12345)
@@ -167,21 +165,24 @@ def chrmSep(snpList, outDir):
 ###########################################
 ############### Wraggling #################
 ###########################################
-# python ancestry/selectSites.py -c snps -i data/processed_sequences/new.rg.bam -o data/ancestry/snp.all -d 10000
+# python3 ancestry/selectSites.py -c snps -i data/processed_sequences/new.rg.bam -o data/ancestry/snp.all -d 10000
 
-# python ancestry/selectSites.py -c subsample -i data/ancestry/snp.all.p -o data/ancestry/snp -n 5000
+# python3 ancestry/selectSites.py -c subsample -i data/ancestry/snp.all -o data/ancestry/snp -n 100000
 
-# python ancestry/selectSites.py -c split -i data/ancestry/snp.list -o data/ancestry/snp.chr/snp
+# python3 ancestry/selectSites.py -c split -i data/ancestry/snp.all -o data/ancestry/snp.chr/snp
+
+# all snps
+# 
 
 if args.command == "snps":
-	### generate pickle file ###
+	### generate txt file ###
 	snpList(bamIn=args.infile, \
-		pickleOut=args.outdir + ".p", baseDiff=args.baseDiff)
+		txtOut=args.outdir, baseDiff=args.baseDiff)
 
 elif args.command == "subsample":
 
 	#### subsample ###
-	subSample(pickleIn=args.infile, \
+	subSample(txtIn=args.infile, \
 		listOut=args.outdir+".list", snpCount=args.snpCount)
 
 elif args.command == "split":

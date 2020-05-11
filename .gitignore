@@ -10,3 +10,5 @@ tree.txt
 ancestry_novel.sh
 data/gene_variants/snp.list
 data/ancestry/*
+hpc.txt
+results/

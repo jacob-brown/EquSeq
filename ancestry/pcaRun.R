@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-05
-# Last Modified: 2020-05-05
+# Last Modified: 2020-05-11
 
 # Desc: generate a table of names for running the pcangsd script
 
@@ -13,6 +13,8 @@
 
 require(tools)
 require(dplyr)
+require(ggplot2)
+require(RColorBrewer)
 
 ###########################################
 ############## Function(s) ################
@@ -24,8 +26,11 @@ require(dplyr)
 ######### Input(s) and Parameters #########
 ###########################################
 
+covIN <- "results/ancestry/ALL.RES.cov"
+
 files <- read.table("data/ancestry/bam.list")
 info <- read.csv("data/cleaned_data/info_all.csv")
+pdfOUT <- "results/ancestry/ALL.RES.pca.pdf"
 
 ###########################################
 ############### Wraggling #################
@@ -64,6 +69,7 @@ len <- length(run_join$sub_group)
 table <- cbind(run_join$index,rep(1,len), run_join$sub_group)
 colnames(table) <- c("FID","IID","CLUSTER")
 # write table out
+write.table(table, row.names=F, sep="\t", file="results/ancestry/clusters", quote=F)
 
 #write.table(table, row.names=F, sep="\t", col.names=c("FID","IID","CLUSTER"), file="results/ancestry/test.clst", quote=F)
 
@@ -87,13 +93,13 @@ colnames(table) <- c("FID","IID","CLUSTER")
 
 # exec
 #system(com)
-cbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+#cbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 # Read input file
-covar <- read.table("results/ancestry/test.cov", stringsAsFact=F);
+covar <- read.table(covIN, stringsAsFact=F);
 
 # Read annot file
-annot <- read.table("results/ancestry/test.clst", sep="\t", header=T); # note that plink cluster files are usually tab-separated
+annot <- read.table("results/ancestry/clusters", sep="\t", header=T) # note that plink cluster files are usually tab-separated
 
 # Parse components to analyze
 comp <- as.numeric(strsplit("1-2", "-", fixed=TRUE)[[1]])
@@ -113,18 +119,19 @@ title <- paste("PC",comp[1]," (",signif(eig$val[comp[1]], digits=3)*100,"%)"," /
 x_axis = paste("PC",comp[1],sep="")
 y_axis = paste("PC",comp[2],sep="")
 
-
-rainCP = rainbow(length(unique(PC$Pop)))
-novel_Index <- match(c("NOVEL"),sort(unique(PC$Pop)))
-
-rainCP[novel_Index] <- 	"#000000"
+### colour palette ###
+n <- length(unique(PC$Pop))
+qual_col_pals = brewer.pal.info[which(brewer.pal.info$category == 'qual' & brewer.pal.info$colorblind == TRUE),]
+col_vector = unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+#novel_Index <- match(c("NOVEL"),sort(unique(PC$Pop)))
+#col_vector[novel_Index] <- 	"#000000" # change to black
 
 ggplot() + 
 	geom_point(data=PC, aes_string(x=x_axis, y=y_axis, color="Pop")) + 
 	ggtitle(title) + 
-	scale_colour_manual(values=rainCP)
+	scale_colour_manual(values=col_vector)
 	# + scale_colour_manual(values=cbPalette)
-ggsave("results/ancestry/test.pca.pdf")
+ggsave(pdfOUT)
 unlink("Rplots.pdf", force=TRUE)
 
 

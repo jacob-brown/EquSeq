@@ -8,9 +8,12 @@
 LOCAL_DIR=./
 REMOTE_DIR=jb1919@login.cx1.hpc.ic.ac.uk:/rds/general/user/jb1919/home/genomics/HorseGenomics/
 
+
 rsync -av --delete --include='data/ancestry/*' \
 		--exclude-from='.gitignore' \
 		--exclude='.git/' \
 		$LOCAL_DIR $REMOTE_DIR
+
+
 
 
