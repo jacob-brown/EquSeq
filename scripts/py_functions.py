@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-14
-# Last Modified: 2020-04-30
+# Last Modified: 2020-05-11
 
 
 
@@ -39,7 +39,7 @@ def saveTxt(dirfile, listToSave, sep='\n'):
 
 
 def open_csv(file):
-
+	import csv
 	""" open a csv into a list format """
 
 	tmp = [] # initialise the list

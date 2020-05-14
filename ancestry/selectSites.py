@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-04
-# Last Modified: 2020-05-08
+# Last Modified: 2020-05-14
 
 
 
@@ -20,6 +20,8 @@ import time
 from natsort import natsorted
 import argparse
 import pandas as pd 
+import os
+import re
 
 
 ###########################################
@@ -31,7 +33,7 @@ parser = argparse.ArgumentParser(description=\
 
 
 # command 
-choose = ["snps", "subsample", "split"]
+choose = ["snpsVCF", "snps", "subsample", "split"]
 parser.add_argument("-c", "--command", dest="command", type=str,
 					required=True, choices=choose, 
 					help="choice function. snps: generate txt list of all sites; subsample: "\
@@ -46,17 +48,18 @@ parser.add_argument("-i", "--input", dest="infile", type=str,
 parser.add_argument("-o", "--out", dest="outdir", type=str,
                   required=False, default="./", help="directory of output files")
 
-# list output  name
-#parser.add_argument("-l", "--list", dest="outlist", type=str,
-#                  required=False, help="write list to OUT_LIST", metavar="OUT_LIST")
-
 # base difference in snp position
 parser.add_argument("-d", "--diff", dest="baseDiff", type=int,
-                  required=False, default=10000, help="int of number of bases between snps")
+                  required=False, default=10000, \
+                  help="int of number of bases between snps")
 
-
+# snp count
 parser.add_argument("-n", "--num", dest="snpCount", type=int,
                   required=False, default=500, help="number of snps to return")
+
+# all sites
+parser.add_argument("-a", "--allsites", dest="allSNPs", action="store_true", \
+					required=False, help="stroe TRUE for using all sites")
 
 # define args
 args = parser.parse_args()
@@ -67,28 +70,39 @@ args = parser.parse_args()
 ############## Function(s) ################
 ###########################################
 
-def getPositions(bamIn, chr):
-	""" get snp positions from chromosome input """
+def vcfSNPs(vcfIn, listOut):
+	print("\nwriting snp list from vcf file\n")
+	command = "sed  '/##/d' {} | awk 'NR>1' | cut -f1,2 > {}".format(vcfIn, listOut)
+	os.system(command)
 
-	bamfile = pysam.AlignmentFile(bamIn, "rb")
 
-	store = []
-	print(chr)
-	for read in bamfile.fetch(chr):
-		store.extend(read.get_reference_positions())
-	return np.unique(store)
+#def getPositions(bamIn, chr):
+#	""" get snp positions from chromosome input """
+#
+#	bamfile = pysam.AlignmentFile(bamIn, "rb")
+#
+#	store = []
+#	print(chr)
+#	for read in bamfile.fetch(chr):
+#		store.extend(read.get_reference_positions())
+#	return np.unique(store)
 
+
+### calculate the next number roughly (fuzzy) ### 
 def fuzzyDistance(diff, in_list):
 
 	""" fuzzy match number to the next HIGHEST value """
 
-	counter = 0
-	store = []
+	# random start point within 0-diff
+	store_fuzz = [np.random.choice(in_list[0:diff])]
+	counter = store_fuzz[0] + diff # the next value
+
 	for i in in_list:
-		if i > counter + diff or counter == 0:
-			counter = i
-			store.append(i) 
-	return store
+		if i >= counter:
+			counter = i + diff # update
+			store_fuzz.append(i)
+
+	return store_fuzz
 
 
 ### save a text file without a new line at the end
@@ -100,33 +114,71 @@ def saveTxt(dirfile, listToSave, sep='\n'):
 			else:
 				f.write(val + sep)
 
+### snp list of snps with a base difference apart ###
+def snpList(snpList, txtOut, baseDiff):
+	print("reading file")
+	f = open(snpList,"r")
+	
+	pos = f.readlines()
+	pos_update = [i.replace("\n","").split("\t") for i in pos]
 
-def snpList(bamIn, txtOut, baseDiff):
+	# unique chromosomes - remove scaffolds
+	chromo = [i[0] for i in pos_update if not re.search('scaffold', i[0])]
+	chromo_uniq = natsorted(np.unique(chromo))
+	misc_remove = ["chrM", "chrX"]
+	chromo_uniq = [i for i in chromo_uniq if i not in misc_remove]
+	
+	print("gathering...")
+	store_snp = []
+	for loc in chromo_uniq:
+		print(loc)
+		loc_pos = np.array([int(i[1]) for i in pos_update if i[0] == loc])
+		loc_pos_uniq = np.sort(np.unique(loc_pos))
+		store_snp.append([loc, loc_pos])
 
-	""" return snp list from in bam file with 
-		baseDiff number of bases apart"""
 
-	chrPos = ["chr"+ str(i) for i in range(1,32)]
-	chrPos.extend(["chrX", "chrM"]) # 32 chrX and 33 chrM
-
-	positionList = [getPositions(bamIn, i) for i in chrPos]
-
-	# fuzzy match next closest position
-	fuzzyList = [fuzzyDistance(baseDiff, i) for i in positionList]
-
-	# convert to strings
+	# fuzzy match next closest position and convert to strings
+	print("calculating distances with fuzzy increase.")
 	fuzzyName = []
-	for num, elem in enumerate(chrPos):
-		print(str(num) + "/" + str(len(chrPos)))
-		tmp = [elem + ":" + str(i) for i in fuzzyList[num]]
+	for elem in store_snp:
+		fuzzyList = fuzzyDistance(baseDiff, elem[1])
+		tmp = [elem[0] + ":" + str(i) for i in fuzzyList]
 		fuzzyName.extend(tmp)
 
-	# save snps txt 
+	print("saving output.")
+	
 	saveTxt(txtOut, fuzzyName)
+	return 0 
+	
+#def snpList(bamIn, txtOut, baseDiff):
+#
+#	""" return snp list from in bam file with 
+#		baseDiff number of bases apart"""
+#
+#	chrPos = ["chr"+ str(i) for i in range(1,32)]
+#	chrPos.extend(["chrX", "chrM"]) # 32 chrX and 33 chrM
+#
+#	print("getting position list from: ")
+#
+#	positionList = [getPositions(bamIn, i) for i in chrPos]
+#
+#
+#	# fuzzy match next closest position
+#	print("calculating distances with fuzzy increase.")
+#	fuzzyList = [fuzzyDistance(baseDiff, i) for i in positionList]
+#
+#	# convert to strings
+#	fuzzyName = []
+#	for num, elem in enumerate(chrPos):
+#		print(str(num) + "/" + str(len(chrPos)))
+#		tmp = [elem + ":" + str(i) for i in fuzzyList[num]]
+#		fuzzyName.extend(tmp)
+#
+#	# save snps txt 
+#	saveTxt(txtOut, fuzzyName)
 
 
-
-
+### subsample the snps ###
 def subSample(txtIn, listOut, snpCount):
 	
 	""" return a subsampled list of length: snpCount """
@@ -142,6 +194,7 @@ def subSample(txtIn, listOut, snpCount):
 	saveTxt(listOut, subsample)
 
 
+### generate seperate lists for each chromosome ###
 def chrmSep(snpList, outDir):
 	""" split snp lists by chromosome """
 	f = open(snpList, "r")
@@ -165,25 +218,53 @@ def chrmSep(snpList, outDir):
 ###########################################
 ############### Wraggling #################
 ###########################################
-# python3 ancestry/selectSites.py -c snps -i data/processed_sequences/new.rg.bam -o data/ancestry/snp.all -d 10000
+# clear the wd
+# rm data/ancestry/snp.all
+# rm data/ancestry/snp.list
+# rm data/ancestry/snp.chr/*
 
-# python3 ancestry/selectSites.py -c subsample -i data/ancestry/snp.all -o data/ancestry/snp -n 100000
 
-# python3 ancestry/selectSites.py -c split -i data/ancestry/snp.all -o data/ancestry/snp.chr/snp
+####
+## VCF - SNPs
 
-# all snps
-# 
+### snps from vcf file ###
+# python3 ancestry/selectSites.py -c snpsVCF -i data/processed_sequences/raw_variants.vcf -o data/ancestry/snp.vcf
 
+# 5kb apart
+# python3 ancestry/selectSites.py -c snps -i data/ancestry/snp.vcf.raw.list -o data/ancestry/snp.apart.list -d 5000
+
+
+### split ###
+# python3 ancestry/selectSites.py -c split -i data/ancestry/snp.apart.list -o data/ancestry/snp.chr/snp
+
+
+### subset ###
+# all
+# python3 ancestry/selectSites.py -c subsample -i data/ancestry/snp.apart.list -o data/ancestry/snp -a
+
+
+#### main ####
 if args.command == "snps":
 	### generate txt file ###
-	snpList(bamIn=args.infile, \
+	snpList(snpList=args.infile, \
 		txtOut=args.outdir, baseDiff=args.baseDiff)
+
+elif args.command == "snpsVCF":
+	vcfSNPs(vcfIn=args.infile, listOut=args.outdir+".raw.list")
 
 elif args.command == "subsample":
 
 	#### subsample ###
+	# no of snps to use 
+	if args.allSNPs:
+		# all sites
+		f = open(args.infile, "r")
+		snps = len(f.readlines())
+	else:
+		snps=args.snpCount
+	
 	subSample(txtIn=args.infile, \
-		listOut=args.outdir+".list", snpCount=args.snpCount)
+		listOut=args.outdir+".list", snpCount=snps)
 
 elif args.command == "split":
 	### split chromosomes ###

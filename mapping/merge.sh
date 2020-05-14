@@ -27,6 +27,7 @@ echo -e "\nIndex\n"
 
 samtools index $FILE_OUT $FILE_OUT.bai
 
+
 timer
 
 echo '=================================='

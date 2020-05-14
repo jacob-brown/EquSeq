@@ -4,13 +4,13 @@
 
 
 # gl 
-	# qsub -J 0-32 ancestry.sh 
+	# qsub -J 0-31 ancestry.sh 
 # pca
 	# qsub ancestry.sh
 
 
 #CODE_DIR=$HOME/genomics/code/
-CODE_DIR=$HOME/genomics/HorseGenomics/
+CODE_DIR=$HOME/genomics/EquSeq/
 
 source $CODE_DIR/scripts/unix_functions.sh
 
@@ -44,3 +44,4 @@ sh $CODE_DIR/ancestry/bamAncestry.sh -g $CHRFILE
 #echo "PCA"
 #sh $CODE_DIR/ancestry/bamAncestry.sh -p $EPHEMERAL/ancestry/ALL.merged.beagle.gz
 #timer
+

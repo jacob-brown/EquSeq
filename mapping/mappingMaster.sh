@@ -21,7 +21,7 @@ module load samtools/1.3.1 # general
 module load java/jdk-8u144 # picard associated
 module load picard/2.6.0 # cleaning
 module load anaconda3/personal # python
-
+module load htslib
 
 echo '=================================='
 echo -e "\nMove scripts to TMPDIR\n"

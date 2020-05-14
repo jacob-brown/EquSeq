@@ -44,6 +44,7 @@ echo -e "\nIndex\n"
 
 samtools index $DIR/sorted/$BASE_NAME'.sorted.bam'
 
+
 timer
 
 echo '-----------------------'

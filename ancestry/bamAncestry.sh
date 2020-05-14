@@ -9,7 +9,7 @@
 #echo -e "\nLoading modules\n"
 #module load angsd/915
 ANGSD=$EPHEMERAL/dependencies/angsd/angsd
-module load samtools/1.3.1 
+NGSADMIX=$EPHEMERAL/dependencies/angsd/misc/NGSadmix
 module load anaconda3/personal
 
 #echo '=================================='
@@ -92,8 +92,7 @@ function genotypeLH(){
 			-trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 20 \
 			-checkBamHeaders 0 \
 			-GL 1 -doGlf 2 -doMajorMinor 1  -doMaf 1 \
-			-minMaf 0.02
-
+			-minMaf 0.05
 
 }
 
@@ -103,37 +102,44 @@ function pcaGL(){
 
 
 	echo '=================================='
-	echo -e "\npcangsd - covariance matrix and admixture\n"
+	echo -e "\npcangsd - covariance matrix\n"
 	PCANGSD=$EPHEMERAL/dependencies/pcangsd/pcangsd.py
 
 	BEAGLE_FILE=$1
 
 	# Estimate covariance matrix and individual admixture proportions
- 	python $PCANGSD -beagle $BEAGLE_FILE \
-					-o $ANC_DIR/ALL.RES -threads 30
+	# default -minMaf 0.05
+ 	python $PCANGSD -beagle $BEAGLE_FILE  \
+					-o $ANC_DIR/ALL.PCA -threads 4
 
 
 }
 
-#function genoCalling(){
-#
-#	CHR=$1
-#
-#	echo '=================================='
-#	echo -e "\nGenotype Calling\n"
-#
-#	$ANGSD -glf $ANC_DIR/ALL_$CHR.glf.gz -fai $REF.fai -r $CHR \
-#			-nInd 10 -out $ANC_DIR/ALL_CALL_$CHR \
-#			-doMajorMinor 1 -doGeno 3 -doPost 2 -doMaf 1
-#
-#
-#}
+
+function admix(){
+
+	echo '=================================='
+	echo -e "\nNGSadmix\n"
+
+	# default -minMaf 0.05
+	BEAGLE_FILE=$1
+	K_ARRAY=(2 3 4 5 6 7 8) # 2 to the number of breeds 
+
+	for K in "${K_ARRAY[@]}"; do
+
+		$NGSADMIX -likes $BEAGLE_FILE -K $K\
+			-outfiles $ANC_DIR/ALL.MIX.K$K -P 4
+	done
+	#$NGSADMIX -likes ALL.merged.beagle.gz -K 3 -minMaf 0.02 -outfiles ./ALL.MIX -P 4
+
+}
+
 
 #############################
 ############ Main ###########
 #############################
 
-while getopts "mq:g:c:p:" opt; do
+while getopts "mq:g:c:p:a:" opt; do
   case ${opt} in
   	m) # make bam list
 		makeBamList
@@ -149,6 +155,9 @@ while getopts "mq:g:c:p:" opt; do
 		;;
     p) # pcangsd
     	pcaGL $OPTARG
+    	;;
+    a) #admixture
+		admix $OPTARG
     	;;
     \? ) echo "Usage: cmd [-m] [-q] chrN [-g] chrN [-p]"
       ;;
