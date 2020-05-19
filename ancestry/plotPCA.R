@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-05
-# Last Modified: 2020-05-12
+# Last Modified: 2020-05-19
 
 # Desc: generate a table of names for running the pcangsd script
 
@@ -26,14 +26,18 @@ require(RColorBrewer)
 ######### Input(s) and Parameters #########
 ###########################################
 
-covIN <- "results/ancestry/tmp_5kb/ALL.PCA.cov"
+MAF <- "0.02"
+covIN <- "results/ancestry/wg_5kb_02maf/ALL.PCA.cov"
+sitesIN <- "results/ancestry/wg_5kb_02maf/ALL.PCA.sites"
 out <- "results/ancestry/ALL.PCA.pdf"
 
 ###########################################
 ############### Wraggling #################
 ###########################################
 
-
+# Read sites file
+nSites <- nrow(read.table(sitesIN, stringsAsFact=F))
+title_append <- paste("nsites=", nSites, " ", "minMaf=", MAF)
 
 ###########################################
 ################## Plot ###################
@@ -90,14 +94,14 @@ shapes <- c(0:n)# c(0:7, 15:18)
 
 # sort order and levels
 #poplv <- levels(PC$Pop)
-#levels(PC$Pop) <- c("Source", sort(poplv[poplv!="Source"]))
-#factor(PC$Pop, levels = c("Source", sort(poplv[poplv!="Source"])))
-#reorder(PC$Pop, new.order=c("Source", sort(poplv[poplv!="Source"])))
+#levels(PC$Pop) <- c("BENSON", sort(poplv[poplv!="BENSON"]))
+#factor(PC$Pop, levels = c("BENSON", sort(poplv[poplv!="BENSON"])))
+#reorder(PC$Pop, new.order=c("BENSON", sort(poplv[poplv!="BENSON"])))
 
 
 g <- ggplot() + 
 		geom_point(data=PC, aes_string(x=x_axis, y=y_axis, shape="Pop", color="Pop")) + 
-		ggtitle(title) + 
+		ggtitle(paste(title, title_append)) + 
 		scale_colour_manual(values = col_vector)+
 		#scale_colour_discrete(breaks = leg_lvs) +
 		scale_shape_manual(values =shapes) + 

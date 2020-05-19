@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-04
-# Last Modified: 2020-05-14
+# Last Modified: 2020-05-18
 
 
 
@@ -33,7 +33,7 @@ parser = argparse.ArgumentParser(description=\
 
 
 # command 
-choose = ["snpsVCF", "snps", "subsample", "split"]
+choose = ["snpsVCF", "snps", "subsample", "split", "snpsWG"]
 parser.add_argument("-c", "--command", dest="command", type=str,
 					required=True, choices=choose, 
 					help="choice function. snps: generate txt list of all sites; subsample: "\
@@ -41,7 +41,7 @@ parser.add_argument("-c", "--command", dest="command", type=str,
 
 # input bam file
 parser.add_argument("-i", "--input", dest="infile", type=str,
-					required=True, help="bam IN_BAM to have snps sampled from", \
+					required=False, help="bam IN_BAM to have snps sampled from", \
 					metavar="IN_BAM")
 
 #  output directory
@@ -59,7 +59,7 @@ parser.add_argument("-n", "--num", dest="snpCount", type=int,
 
 # all sites
 parser.add_argument("-a", "--allsites", dest="allSNPs", action="store_true", \
-					required=False, help="stroe TRUE for using all sites")
+					required=False, help="store TRUE for using all sites")
 
 # define args
 args = parser.parse_args()
@@ -74,6 +74,8 @@ def vcfSNPs(vcfIn, listOut):
 	print("\nwriting snp list from vcf file\n")
 	command = "sed  '/##/d' {} | awk 'NR>1' | cut -f1,2 > {}".format(vcfIn, listOut)
 	os.system(command)
+
+
 
 
 #def getPositions(bamIn, chr):
@@ -113,6 +115,47 @@ def saveTxt(dirfile, listToSave, sep='\n'):
 				f.write(val)
 			else:
 				f.write(val + sep)
+
+
+### all potential sites ###
+def sitesWhole(diff, outDir):
+	# base diff of report
+
+	with open("data/EquCab2.0_assembly_report.txt", "r") as f:
+		lines = [line.rstrip() for line in f]
+
+	lengths = []
+	chrom = []
+	for elem in lines:
+		if "#" not in elem and "scaffold" not in elem:
+			tmp = elem.split()
+			if tmp[7] == 'Primary':	
+				lengths.append(int(tmp[9]))
+				chrom.append(tmp[10])
+			else:
+				# mitochondria entry is shorter
+				lengths.append(int(tmp[8]))
+				chrom.append(tmp[9])
+
+	
+
+	### generate distances list ###
+	length_diff = []
+	for i in lengths:
+		pos_Start = np.random.randint(1, diff, 1)[0]
+		length_diff.append(np.array(range(pos_Start, lengths[0], diff)))
+	outDir = "data/ancestry/snp.chr/snp"
+	
+	### write ###
+	for n, c in enumerate(chrom):
+		tmp_str = np.array([c + ":" + str(i) for i in length_diff[n]])
+		filenam = outDir + "." + c + ".list"
+		saveTxt(filenam, tmp_str)
+
+
+
+	
+
 
 ### snp list of snps with a base difference apart ###
 def snpList(snpList, txtOut, baseDiff):
@@ -225,6 +268,13 @@ def chrmSep(snpList, outDir):
 
 
 ####
+# Use genome report 
+# 5kb apart
+# python3 ancestry/selectSites.py -c snpsWG -o data/ancestry/snp.chr/snp -d 5000
+
+
+
+####
 ## VCF - SNPs
 
 ### snps from vcf file ###
@@ -248,6 +298,8 @@ if args.command == "snps":
 	### generate txt file ###
 	snpList(snpList=args.infile, \
 		txtOut=args.outdir, baseDiff=args.baseDiff)
+elif args.command == "snpsWG":
+	sitesWhole(diff=args.baseDiff, outDir=args.outdir)
 
 elif args.command == "snpsVCF":
 	vcfSNPs(vcfIn=args.infile, listOut=args.outdir+".raw.list")

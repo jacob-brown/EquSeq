@@ -13,3 +13,4 @@ data/gene_variants/snp.list
 data/ancestry/*
 hpc.txt
 results/
+example_format*

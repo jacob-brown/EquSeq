@@ -33,6 +33,9 @@ mkdir $EPHEMERAL/gene_to_trait/
 mkdir $EPHEMERAL/dependencies/ &&\
 DIR_DEP=$EPHEMERAL/dependencies/
 
+# snp calling
+mkdir $EPHEMERAL/snp_calling
+
 mkdir \
 	$DIR_SAM/aligned/ \
 	$DIR_SAM/converted/ \

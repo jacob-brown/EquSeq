@@ -2,12 +2,16 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-01
-# Last Modified: 2020-04-08
+# Last Modified: 2020-05-18
 # Desc: Update the bam files with the chromosome location
 	# rather than ncbis assecison codes
 
+
+# sh updateHeader.sh EquCab2.fna 
+
+SCRIPT_DIR=$HOME/genomics/EquSeq/scripts/
 # import unix functions
-source ../scripts/unix_functions.sh
+source $SCRIPT_DIR/unix_functions.sh
 
 FILE_IN=$1 # which file to manipulate
 REF_TAB=assembly_report.txt 
@@ -44,7 +48,7 @@ then
 echo '=================================='
 echo -e "\nUpdate fasta header\n"
 
-python3 correct_header.py 'fasta' $REF_TAB $FILE_IN
+python3 $SCRIPT_DIR/updateHeader.py 'fasta' $REF_TAB $FILE_IN
 
 timer
 
@@ -71,7 +75,7 @@ echo '=================================='
 echo -e "\nUpdating bam header\n"
 
 # update and reheader file
-python3 correct_header.py 'bam' $REF_TAB $HEADER | \
+python3 $SCRIPT_DIR/updateHeader.py 'bam' $REF_TAB $HEADER | \
 	samtools reheader - $FILE_IN > $FILE_IN.newhead.bam
 
 timer

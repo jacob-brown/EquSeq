@@ -92,7 +92,7 @@ function genotypeLH(){
 			-trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 20 \
 			-checkBamHeaders 0 \
 			-GL 1 -doGlf 2 -doMajorMinor 1  -doMaf 1 \
-			-minMaf 0.05
+			-minMaf 0.02
 
 }
 
@@ -110,7 +110,8 @@ function pcaGL(){
 	# Estimate covariance matrix and individual admixture proportions
 	# default -minMaf 0.05
  	python $PCANGSD -beagle $BEAGLE_FILE  \
-					-o $ANC_DIR/ALL.PCA -threads 4
+					-o $ANC_DIR/ALL.PCA -threads 4 \
+					-minMaf 0.02 -sites_save
 
 
 }
@@ -123,12 +124,12 @@ function admix(){
 
 	# default -minMaf 0.05
 	BEAGLE_FILE=$1
-	K_ARRAY=(2 3 4 5 6 7 8) # 2 to the number of breeds 
+	K_ARRAY=(2 3 4 5 6 7 8 9 10 11) # 2 to the number of breeds 
 
 	for K in "${K_ARRAY[@]}"; do
 
 		$NGSADMIX -likes $BEAGLE_FILE -K $K\
-			-outfiles $ANC_DIR/ALL.MIX.K$K -P 4
+			-outfiles $ANC_DIR/ALL.MIX.K$K -P 4 -minMaf 0.02
 	done
 	#$NGSADMIX -likes ALL.merged.beagle.gz -K 3 -minMaf 0.02 -outfiles ./ALL.MIX -P 4
 

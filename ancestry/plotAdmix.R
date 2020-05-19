@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-11
-# Last Modified: 2020-05-14
+# Last Modified: 2020-05-19
 
 # Desc: 
 
@@ -15,6 +15,7 @@
 require(ggplot2)
 require(tools)
 require(dplyr)
+require(RColorBrewer)
 
 ###########################################
 ############## Function(s) ################
@@ -27,10 +28,21 @@ idOrder <- function(fileIn){
 	pop <- read.table(clusters, header = TRUE, sep="\t")
 
 	admix_pop <- left_join(admix, pop, by=c("IID"))
-	admix_pop <- admix_pop %>% arrange(desc(V1))
+	# get the highest value for source and use it to order
+	source_index <- which(admix_pop$CLUSTER == "BENSON")
+	vals <- admix_pop[source_index,1:2]
+	
+	if(vals[1] > vals[2]){
+			admix_pop <- admix_pop %>% arrange(desc(V1))
+		}else{
+			admix_pop <- admix_pop %>% arrange(desc(V2))
+		}
 
-	source_row <- subset(admix_pop, admix_pop$CLUSTER=="Source")
-	all_rows <- subset(admix_pop, admix_pop$CLUSTER!="Source")
+
+	#admix_pop <- admix_pop %>% arrange(desc(V1))
+
+	source_row <- subset(admix_pop, admix_pop$CLUSTER=="BENSON")
+	all_rows <- subset(admix_pop, admix_pop$CLUSTER!="BENSON")
 	admix_ordered <- rbind(source_row, all_rows)
 	order_iid <- admix_ordered$IID
 	return(order_iid)
@@ -46,21 +58,21 @@ admixture <- function(fileIn, orderIndex){
 	file_ls <- file_read_in[order(match(rownames(file_read_in), orderIndex)),]
 
 	# row - source as reference 
-	ref_trans <- t(file_ls[10,])
-	###### CHANGE HERE file_ls[10,] ########
-	ref_df <- data.frame(ref_trans, rownames(ref_trans))
-	colnames(ref_df) <- c("value", "pop")
-	ref_order <- arrange(ref_df, desc(value))
-	col_order <- as.vector(ref_order$pop)
-	file <- file_ls[, col_order]
-
+	#ref_trans <- t(file_ls[10,])
+	####### CHANGE HERE file_ls[10,] ########
+	#ref_df <- data.frame(ref_trans, rownames(ref_trans))
+	#colnames(ref_df) <- c("value", "pop")
+	#ref_order <- arrange(ref_df, desc(value))
+	#col_order <- as.vector(ref_order$pop)
+	#file <- file_ls[, col_order]
+	file <- file_ls
 	# transform
-	colnames(file) <- letters[1:ncol(file)]
+	colnames(file) <- seq(1, ncol(file))
 	admix <- utils::stack(file)
 	admix <- cbind(admix, IID = rep(1:nrow(file)))
 
 	K <- length(unique(admix$ind)) # nrow(admix)
-	if (K > 8) stop("Maximum number of colours for admixture proportions is 8.")
+	#if (K > 8) stop("Maximum number of colours for admixture proportions is 8.")
 
 	# annotate with clusters
 	pop <- read.table(clusters, header = TRUE, sep="\t")
@@ -79,34 +91,46 @@ admixture <- function(fileIn, orderIndex){
 ######### Input(s) and Parameters #########
 ###########################################
 
-files <- list.files("results/ancestry/", full.names=T)
+DIR <- "results/ancestry/wg_5kb_02maf/"
+
+files <- list.files(DIR, full.names=T)
 out <- "results/ancestry/ALL.MIX.pdf"
 clusters <- "results/ancestry/clusters"
 
-cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", 
-				"#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+cbPalette <- c( "#999999", "#E69F00", "#56B4E9", 
+				"#009E73", "#F0E442", "#0072B2", "#D55E00", 
+				"#CC79A7", "#000000")
 
 ###########################################
 ############### Wraggling #################
 ###########################################
 
 # select the files
-files_to_use = c()
-for(f in files){
-	if(file_ext(f) == "qopt"){
-		files_to_use <- append(files_to_use, f)
-	}
-}
+files_to_use <- subset(files, file_ext(files) == "qopt")
+
+# one log file for sites used
+logs <- subset(files, file_ext(files) == "log")[1]
+d <- read.table(logs, sep="\n")
+sites <- strsplit(as.character(d[6,]), " ")[[1]][7]
+maf <- strsplit(as.character(d[4,]), " ")[[1]][3]
+title <- paste(sites, " ", maf)
+
+files_to_use <- files_to_use[files_to_use != paste0(DIR,"/ALL.MIX.K10.qopt") &
+files_to_use != paste0(DIR,"/ALL.MIX.K11.qopt")]
+
 
 i <- 0
 store_admix <- 0
-
+orderIndex <- idOrder(files_to_use[2])
+orderIndex <- seq(1,45)
 for(i in seq_along(files_to_use)){
 	
 	# retrieve order on first iter
 	if(i == 1){
-		orderIndex = idOrder(files_to_use[i])
+		#orderIndex = idOrder(files_to_use[i])
+		# assign order to global for use in plotting
 		store_admix <- admixture(files_to_use[i], orderIndex)
+
 
 	}else{
 		tmp <- admixture(files_to_use[i], orderIndex)
@@ -114,31 +138,38 @@ for(i in seq_along(files_to_use)){
 	}
 }
 
-# sort
-#store_admix <- store_admix[with(store_admix, order(K, ind, values)),]
+
 
 # levels based on first lowest K
-K <- min(store_admix$K)
-#sub_admix <- store_admix[which(store_admix$K == K),]
-#lev <- rev(sub_admix$IID[1:(length(sub_admix$IID)/K)])
-#store_admix$IID <- factor(store_admix$IID, levels = lev)
+K <- max(store_admix$K)
+breeds <- filter(store_admix, K==2)$CLUSTER
+breed_order <- breeds[orderIndex]
+store_admix$IID <- factor(store_admix$IID, levels=orderIndex)
 
-#store_admix <- store_admix %>% filter(IID==45) 
-#store_admix <- store_admix %>% filter(K==4) 
-#store_admix <- store_admix %>% filter(K==5) 
-
-### sort ###
 # plots differ in the groups assigned
 
+#cbPalette <- brewer.pal(K, "Paired")
+#cbPalette <- brewer.pal(K, "BrBG")
+#admixture(files_to_use[6], orderIndex) %>% filter(CLUSTER == "BENSON")
 
-g <- ggplot(store_admix, aes(fill=ind, y=values, x=IID, label=ind))+
+#cbPalette[1:5]
+#cbPalette <- sample(cbPalette, length(cbPalette))
+
+# rename
+names <- colnames(store_admix)
+names[names=="ind"] <- "pop"
+colnames(store_admix) <- names
+
+### plot ####
+g <- ggplot(store_admix, aes(fill=pop, y=values, x=IID, label=pop))+
 		facet_grid(rows = vars(store_admix$K))+
 		geom_bar(position=position_stack(reverse = TRUE), stat="identity")+
 		scale_fill_manual(values = cbPalette) +
-		geom_text()+
-		#scale_x_discrete(breaks=pop$IID, expand=c(0,0.5))+
-		#scale_y_continuous(expand=c(0,0))+
-		theme_classic()
+		scale_x_discrete(labels=breed_order)+
+		theme_classic()+
+		ggtitle(title) + 
+		theme(axis.text.x = element_text(angle = 90, hjust = 1))
+		#geom_text()+
 
 pdf(file=out, 13, 10)
 print(g)

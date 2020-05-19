@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-11
-# Last Modified: 2020-05-12
+# Last Modified: 2020-05-19
 
 # Desc: 
 
@@ -50,7 +50,7 @@ run_join <- left_join(runDf, info_trim, by=c("name" = "Run"))
 	# match to BioProject 
 
 run_join$sub_group <- as.character(run_join$sub_group)
-run_join$sub_group[run_join$name == "final"] <- "Source"
+run_join$sub_group[run_join$name == "final"] <- "BENSON"
 run_join$era[run_join$name == "final"] <- "modern"
 
 

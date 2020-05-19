@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-01
-# Last Modified: 2020-04-01
+# Last Modified: 2020-05-18
 
 
 """  SQ header in bam files notes the NCBI Assecsion number 

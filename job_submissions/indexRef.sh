@@ -5,15 +5,12 @@
 
 REF=$EPHEMERAL/mapping/ref_genome/EquCab2.fna
 
-cp $HOME/genomics/code/unix_functions.sh $TMPDIR
-
-source unix_functions.sh
+source $HOME/genomics/EquSeq/scripts/unix_functions.sh
 
 echo '=================================='
 echo -e "\nLoading modules\n"
 
 module load samtools/1.3.1 # general
-
 
 
 echo '-----------------------'
