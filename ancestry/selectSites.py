@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-04
-# Last Modified: 2020-05-18
+# Last Modified: 2020-05-20
 
 
 
@@ -14,7 +14,7 @@
 ################# Modules #################
 ###########################################
 
-import pysam
+#import pysam
 import numpy as np
 import time
 from natsort import natsorted
@@ -22,6 +22,7 @@ import argparse
 import pandas as pd 
 import os
 import re
+import subprocess
 
 
 ###########################################
@@ -70,24 +71,62 @@ args = parser.parse_args()
 ############## Function(s) ################
 ###########################################
 
+### timer ###
+def timer(state="S"):
+	global startTimer
+
+	"""" timer(), timer("e") to start and stop timer """
+	if state.lower()=='s':
+		
+		print("timer started")
+		startTimer = time.time() # start the timer from import	
+	
+	elif state.lower()=='e':
+
+		duration = time.time() - startTimer
+		duration = round(duration)
+		string = "\n..........................\n"\
+				"   Time elapsed: {} sec"\
+				"\n..........................\n"\
+				.format(duration)
+
+		print(string)
+	
+	else:
+		stop("state not found, s or e only.")
+
+
+### save a text file without a new line at the end
+def saveTxt(dirfile, listToSave, sep='\n'):
+	with open(dirfile, 'w') as f:
+		for num, val in enumerate(listToSave):
+			if num == len(listToSave) - 1:
+				f.write(val)
+			else:
+				f.write(val + sep)
+
+### snp list from vcf file ### 
+	# run for eeach chromosome
 def vcfSNPs(vcfIn, listOut):
-	print("\nwriting snp list from vcf file\n")
-	command = "sed  '/##/d' {} | awk 'NR>1' | cut -f1,2 > {}".format(vcfIn, listOut)
-	os.system(command)
+	timer()
+	print("\nwriting snp list from vcf file: {}\n".format(vcfIn))
+	chrome = os.path.basename(vcfIn).split(".")[1]
+	fileOut =  listOut + "." + chrome + ".raw.list"
+	
+	command = "sed '/##/d' {} | cut -f1,2 ".format(vcfIn)
 
+	print("converting to angsd readable")
 
+	p = subprocess.Popen([command], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+	out, er = p.communicate()
+	out_string = out.decode()
+	positions = out_string.replace("\t", ":").split("\n")
+	positions.remove("")
+	del positions[0]
+	posSort = natsorted(positions)
+	saveTxt(fileOut, posSort)
+	timer("e")
 
-
-#def getPositions(bamIn, chr):
-#	""" get snp positions from chromosome input """
-#
-#	bamfile = pysam.AlignmentFile(bamIn, "rb")
-#
-#	store = []
-#	print(chr)
-#	for read in bamfile.fetch(chr):
-#		store.extend(read.get_reference_positions())
-#	return np.unique(store)
 
 
 ### calculate the next number roughly (fuzzy) ### 
@@ -105,16 +144,6 @@ def fuzzyDistance(diff, in_list):
 			store_fuzz.append(i)
 
 	return store_fuzz
-
-
-### save a text file without a new line at the end
-def saveTxt(dirfile, listToSave, sep='\n'):
-	with open(dirfile, 'w') as f:
-		for num, val in enumerate(listToSave):
-			if num == len(listToSave) - 1:
-				f.write(val)
-			else:
-				f.write(val + sep)
 
 
 ### all potential sites ###
@@ -267,10 +296,6 @@ def chrmSep(snpList, outDir):
 # rm data/ancestry/snp.chr/*
 
 
-####
-# Use genome report 
-# 5kb apart
-# python3 ancestry/selectSites.py -c snpsWG -o data/ancestry/snp.chr/snp -d 5000
 
 
 
@@ -278,7 +303,17 @@ def chrmSep(snpList, outDir):
 ## VCF - SNPs
 
 ### snps from vcf file ###
-# python3 ancestry/selectSites.py -c snpsVCF -i data/processed_sequences/raw_variants.vcf -o data/ancestry/snp.vcf
+# python3 ancestry/selectSites.py -c snpsVCF -i data/processed_sequences/snps/snps.chr11.raw.vcf -o data/ancestry/snp.chr/snp
+
+
+
+
+#### BELOW ARE REUNDENT? KEEP FOR REF FOR NOW ###
+
+####
+# Use genome report 
+# 5kb apart
+# python3 ancestry/selectSites.py -c snpsWG -o data/ancestry/snp.chr/snp -d 5000
 
 # 5kb apart
 # python3 ancestry/selectSites.py -c snps -i data/ancestry/snp.vcf.raw.list -o data/ancestry/snp.apart.list -d 5000
@@ -302,7 +337,7 @@ elif args.command == "snpsWG":
 	sitesWhole(diff=args.baseDiff, outDir=args.outdir)
 
 elif args.command == "snpsVCF":
-	vcfSNPs(vcfIn=args.infile, listOut=args.outdir+".raw.list")
+	vcfSNPs(vcfIn=args.infile, listOut=args.outdir)
 
 elif args.command == "subsample":
 

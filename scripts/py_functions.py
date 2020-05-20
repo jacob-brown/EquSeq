@@ -3,28 +3,40 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-14
-# Last Modified: 2020-05-11
+# Last Modified: 2020-05-20
 
 
 
 """ helpful functions defined by Jacob Brown """
 
-
 # timer
 import time
-start = time.time() # start the timer from import
 
-def timer():
+def timer(state="S"):
+	global startTimer
+
+	"""" timer(), timer("e") to start and stop timer """
+	if state.lower()=='s':
+		
+		print("timer started")
+		startTimer = time.time() # start the timer from import	
 	
-	end = time.time()
-	duration = end-start
-	duration = round(duration)
-	string = "\n..........................\n"\
-			"   Time elapsed: {} sec"\
-			"\n..........................\n"\
-			.format(duration)
+	elif state.lower()=='e':
 
-	print(string)
+		duration = time.time() - startTimer
+		duration = round(duration)
+		string = "\n..........................\n"\
+				"   Time elapsed: {} sec"\
+				"\n..........................\n"\
+				.format(duration)
+
+		print(string)
+	
+	else:
+		stop("state not found, s or e only.")
+		
+
+	
 
 
 ### save a text file without a new line at the end
