@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-03-18
-# Last Modified: 2020-05-19
+# Last Modified: 2020-05-21
 
 # Desc: 
 
@@ -14,6 +14,7 @@
 require(ggplot2)
 require(dplyr)
 require(tidyr)
+require(stringr)
 require(wesanderson)
 
 # pavian for shiny app
@@ -28,29 +29,43 @@ se <- function(x){
 	sd(x)/(sqrt(length(x)))
 }
 
-### summary of taxa file in ###
-tableRank <- function(fileIn){
+### read kraken report and combine with lineage data ###
+readKReport <- function(fileIn, lineageFile){
 
-	rank <- read.delim(fileIn, sep="\t", header=F)
-	un <- read.delim('results/oral_diversity/unclassified.txt', sep="\t", header=F)
-	root <- read.delim('results/oral_diversity/root.txt', sep="\t", header=F)
-	header <- c("tableRank", "nFrag", "nOnlyFrag", "rank", "ncbiTaxa", "name", "file")
-	colnames(rank) <- header
+	lineages <- read.delim(lineageFile, sep="\t", 
+						header=T, na.strings = c("","NA"))
+	tmp_rep <- read.delim(fileIn, sep="\t", head=F)
+	colnames(tmp_rep) <- c("perc", "frag", "frag_uniq", "rankAb", "taxid", "name")
+	# perc = (frag/sum(tmp_rep$frag_uniq))*100
 
-	un_root <- cbind(un[c(1,2)], root[c(1,2,7)])
-	colnames(un_root) <- c("unPerc", "unFrag", "roPerc", "roFrag", "file")
-	totalFrag <- un_root$unFrag + un_root$roFrag 
-	un_root_tot <- cbind(un_root, totalFrag) 
+	# remove whitespace
+	tmp_rep$name <- trimws(tmp_rep$name, which="both")
 
-	grp_rank <- rank %>% 
-					left_join(un_root_tot, by="file") %>%
-					group_by(name) %>%
-					summarise(avgCov = mean(nFrag), sd = sd(nFrag), 
-								se=se(nFrag), avgFragTot = mean(totalFrag)) %>%
-					mutate(perc = (avgCov/avgFragTot)*100) %>%
-					arrange(desc(perc))
+	# determine ranks from lineages
+	rank <- apply(lineages, 1, 
+					function(x) colnames(lineages)[length(x[!is.na(x)])])
+	rank <- replace(rank, rank=="taxid", "root")
+	lineages_df <- cbind(lineages, rank)
 
-	return(grp_rank)
+	tmp_rep$rankAb <- as.character(tmp_rep$rankAb)
+
+	# join report and lineages
+	df <- tmp_rep %>%
+			left_join(lineages_df, by="taxid") %>%
+			mutate(
+				rank = 
+					ifelse(rankAb == "D", "domain",
+						ifelse(rankAb == "U", "unclassified",
+						# update rank
+						ifelse(grepl("\\d", rankAb),
+									paste0(rank,"_", str_extract(rankAb, "[[:digit:]]+")),
+									as.character(rank))))#,
+				#kingdom = ifelse(name != kingdom, name, kingdom)
+					# some kingdoms were defined incorretly
+				) %>%
+			arrange(rank, desc(perc))
+
+	return(df)
 
 }
 
@@ -59,46 +74,62 @@ tableRank <- function(fileIn){
 ######### Input(s) and Parameters #########
 ###########################################
 
-
-domain <- tableRank('results/oral_diversity/domain.txt')
-phylum <- tableRank('results/oral_diversity/phylum.txt')
-genus <- tableRank('results/oral_diversity/genus.txt')
-species <- tableRank('results/oral_diversity/species.txt')
+lineageFile <- "results/oral_diversity/taxa.df"
+reports <- list.files("results/oral_diversity/kraken_reports/", full.names=T)
 
 ###########################################
 ############### Wraggling #################
 ###########################################
 
-df <- head(species, 20)
+# generate lists and bind them to a single df
+data_list <- lapply(reports[1:3], function(x) readKReport(x, lineageFile))
+data_merged <- do.call("rbind", data_list)
 
-pal <- wes_palette("Darjeeling1", nrow(df), type = "continuous")
+grps <- setdiff(names(data_merged), c("perc", "frag", "frag_uniq"))
 
-g <- ggplot(data=df, aes(x=name, y=perc, fill =name)) +
-		geom_col(colour='black', show.legend = FALSE)+
-		scale_fill_manual(values = pal)+
-		coord_flip() +
-		theme_classic() +
-		ylab("Percentage Detected") +
-		xlab("") #+
-		#ylim(0, 60)
-
-pdf("results/oral_diversity/oralDiv.pdf", 5, 5)
-print(g)
-invisible(dev.off())
-system("open -a Skim.app results/oral_diversity/oralDiv.pdf")
+df_summaries <- data_merged %>% 
+					group_by_at(grps) %>%
+					summarise(avg_perc = mean(perc), 
+								se_perc = se(perc), 
+								avg_frag = mean(frag), 
+								se_frag = se(frag), 
+								avg_frag_uniq = mean(frag_uniq),
+								se_frag_uniq = se(frag_uniq)) %>%
+					arrange(desc(avg_perc)) 
 
 
 
-###########################################
-############### Analysis ##################
-###########################################
+### species only 
+species = filter(df_summaries, rank %in% c("species"))
+data_head <- species %>% 
+				arrange(desc(avg_perc)) %>%
+				group_by(phylum) %>%
+				top_n(10) %>%
+				filter(avg_perc > 0.2) 
 
 
+#unclassified <- filter(df_summaries, rank %in% c("unclassified"))
+#unq_ranks <- unique(df$rank)
+#sum(species$avg_perc) + unclassified$avg_perc
 
 
 ###########################################
 ############### Plotting ##################
 ###########################################
+pal <- wes_palette("Darjeeling1", nrow(data_head), type = "continuous")
 
+g <- ggplot(data=data_head, aes(x=name, y=avg_perc, fill =name)) +
+		facet_grid(vars(kingdom), scales="free",)+
+		geom_col(colour='black', show.legend = FALSE)+
+		scale_fill_manual(values = pal)+
+		theme_classic() +
+		ylab("mean % reads matched uniquely") +
+		xlab("") +
+		coord_flip()
+
+pdf("results/oral_diversity/oralDiv.pdf", 10, 8)
+print(g)
+invisible(dev.off())
+system("open -a Skim.app results/oral_diversity/oralDiv.pdf")
 
 

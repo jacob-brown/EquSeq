@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-18
-# Last Modified: 2020-05-20
+# Last Modified: 2020-05-21
 
 
 
@@ -78,13 +78,14 @@ def taxLineage(dirIn, dirOut, outFormat):
 
 	### data frame format
 	if outFormat.lower() =="df":
-		command_taxa = """taxonkit lineage {} | 
-							taxonkit reformat -p '' -r '' | 
-							csvtk -H -t cut -f 1,3 | 
-							csvtk -H -t sep -f 2 -s ';' -R | 
-							csvtk add-header -t -n 
-								taxid,kindom,phylum,class,
-								order,family,genus,species""".format(outFile)
+		command_taxa = \
+			"""taxonkit lineage {} | 
+				taxonkit reformat -p '' -r '' | 
+				csvtk -H -t cut -f 1,3 | 
+				csvtk -H -t sep -f 2 -s ';' -R | 
+				csvtk add-header -t -n \
+				taxid,kingdom,phylum,class,order,family,genus,species"""\
+				.format(outFile)
 	
 	elif outFormat.lower() =="l":
 		### listed format ###	

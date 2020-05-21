@@ -2,6 +2,8 @@
 #PBS -l walltime=48:00:00
 #PBS -l select=1:ncpus=32:mem=124gb
 
+# uses very little memory, but takes a long time 
+	# check for threading
 
 #qsub -J 0-32 snps.sh 
 #qsub -J 0-2 snps.sh 
