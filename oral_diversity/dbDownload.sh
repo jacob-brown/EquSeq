@@ -35,10 +35,9 @@ kraken2-build --download-library fungi --db $DBNAME
 echo -e "\nplant\n"
 kraken2-build --download-library plant --db $DBNAME
 
-#echo -e "\nhuman\n"
-#kraken2-build --download-library human --db $DBNAME
 
 echo -e "\nhorse\n"
+
 # update taxanomic info in fasta file
 # taxanomic IDs from:
 	#https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi

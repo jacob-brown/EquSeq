@@ -2,18 +2,13 @@
 	# these can be the same for my purposes
 
 
-# import unix functions
+echo '=================================='
+echo -e "\nLoading modules\n"
 
-
-#echo '=================================='
-#echo -e "\nLoading modules\n"
-#module load angsd/915
 ANGSD=$EPHEMERAL/dependencies/angsd/angsd
 NGSADMIX=$EPHEMERAL/dependencies/angsd/misc/NGSadmix
 module load anaconda3/personal
 
-#echo '=================================='
-#echo -e "\nDirectories\n"
 
 DIR=$EPHEMERAL/all_data/
 ANC_DIR=$EPHEMERAL/ancestry/
@@ -76,11 +71,12 @@ function genotypeLH(){
 
 	# filter with the above and:
 		# -doMaf 1: Frequency (fixed major and minor)
-		# -doPost 1: estimate per-site allele frequency as a 
-			#prior for genotype proportions
 		# -GL 1 : genotype likelihood model - Samtools
 		# -doGlf 2 : beagle likelihood file dump file
 		# -doMajorMinor 1 : assign the major and minor alleles from GL
+
+		# -doPost 1: estimate per-site allele frequency as a 
+			#prior for genotype proportions
 		# -doGeno 32 : genotype probabilities in binary format
 
 	echo '=================================='

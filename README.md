@@ -1,35 +1,27 @@
 # EquSeq
 
-`git clone `
+`git clone ...`
 
 
-Always run the scripts from the parent directory, i.e. from within EquSeq.
+Always run the scripts from the parent directory `EquSeq`, relative paths have been used.
+
+## Languages
+* python
+* R
+* bash
 
 ## Software and Downloads
-Used
 * fastqc - quality scores
 * FASTX - trimming the last 10 bases
 * BWA - aligning and mapping
 * picard - marking reads for duplicates and updating info
 * samtools - general read cleaning and processing
 * kraken2 - metagenomic analysis of fastq reads
+* taxonkit
+* angsd
+* pcagsd
 
-To Look into
-* Guy: blobtools,Busco software, spades
-
-possibly use
-* SRA Toolkit
-
-Conda environment
-* conda install -c hcc aspera-cli
-
-
-
-## Running To Do 
-* List all datasets (bioproject codes)
-* script to find data associated with bioproject codes
-* script to filter any unusuable data, summary table of data types and sample size
-* Can other data be gathered from the list of all bioproject codes?
+### Conda environment
 
 ## Files
 * `info_all.csv` - Unique sequence runs/file codes with additional information. 
@@ -37,24 +29,7 @@ Conda environment
 * `info_pop_grouped.csv` - As above, but grouped at the sub-group level. Noting how many individual samples we have for each species and sub_group.
 
 Collection - runinfo tables manually from run selector pasting in all bioproject codes
-
-
-### Code Files
-* `getall_` - get all the available sequences phase of work
-* `map_` - mapping phase of work
-
-
-
 * `expand_projects.py` - expand the project codes and prepare list for a deeper search.
-
-### Mapping 
-Script run order: 
-1) map_environment
-2) check the reference sequence, if the IDs are not chrX then run map_correct_header.sh 
-3) map_index
-4) map_master
-5) map_merge
-6) map_clean
 
 
 ### Data
@@ -67,17 +42,25 @@ Script run order:
 
 ### File structure
 
-[]: # (tree -I 'sandbox|written_project' -d -o tree.md)
+run: `tree -I 'sandbox' -d > tree.md`
 
 ```
-
 .
 ├── ancestry
 ├── data
+│   ├── ancestry
+│   │   ├── snp.chr
+│   │   └── test_success_beagle
 │   ├── cleaned_data
 │   │   └── infotables_update
 │   ├── gene_variants
 │   ├── metadata
+│   ├── omia_sql
+│   ├── oral_diversity
+│   │   └── taxonkit_misc
+│   ├── processed_sequences
+│   │   ├── sandbox_data
+│   │   └── snps
 │   └── raw_data
 │       ├── infotables_original
 │       └── supplementary_data_from_studies
@@ -85,9 +68,13 @@ Script run order:
 ├── job_submissions
 ├── mapping
 ├── oral_diversity
+├── results
+│   ├── ancestry
+│   │   ├── wg_5kb_02maf
+│   │   └── wg_5kb_05maf
+│   └── oral_diversity
+│       └── kraken_reports
 ├── scripts
 └── setup
-
-
 
 ```

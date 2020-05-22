@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-05
-# Last Modified: 2020-05-19
+# Last Modified: 2020-05-22
 
 # Desc: generate a table of names for running the pcangsd script
 

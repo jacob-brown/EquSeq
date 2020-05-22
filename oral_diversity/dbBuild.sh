@@ -57,6 +57,7 @@ kraken2-build --download-library plant --db $DBNAME
 
 #echo -e "\nhorse\n"
 kraken2-build --add-to-library $EPHEMERAL/kraken/horse.fa --db $DBNAME
+kraken2-build --add-to-library $EPHEMERAL/kraken/homo_sap.fa --db $DBNAME
 
 echo '=================================='
 echo -e "\nFinal Build\n"

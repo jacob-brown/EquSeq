@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-22
-# Last Modified: 2020-05-01
+# Last Modified: 2020-05-22
 
 
 
@@ -62,7 +62,7 @@ def open_csv(file):
 db = mysql.connector.connect(
 	host="localhost",
 	username="root",
-	passwd="Bamboo91",
+	passwd="",
 	database="OMIA")
 
 cursor = db.cursor()

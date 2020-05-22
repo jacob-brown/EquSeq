@@ -3,7 +3,7 @@
 /data/cleaned_data/
 __pycache__
 written_project/
-tree.txt
+tree.*
 *.bam*
 /data/processed_sequences/
 /data/omia_sql/
@@ -15,3 +15,4 @@ hpc.txt
 results/
 example_format*
 data/oral_diversity/taxonkit_misc
+*.xlsx
