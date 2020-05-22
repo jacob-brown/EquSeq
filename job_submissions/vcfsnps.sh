@@ -1,8 +1,8 @@
 #! /bin/bash
 #PBS -l walltime=00:30:00
-#PBS -l select=1:ncpus=4:mem=4gb
+#PBS -l select=1:ncpus=8:mem=10gb
 
-# qsub -J 0-33 vcfsnps.sh
+# qsub vcfsnps.sh
 
 module load anaconda3/personal
 
@@ -10,20 +10,9 @@ CODE_DIR=$HOME/genomics/EquSeq/
 DIR=$EPHEMERAL/snp_calling/
 
 
-echo "running..."
+#### 
+# generate the snp list from vcf files
+	#-b X, qsub -J 0-X ancestry.sh
 
-ALL_FILE=($(ls $DIR/*.vcf))
-#echo "${ALL_FILE[*]}"
-FILE="${ALL_FILE[$PBS_ARRAY_INDEX]}"
-
-
-for FILE in "${ALL_FILE[@]}";do
-
-	echo $FILE
-
-	python3 $CODE_DIR/ancestry/snpHandler.py -c snpsVCF \
-		-i $FILE \
-		-o $DIR/snp_lists/snp
-
-done
-
+python3 $CODE_DIR/ancestry/snpHandler.py -c snps \
+			-i $DIR -o $DIR/snp_lists/snp -b 100

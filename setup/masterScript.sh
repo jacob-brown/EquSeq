@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-01-21
-# Last Modified: 2020-04-20
+# Last Modified: 2020-05-22
 # Desc: Script that runs everything. Should be run if data is added/removed.
 
 ### clean all the old data ###
@@ -15,16 +15,16 @@ mkdir data/cleaned_data/infotables_update
 
 # BioProject codes from supplementary materials is added
 	# expanding and updating the master list
-python3 ancestry/expandProject.py
+python3 setup/expandProject.py
 
 # clean data and join supplementary tables
-python3 ancestry/cleaningJoining.py
+python3 setup/cleaningJoining.py
 
 # generate a master list and summarise the run info data
-python3 ancestry/summarise.py
+python3 setup/summarise.py
 
 # extract breeds of interest from list  - potentially tmp script
-python3 ancestry/breeds.py
+python3 setup/breeds.py
 
 # which other files do we need?
-python3 ancestry/getAllFastq.py
+python3 setup/getAllFastq.py

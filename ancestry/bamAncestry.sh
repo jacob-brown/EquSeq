@@ -45,7 +45,7 @@ function qualityCheck(){
 	echo '=================================='
 	echo -e "\nChecking Quality \n"
 	# rmove -r chr1 after
-	$ANGSD -nThreads 31 -bam $ANC_DIR/bam.list -ref $REF -out $ANC_DIR/ALL.qc\
+	$ANGSD -P 31 -bam $ANC_DIR/bam.list -ref $REF -out $ANC_DIR/ALL.qc\
 	        -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -r $CHR \
 	        -trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 20 \
 	        -doQsDist 1 -doDepth 1 -doCounts 1 -checkBamHeaders 0
@@ -82,7 +82,7 @@ function genotypeLH(){
 	echo '=================================='
 	echo -e "\nGenerating Genotype Liklihoods\n"
 
-	$ANGSD -nThreads 31 -bam $ANC_DIR/bam.list -ref $REF \
+	$ANGSD -bam $ANC_DIR/bam.list -ref $REF -P 7 \
 			-out $ANC_DIR/$BASE -rf $SNP \
 			-uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
 			-trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 20 \
