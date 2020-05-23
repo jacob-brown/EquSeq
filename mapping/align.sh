@@ -1,32 +1,21 @@
 #!/bin/bash
 # align pair-ended reads, convert to bam, index, summary stats
 
-# import unix functions
-source ../scripts/unix_functions.sh
 
-
-# catch input files 
-BASE_NAME=$1 
-
-DIR=$EPHEMERAL/mapping/
-REF_GEN=$DIR/ref_genome/EquCab2.fna
+REF_GEN=$DIR/ref_genome/EquCab3.fna
 
 # create names and paths
-FILE_1=$DIR/trimmed/$BASE_NAME'_1.trim.fq'
-FILE_2=$DIR/trimmed/$BASE_NAME'_2.trim.fq'
+FILE_1=$1
+FILE_2=$2
+BASE_NAME=$3
+DIR=$4
 
+#timer
 echo '-----------------------'
-echo -e "\nAlign sequences\n"
-
-bwa mem $REF_GEN $FILE_1 $FILE_2 -t 31 > $DIR/aligned/$BASE_NAME'.sam'
-
-timer
-
-echo '-----------------------'
-echo -e "\nConvert to bam\n"
+echo -e "\nAligning, converting bam\n"
 
 
-samtools view -bS --threads 31 $DIR/aligned/$BASE_NAME'.sam' > \
+bwa mem -t 29 $REF_GEN $FILE_1 $FILE_2 | samtools view -bS --threads 29 - > \
 		$DIR/converted/$BASE_NAME'.bam'
 
 timer
@@ -34,7 +23,7 @@ timer
 echo '-----------------------'
 echo -e "\nSorting\n"
 
-samtools sort -m 60GiB --threads 31 $DIR/converted/$BASE_NAME'.bam' -o  \
+samtools sort -m 300GiB --threads 29 $DIR/converted/$BASE_NAME'.bam' -o  \
 		$DIR/sorted/$BASE_NAME'.sorted.bam'
 
 timer
@@ -43,7 +32,6 @@ echo '-----------------------'
 echo -e "\nIndex\n"
 
 samtools index $DIR/sorted/$BASE_NAME'.sorted.bam'
-
 
 timer
 

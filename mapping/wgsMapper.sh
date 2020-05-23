@@ -12,6 +12,15 @@
 # qsub -J 0-581 sra_mapping.sh
 
 
+CODE_DIR=$HOME/genomics/EquSeq/
+DIR=$EPHEMERAL/wgs_data/
+LIST_FASTQ=$EPHEMERAL/wgs_data/sra_runs_to_do.txt # sra_runs.txt
+
+# import unix functions
+source $HOME/genomics/EquSeq/scripts/unix_functions.sh
+
+
+
 echo '=================================='
 echo -e "\nLoading modules\n"
 module load fastx/0.0.14 # trimming 
@@ -22,23 +31,9 @@ module load picard/2.6.0 # cleaning
 module load anaconda3/personal # python
 
 
-echo '=================================='
-echo -e "\nMove scripts to TMPDIR\n"
-cp $HOME/genomics/code/sra_align.sh \
-	$HOME/genomics/code/sra_mapping.py \
-	$HOME/genomics/code/unix_functions.sh \
-	$TMPDIR
-
-source unix_functions.sh
-
-echo '=================================='
-echo -e "\nDefine paths and files\n"
-
-DIR=$EPHEMERAL/all_data/files_to_align/files/
-LIST_FASTQ=$EPHEMERAL/all_data/sra_runs_to_do.txt # sra_runs.txt
 
 # file names based on job number 
-FILE=($(python3 sra_mapping.py $LIST_FASTQ $DIR | tr -d "[''],"))
+FILE=($(python3 wgs_mapping.py $LIST_FASTQ $DIR/raw_files | tr -d "[''],"))
 
 # pair ended reads
 READ1=${FILE[0]} # 1st pair ended read
@@ -53,18 +48,16 @@ echo "prefix: "$FILE_PREFIX
 
 timer 
 
-echo '==================================================='
-echo '==================================================='
-echo -e '\n---------- Begin Running Scripts ----------\n'
-echo '==================================================='
-echo '==================================================='
-
 
 echo '=================================='
 echo -e "\nAligning\n"
 
-bash sra_align.sh $READ1 $READ2 $FILE_PREFIX
+#bash $CODE_DIR/mapping/sra_align.sh $READ1 $READ2 $FILE_PREFIX
 
+FILE_1=$DIR/raw_files$1
+FILE_2=$DIR/raw_files$2
+
+sh $CODE_DIR/mapping/align.sh $FILE_1 $FILE_2 $FILE_PREFIX $DIR
 # timer
 timer 
 

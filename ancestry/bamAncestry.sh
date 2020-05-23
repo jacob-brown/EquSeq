@@ -10,7 +10,7 @@ NGSADMIX=$EPHEMERAL/dependencies/angsd/misc/NGSadmix
 module load anaconda3/personal
 
 
-DIR=$EPHEMERAL/all_data/
+DIR=$EPHEMERAL/wgs_data/
 ANC_DIR=$EPHEMERAL/ancestry/
 
 

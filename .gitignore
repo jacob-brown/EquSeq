@@ -16,3 +16,4 @@ results/
 example_format*
 data/oral_diversity/taxonkit_misc
 *.xlsx
+checkEphemeral.py

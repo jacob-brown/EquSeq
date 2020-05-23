@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-09
-# Last Modified: 2020-05-05
+# Last Modified: 2020-05-23
 
 
 
@@ -90,13 +90,13 @@ def main(argv):
 		job number specific pair """ 
 	# catch the job number
 	runs_file = argv[1] 
-	#"/rds/general/user/jb1919/ephemeral/all_data/sra_runs.txt"
+	#"/rds/general/user/jb1919/ephemeral/wgs_data/sra_runs.txt"
 	
 	with open(runs_file) as f:
 		runs = f.read().splitlines()
 
 	files = os.listdir(argv[2])
-	#"/rds/general/user/jb1919/ephemeral/all_data/files/")
+	#"/rds/general/user/jb1919/ephemeral/wgs_data/files/")
 
 	pairs = pairFiles(files, runs)
 	job_num = int(os.environ['PBS_ARRAY_INDEX'])

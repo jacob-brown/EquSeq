@@ -2,11 +2,11 @@
 #PBS -l walltime=22:00:00
 #PBS -l select=1:ncpus=32:mem=62gb
 
-# qsub -J 0-35 sra_merge.sh
+# qsub -J 0-35 wgs_merge.py.sh
 
 # import unix functions
 cp $HOME/genomics/code/unix_functions.sh \
-	$HOME/genomics/code/sra_merge.py \
+	$HOME/genomics/code/wgs_merge.py.py \
 	$TMPDIR
 
 source unix_functions.sh
@@ -21,6 +21,6 @@ module load anaconda3/personal # python
 echo '=================================='
 echo -e "\nMerge Files\n"
 
-python sra_merge.py
+python wgs_merge.py.py
 
 timer
