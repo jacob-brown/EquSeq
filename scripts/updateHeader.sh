@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-01
-# Last Modified: 2020-05-18
+# Last Modified: 2020-05-25
 # Desc: Update the bam files with the chromosome location
 	# rather than ncbis assecison codes
 
@@ -31,7 +31,9 @@ module load anaconda3/personal
 echo '=================================='
 echo -e "\nGet assembly report\n"
 
-wget -O $REF_TAB ftp.ncbi.nlm.nih.gov/genomes/refseq/vertebrate_mammalian/Equus_caballus/all_assembly_versions/suppressed/GCF_000002305.2_EquCab2.0/GCF_000002305.2_EquCab2.0_assembly_report.txt
+#wget -O $REF_TAB ftp.ncbi.nlm.nih.gov/genomes/refseq/vertebrate_mammalian/Equus_caballus/all_assembly_versions/suppressed/GCF_000002305.2_EquCab2.0/GCF_000002305.2_EquCab2.0_assembly_report.txt
+
+wget -O $REF_TAB ftp.ncbi.nlm.nih.gov/genomes/refseq/vertebrate_mammalian/Equus_caballus/all_assembly_versions/GCF_002863925.1_EquCab3.0/GCF_002863925.1_EquCab3.0_assembly_report.txt
 
 timer
 
@@ -58,7 +60,6 @@ echo -e "\nClean up the environment\n"
 rm $REF_TAB
 
 timer
-
 
 else
 

@@ -17,3 +17,6 @@ example_format*
 data/oral_diversity/taxonkit_misc
 *.xlsx
 checkEphemeral.py
+checkEphemeral.sh
+align2.sh
+copy.sh

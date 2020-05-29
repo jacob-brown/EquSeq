@@ -2,6 +2,9 @@
 
 `git clone ...`
 
+# Setup
+`sh setup/environment.sh`
+
 
 Always run the scripts from the parent directory `EquSeq`, relative paths have been used.
 

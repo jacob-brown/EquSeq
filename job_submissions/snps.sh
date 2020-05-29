@@ -1,6 +1,6 @@
 #! /bin/bash
 #PBS -l walltime=48:00:00
-#PBS -l select=1:ncpus=32:mem=124gb
+#PBS -l select=1:ncpus=5:mem=5gb
 
 # uses very little memory, but takes a long time 
 	# check for threading
@@ -18,7 +18,6 @@ ALL_CHR+=(chrM chrX)
 #echo "${ALL_CHR[*]}"
 #CHR="${ALL_CHR[1]}"
 CHR="${ALL_CHR[$PBS_ARRAY_INDEX]}"
-
 
 echo "running snpCaller"
 

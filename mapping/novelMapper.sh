@@ -1,16 +1,16 @@
 #!/bin/bash
 #PBS -l walltime=40:00:00
-#PBS -lselect=1:ncpus=30:mem=360gb
+#PBS -lselect=1:ncpus=32:mem=62gb
 
 
-# qsub -J 0-23 master.sh
+# qsub -J 0-24 novelMapper.sh
 
 
 CODE_DIR=$HOME/genomics/EquSeq/
 DIR=$EPHEMERAL/novel_data/
 
 # import unix functions
-source $HOME/genomics/EquSeq/scripts/unix_functions.sh
+source $CODE_DIR/scripts/unix_functions.sh
 
 
 echo '=================================='
@@ -62,8 +62,8 @@ timer
 echo '=================================='
 echo -e "\nTrimming\n"
 
-FILE_1=$DIR/trimmed/$BASE_NAME'_1.trim.fq'
-FILE_2=$DIR/trimmed/$BASE_NAME'_2.trim.fq'
+FILE_1=$DIR/trimmed/$FILE_PREFIX'_1.trim.fq'
+FILE_2=$DIR/trimmed/$FILE_PREFIX'_2.trim.fq'
 
 echo 'read 1'
 fastx_trimmer -l 90 -i $DIR/raw_files/$FILE_PREFIX'_1.fq' -o $FILE_1
@@ -78,7 +78,7 @@ echo '=================================='
 echo -e "\nAligning\n"
 
 
-sh $CODE_DIR/mapping/align.sh $FILE_1 $FILE_2 $FILE_PREFIX $DIR
+sh $CODE_DIR/mapping/align2.sh $FILE_1 $FILE_2 $FILE_PREFIX $DIR
 
 # timer
 timer 

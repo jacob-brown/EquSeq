@@ -14,7 +14,7 @@ echo -e "\nDirectories\n"
 
 
 DIR=$EPHEMERAL/snp_calling/
-REF=$EPHEMERAL/mapping/ref_genome/EquCab2.fna
+REF=$EPHEMERAL/ref_genome/EquCab3.fna
 
 
 
@@ -26,7 +26,7 @@ function samtoolsCaller(){
 	echo '=================================='
 	echo -e "\nsamtools\n"
 
-	 samtools mpileup -uf $REF -b $DIR/bam.list -r $CHR \
+	 samtools mpileup -uf $REF -b $EPHEMERAL/ancestry/bam.list -r $CHR \
 		| bcftools call -mv > $DIR/snps.$CHR.raw.vcf
 
 

@@ -4,17 +4,17 @@
 
 # ERR868003, ERR868004 - memory maxed when aligning
 
-# qsub -J 0-47 sra_mapping.sh
-	# complete for sta_runs 
-	# 0-1 for sra_runs_to_do
-
-# qsub -J 0-49 sra_mapping.sh
-# qsub -J 0-581 sra_mapping.sh
+# gb and IE
+# qsub -J 0-47 wgsMapper.sh
+# rest of the data
+# qsub -J 0-581 wgsMapper.sh 
 
 
 CODE_DIR=$HOME/genomics/EquSeq/
 DIR=$EPHEMERAL/wgs_data/
-LIST_FASTQ=$EPHEMERAL/wgs_data/sra_runs_to_do.txt # sra_runs.txt
+RUNS_LIST=$CODE_DIR/data/cleaned_data/sra_runs.txt
+	# sra_runs.txt - gb and ie
+	# sra_runs_to_do.txt - all others
 
 # import unix functions
 source $HOME/genomics/EquSeq/scripts/unix_functions.sh
@@ -33,17 +33,17 @@ module load anaconda3/personal # python
 
 
 # file names based on job number 
-FILE=($(python3 wgs_mapping.py $LIST_FASTQ $DIR/raw_files | tr -d "[''],"))
+FILE=($(python3 $CODE_DIR/mapping/wgs_mapping.py $RUNS_LIST $DIR/raw_files/ | tr -d "[''],"))
 
 # pair ended reads
-READ1=${FILE[0]} # 1st pair ended read
-READ2=${FILE[1]} # 2nd pair ended read
+FILE_1=${FILE[0]} # 1st pair ended read
+FILE_2=${FILE[1]} # 2nd pair ended read
 
 # new shorter file name
 FILE_PREFIX=${FILE[2]}
 
-echo "read1: "$READ1
-echo "read2: "$READ2
+echo "read1: "$FILE_1
+echo "read2: "$FILE_2
 echo "prefix: "$FILE_PREFIX
 
 timer 
@@ -52,10 +52,8 @@ timer
 echo '=================================='
 echo -e "\nAligning\n"
 
-#bash $CODE_DIR/mapping/sra_align.sh $READ1 $READ2 $FILE_PREFIX
-
-FILE_1=$DIR/raw_files$1
-FILE_2=$DIR/raw_files$2
+FILE_1=$DIR/raw_files/$FILE_1
+FILE_2=$DIR/raw_files/$FILE_2
 
 sh $CODE_DIR/mapping/align.sh $FILE_1 $FILE_2 $FILE_PREFIX $DIR
 # timer

@@ -1,10 +1,10 @@
 #!/bin/bash
-#PBS -l walltime=12:00:00
+#PBS -l walltime=24:00:00
 #PBS -l select=1:ncpus=32:mem=124gb
 
 
 # import unix functions
-source unix_functions.sh
+source $HOME/genomics/EquSeq/scripts/unix_functions.sh
 
 
 echo '=================================='
@@ -14,12 +14,11 @@ module load samtools/1.3.1 # general
 module load java/jdk-8u144 # picard associated
 module load picard/2.6.0 # cleaning
 
-# remove duplicates and poor quality reads
 
-DIR=$EPHEMERAL/mapping/merged/
+DIR=$EPHEMERAL/novel_data/merged/
 PICARD=$PICARD_HOME/picard.jar
 
-# timer
+
 timer
 
 echo '-----------------------'
@@ -41,7 +40,7 @@ java -Xmx120g -jar $PICARD FixMateInformation \
 		TMP_DIR=$TMPDIR # resolves memory issues
 
 
-# timer
+
 timer
 #
 echo '-----------------------'
@@ -57,7 +56,7 @@ java -Xmx120g \
 		TMP_DIR=$TMPDIR
 
 
-# timer
+
 timer
 
 echo '-----------------------'
@@ -68,7 +67,7 @@ echo "duplicates: "
 samtools view -f 1024 --threads 31 $DIR/merged.rmdup.bam | wc -l 
 
 
-# timer
+
 timer
 
 #echo '-----------------------'
@@ -105,12 +104,12 @@ java -Xmx120g -jar $PICARD AddOrReplaceReadGroups \
 echo '-----------------------'
 echo -e "\nRemove Unmapped Reads\n"
 
-samtools view -b -F 4 new.rg.bam > final.bam
+samtools view -b -F 4 $DIR/new.rg.bam > $DIR/final.bam
 
 echo '-----------------------'
 echo -e "\nIndex with samtools\n"
 
 samtools index $DIR/final.bam
 
-# timer
+
 timer

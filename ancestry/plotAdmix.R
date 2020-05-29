@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-11
-# Last Modified: 2020-05-19
+# Last Modified: 2020-05-29
 
 # Desc: 
 
@@ -116,7 +116,7 @@ maf <- strsplit(as.character(d[4,]), " ")[[1]][3]
 title <- paste(sites, " ", maf)
 
 files_to_use <- files_to_use[files_to_use != paste0(DIR,"/ALL.MIX.K10.qopt") &
-files_to_use != paste0(DIR,"/ALL.MIX.K11.qopt")]
+files_to_use != paste0(DIR,"/ALL.MIX.K11.qopt")][1:5]
 
 
 i <- 0
@@ -160,6 +160,8 @@ names <- colnames(store_admix)
 names[names=="ind"] <- "pop"
 colnames(store_admix) <- names
 
+store_admix$K <- paste0("K=", store_admix$K)
+
 ### plot ####
 g <- ggplot(store_admix, aes(fill=pop, y=values, x=IID, label=pop))+
 		facet_grid(rows = vars(store_admix$K))+
@@ -167,11 +169,20 @@ g <- ggplot(store_admix, aes(fill=pop, y=values, x=IID, label=pop))+
 		scale_fill_manual(values = cbPalette) +
 		scale_x_discrete(labels=breed_order)+
 		theme_classic()+
-		ggtitle(title) + 
-		theme(axis.text.x = element_text(angle = 90, hjust = 1))
-		#geom_text()+
+		xlab("")+
+		ylab("")+
+		theme(axis.text.x = element_text(angle = 90, hjust = 1),
+				legend.position = "none",
+				axis.title.y=element_blank(),
+        		axis.text.y=element_blank(),
+        		axis.ticks.y=element_blank(),
+				strip.text.y = element_text(size = 15, angle=0)
+        		)
+		#ggtitle(title) +
+		#labs(fill = "Ancestral\npopulation")+ 
+		#scale_x_discrete(labels=breed_order)+
 
-pdf(file=out, 13, 10)
+pdf(file=out, 6, 6)
 print(g)
 invisible(dev.off())
 

@@ -28,8 +28,12 @@ mkdir $EPHEMERAL/ancestry/qualityChecks
 # gene to trait data store
 mkdir $EPHEMERAL/gene_to_trait/
 
-# gene to trait data store
+# gene to snps
 mkdir $EPHEMERAL/snp_calling/
+mkdir $EPHEMERAL/snp_calling/snp_lists/
+
+#
+mkdir $EPHEMERAL/oral_diversity
 
 # dependencies
 mkdir $EPHEMERAL/dependencies/ &&\
@@ -57,13 +61,10 @@ echo '=================================='
 echo -e "\nBuild angsd\n"
 
 cd $DIR_DEP/
-wget -O http://popgen.dk/software/download/angsd/angsd0.930.tar.gz 
-tar xf angsd0.930.tar.gz
-cd htslib;make;cd ..
-cd angsd
-make HTSSRC=../htslib
-cd ..
-rm angsd0.930.tar.gz
+git clone https://github.com/samtools/htslib.git
+git clone https://github.com/ANGSD/angsd.git 
+cd htslib;make;cd ../angsd ;make HTSSRC=../htslib
+
 
 echo '=================================='
 echo -e "\nBuild pcangsd\n"

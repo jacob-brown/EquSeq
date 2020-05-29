@@ -1,5 +1,5 @@
 #! /bin/bash
-#PBS -l walltime=24:00:00
+#PBS -l walltime=48:00:00
 #PBS -l select=1:ncpus=8:mem=10gb
 
 # nthread (avg) and memory is 1 or less
@@ -9,7 +9,6 @@
 		#qsub -J 0-3 ancestry.sh
 		# qsub -J 4-99 ancestry.sh
 
-#CODE_DIR=$HOME/genomics/code/
 CODE_DIR=$HOME/genomics/EquSeq/
 
 source $CODE_DIR/scripts/unix_functions.sh

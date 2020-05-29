@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-04
-# Last Modified: 2020-05-22
+# Last Modified: 2020-05-27
 
 
 
@@ -227,10 +227,8 @@ def subBeagle(beagleIn, beagleOut, posList):
 ### snps from vcf file ###
 # python3 ancestry/snpHandler.py -c snps -i data/processed_sequences/snps/ -o data/ancestry/snp.chr/snp -b 10
 
-
-
 ### snp window ###
-# python3 ancestry/snpHandler.py -c window -i data/processed_sequences/beagle/snp.chr28.list.beagle.gz -o data/processed_sequences/beagle/chr28.list -d 13.5
+# python3 ancestry/snpHandler.py -c window -i data/processed_sequences/beagle/snp.chr28.list.beagle.gz -o data/processed_sequences/beagle/chr28.list -d 5
 
 ### subset beagle from snp window ###
 # python3 ancestry/snpHandler.py -c subBeagle -i data/processed_sequences/beagle/snp.chr28.list.beagle.gz -o data/processed_sequences/beagle/snp.chr28.fi -l data/processed_sequences/beagle/chr28.list

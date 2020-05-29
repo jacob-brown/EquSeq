@@ -15,9 +15,8 @@ ANC_DIR=$EPHEMERAL/ancestry/
 
 
 # refernece genome
-REF=$EPHEMERAL/mapping/ref_genome/EquCab2.fna
-SAMPLE=$EPHEMERAL/mapping/merged/final.bam
-#SNP_LIST=$ANC_DIR/snp.list
+REF=$EPHEMERAL/ref_genome/EquCab3.fna
+SAMPLE=$EPHEMERAL/novel_data/merged/final.bam
  
 
 function makeBamList(){

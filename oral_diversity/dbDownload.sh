@@ -4,54 +4,65 @@
 
 # download data into kraken2 database
 
+source $HOME/genomics/EquSeq/scripts/unix_functions.sh
 
-#----- load modules ----#
 echo '=================================='
 echo -e "\nLoad modules\n"
+
 module load anaconda3/personal
-module load fastx/0.0.14
-source activate myenv # activate conda environment
+source activate myenv 
 
 
-DBNAME=$EPHEMERAL/kraken/db_kraken_horse
+DIR=$EPHEMERAL/oral_diversity/
+DBNAME=$DIR/db_kraken_horse
 
+echo '=================================='
+echo -e "\nBuild taxonomy database\n"
+
+# pull taxonomy structure 
+kraken2-build --download-taxonomy --db $DBNAME
+
+timer
 
 echo '=================================='
 echo -e "\nAdd libraries\n"
-# add reference libraries
 
 echo -e "\narchaea\n"
 kraken2-build --download-library archaea --db $DBNAME
 
+timer
+
 echo -e "\nbacteria\n"
 kraken2-build --download-library bacteria --db $DBNAME
+
+timer
 
 echo -e "\nviral\n"
 kraken2-build --download-library viral --db $DBNAME
 
+timer
+
 echo -e "\nfungi\n"
 kraken2-build --download-library fungi --db $DBNAME
+
+timer
 
 echo -e "\nplant\n"
 kraken2-build --download-library plant --db $DBNAME
 
+timer
 
 echo -e "\nhorse\n"
 
-# update taxanomic info in fasta file
-# taxanomic IDs from:
-	#https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi
-# Update header 
-#var=">EquCab2|kraken:taxid|9796  Horse reference genome"
-#sed "1c$var" $EPHEMERAL/kraken/EquCab2.fna > horse.fa # line 1 and change
 # add to database
-kraken2-build --add-to-library $EPHEMERAL/kraken/horse.fa --db $DBNAME
+kraken2-build --add-to-library $DIR/horse.fa --db $DBNAME
+
+timer
 
 echo -e "\nhuman\n"
-kraken2-build --add-to-library $EPHEMERAL/kraken/homo_sap.fa --db $DBNAME
+kraken2-build --add-to-library $DIR/homo_sap.fa --db $DBNAME
 
-echo '=================================='
-echo -e "\nclose conda\n"
+timer
 
 conda deactivate
 

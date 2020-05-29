@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-01
-# Last Modified: 2020-05-18
+# Last Modified: 2020-05-25
 
 
 """  SQ header in bam files notes the NCBI Assecsion number 
@@ -33,7 +33,7 @@ def assembly_table(tab):
 
 	# create list of ncbi codes and chrX values 
 	for n, elem in enumerate(lines):
-		if n > 30:
+		if n > 30 and "#" not in elem:
 			# ignore the first 30 entries (table metadata) 
 			tmp = elem.split()
 			#store.append(tmp)
@@ -41,9 +41,10 @@ def assembly_table(tab):
 				if tmp[0] == 'MT': # mitochondrial entry has a shorter row
 					val = tmp[9]
 				else:
-					val = tmp[10] # return 'chrX'
-			else: 
-				val = tmp[0] # return 'scaffold_X'
+					val = tmp[0]
+			else:
+				val = tmp[0] # contigs
+
 			store.append([tmp[6], val])
 
 	return store
@@ -132,9 +133,10 @@ def main(argv):
 		Generate new string header """ 
 
 	if argv[1] == 'bam':
-		print(bam_head(argv[2], argv[3])) # ref table and BAM header
+		bam_head(argv[2], argv[3]) # ref table and BAM header
 	elif argv[1] == 'fasta':
 		fasta_head(argv[2], argv[3]) # ref table and fasta file
+		#print(argv)
 	else:
 		return "Error: file type not selected"
 	return 0

@@ -3,11 +3,11 @@
 #PBS -l select=1:ncpus=32:mem=62gb
 
 # import unix functions
-source ../scripts/unix_functions.sh
+source $HOME/genomics/EquSeq/scripts/unix_functions.sh
 
-#DATA=($EPHEMERAL/mapping/cleaned/*.bam) # array of all data
-DATA=($EPHEMERAL/mapping/sorted/*.bam)
-FILE_OUT=$EPHEMERAL/mapping/merged/merged.bam
+DIR=$EPHEMERAL/novel_data/
+DATA=($DIR/sorted/*.bam)
+FILE_OUT=$DIR/merged/merged.bam
 
 #----- load modules ----#
 echo '=================================='
@@ -33,5 +33,5 @@ timer
 echo '=================================='
 echo -e "\nflagstat\n"
 
-samtools flagstat $FILE_OUT > $EPHEMERAL/mapping/merged/merged'.stat.txt'
+samtools flagstat $FILE_OUT > $DIR/novel_data/merged'.stat.txt'
 

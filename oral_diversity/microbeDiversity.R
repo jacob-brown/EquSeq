@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-03-18
-# Last Modified: 2020-05-21
+# Last Modified: 2020-05-29
 
 # Desc: 
 
@@ -83,6 +83,7 @@ reports <- list.files("results/oral_diversity/kraken_reports/", full.names=T)
 
 # generate lists and bind them to a single df
 data_list <- lapply(reports[1:3], function(x) readKReport(x, lineageFile))
+
 data_merged <- do.call("rbind", data_list)
 
 grps <- setdiff(names(data_merged), c("perc", "frag", "frag_uniq"))
@@ -95,17 +96,54 @@ df_summaries <- data_merged %>%
 								se_frag = se(frag), 
 								avg_frag_uniq = mean(frag_uniq),
 								se_frag_uniq = se(frag_uniq)) %>%
-					arrange(desc(avg_perc)) 
+					arrange(desc(avg_perc)) %>%
+					ungroup()
 
 
 
 ### species only 
-species = filter(df_summaries, rank %in% c("species"))
-data_head <- species %>% 
+data_species <- df_summaries %>%
+			filter(rank %in% c("species"))
+
+
+data_grp <- data_species %>%
+				mutate(species = as.character(species),
+						kingdom = as.character(kingdom),
+						phylum = as.character(phylum)
+						) %>%
+				mutate(name_grp = 
+					ifelse(avg_perc > 10, species, phylum)
+					) %>%
+				group_by(name_grp, kingdom, phylum) %>%
+				summarise(per_grp = sum(avg_perc)) %>%
+				filter(per_grp > 0) %>%
+				arrange(desc(per_grp)) %>%
+				mutate(group_col = 
+					ifelse(kingdom != "Eukaryota", kingdom,
+						ifelse(phylum == "Chordata", "Animalia",
+							ifelse(phylum == "Streptophyta", "Plantae",
+								ifelse(phylum == "Ascomycota", "Fungi", NA)))),
+					grp=as.factor(1)
+					)
+
+
+# add unclassified/other
+data_all <- data_grp %>%
+				bind_rows(
+					data.frame(name_grp="unclassified/other", 
+								per_grp=(100-sum(data_grp$per_grp)))
+					) %>%
+				mutate(grp=as.factor(1))
+
+# add unclassified
+				
+data_head <- data_species %>% 
 				arrange(desc(avg_perc)) %>%
-				group_by(phylum) %>%
+				group_by(kingdom) %>%
 				top_n(10) %>%
-				filter(avg_perc > 0.2) 
+				filter(avg_perc > 0.1) %>%
+				filter(!(name %in% c("Equus caballus", "Homo sapiens")) &
+							phylum != "Streptophyta")
 
 
 #unclassified <- filter(df_summaries, rank %in% c("unclassified"))
@@ -117,19 +155,48 @@ data_head <- species %>%
 ############### Plotting ##################
 ###########################################
 pal <- wes_palette("Darjeeling1", nrow(data_head), type = "continuous")
+#pal <- c("#999999", "#E69F00", "#56B4E9", "#009E73", 
+#			"#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#000000")
 
 g <- ggplot(data=data_head, aes(x=name, y=avg_perc, fill =name)) +
-		facet_grid(vars(kingdom), scales="free",)+
+		facet_grid(vars(phylum), scales="free", space = "free")+
 		geom_col(colour='black', show.legend = FALSE)+
 		scale_fill_manual(values = pal)+
 		theme_classic() +
-		ylab("mean % reads matched uniquely") +
+		ylab("% reads uniquely identified") +
 		xlab("") +
-		coord_flip()
+		coord_flip()+
+		theme(strip.text.y = element_text(size = 15, angle=0),
+				panel.grid.major = element_blank(),
+        		panel.grid.minor = element_blank(),
+        		strip.background = element_blank(),
+				text = element_text(size=20))
 
-pdf("results/oral_diversity/oralDiv.pdf", 10, 8)
+pdf("results/oral_diversity/oralDiv.pdf", 9, 7)
 print(g)
 invisible(dev.off())
 system("open -a Skim.app results/oral_diversity/oralDiv.pdf")
 
+
+
+#data_all$name_grp <- factor(data_all$name_grp, levels = rev(data_all$name_grp))
+#
+#pal <- wes_palette("Darjeeling1", nrow(data_all), type = "continuous")
+#pal[1] <- "#B8B8B8"
+#
+#p <- ggplot(data=data_all, aes(x=grp, y=per_grp, fill = name_grp)) +
+#		geom_bar(position="stack", stat="identity", colour="black") +
+#		scale_fill_manual(values = pal,
+#							name="Taxa")+
+#		theme_classic() +
+#		theme(axis.title.x=element_blank(),
+#				axis.text.x=element_blank(),
+#        		axis.ticks.x=element_blank())+
+#		ylab("% reads uniquely identified") +
+#		scale_y_continuous(expand = c(0,0)) 
+# 
+#pdf("results/oral_diversity/oralDivFull.pdf", 4, 8)
+#print(p)
+#invisible(dev.off())
+#system("open -a Skim.app results/oral_diversity/oralDivFull.pdf")
 
