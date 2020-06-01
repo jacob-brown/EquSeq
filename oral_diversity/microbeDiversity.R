@@ -16,6 +16,7 @@ require(dplyr)
 require(tidyr)
 require(stringr)
 require(wesanderson)
+require(RColorBrewer)
 
 # pavian for shiny app
 #pavian::runApp(port=5000)
@@ -158,6 +159,8 @@ pal <- wes_palette("Darjeeling1", nrow(data_head), type = "continuous")
 #pal <- c("#999999", "#E69F00", "#56B4E9", "#009E73", 
 #			"#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#000000")
 
+
+
 g <- ggplot(data=data_head, aes(x=name, y=avg_perc, fill =name)) +
 		facet_grid(vars(phylum), scales="free", space = "free")+
 		geom_col(colour='black', show.legend = FALSE)+
@@ -167,9 +170,6 @@ g <- ggplot(data=data_head, aes(x=name, y=avg_perc, fill =name)) +
 		xlab("") +
 		coord_flip()+
 		theme(strip.text.y = element_text(size = 15, angle=0),
-				panel.grid.major = element_blank(),
-        		panel.grid.minor = element_blank(),
-        		strip.background = element_blank(),
 				text = element_text(size=20))
 
 pdf("results/oral_diversity/oralDiv.pdf", 9, 7)
@@ -177,6 +177,7 @@ print(g)
 invisible(dev.off())
 system("open -a Skim.app results/oral_diversity/oralDiv.pdf")
 
+#scale_fill_brewer(palette = "Dark2")+
 
 
 #data_all$name_grp <- factor(data_all$name_grp, levels = rev(data_all$name_grp))

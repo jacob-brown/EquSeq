@@ -82,7 +82,7 @@ function genotypeLH(){
 	echo -e "\nGenerating Genotype Liklihoods\n"
 
 	$ANGSD -bam $ANC_DIR/bam.list -ref $REF -P 7 \
-			-out $ANC_DIR/$BASE -rf $SNP \
+			-out $ANC_DIR/all_beagles/$BASE -rf $SNP \
 			-uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
 			-trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 20 \
 			-checkBamHeaders 0 \
@@ -106,7 +106,7 @@ function pcaGL(){
 	# default -minMaf 0.05
  	python $PCANGSD -beagle $BEAGLE_FILE  \
 					-o $ANC_DIR/ALL.PCA -threads 4 \
-					-minMaf 0.02 -sites_save
+					-minMaf 0.05 -sites_save
 
 
 }
@@ -119,12 +119,12 @@ function admix(){
 
 	# default -minMaf 0.05
 	BEAGLE_FILE=$1
-	K_ARRAY=(2 3 4 5 6 7 8 9 10 11) # 2 to the number of breeds 
+	K_ARRAY=(2 3 4 5 6) 
 
 	for K in "${K_ARRAY[@]}"; do
 
 		$NGSADMIX -likes $BEAGLE_FILE -K $K\
-			-outfiles $ANC_DIR/ALL.MIX.K$K -P 4 -minMaf 0.02
+			-outfiles $ANC_DIR/ALL.MIX.K$K -P 4 -minMaf 0.05
 	done
 	#$NGSADMIX -likes ALL.merged.beagle.gz -K 3 -minMaf 0.02 -outfiles ./ALL.MIX -P 4
 

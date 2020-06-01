@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-05
-# Last Modified: 2020-05-29
+# Last Modified: 2020-06-01
 
 # Desc: generate a table of names for running the pcangsd script
 
@@ -26,9 +26,9 @@ require(RColorBrewer)
 ######### Input(s) and Parameters #########
 ###########################################
 
-MAF <- "0.02"
-covIN <- "results/ancestry/wg_5kb_02maf/ALL.PCA.cov"
-sitesIN <- "results/ancestry/wg_5kb_02maf/ALL.PCA.sites"
+MAF <- "0.05"
+covIN <- "results/ancestry/eu_more_wg_5kb_05maf/ALL.PCA.cov"
+sitesIN <- "results/ancestry/eu_more_wg_5kb_05maf/ALL.PCA.sites"
 out <- "results/ancestry/ALL.PCA.pdf"
 
 ###########################################

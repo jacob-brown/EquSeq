@@ -24,6 +24,8 @@ WGS_DATA=$EPHEMERAL/wgs_data/
 # ancestry data store
 mkdir $EPHEMERAL/ancestry/
 mkdir $EPHEMERAL/ancestry/qualityChecks
+mkdir $EPHEMERAL/ancestry/filtered_beagles
+mkdir $EPHEMERAL/ancestry/all_beagles
 
 # gene to trait data store
 mkdir $EPHEMERAL/gene_to_trait/

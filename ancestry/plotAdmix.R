@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-11
-# Last Modified: 2020-05-29
+# Last Modified: 2020-06-01
 
 # Desc: 
 
@@ -15,6 +15,7 @@
 require(ggplot2)
 require(tools)
 require(dplyr)
+require(tibble)
 require(RColorBrewer)
 
 ###########################################
@@ -91,7 +92,7 @@ admixture <- function(fileIn, orderIndex){
 ######### Input(s) and Parameters #########
 ###########################################
 
-DIR <- "results/ancestry/wg_5kb_02maf/"
+DIR <- "results/ancestry/eu_more_wg_5kb_05maf/"
 
 files <- list.files(DIR, full.names=T)
 out <- "results/ancestry/ALL.MIX.pdf"
@@ -115,8 +116,8 @@ sites <- strsplit(as.character(d[6,]), " ")[[1]][7]
 maf <- strsplit(as.character(d[4,]), " ")[[1]][3]
 title <- paste(sites, " ", maf)
 
-files_to_use <- files_to_use[files_to_use != paste0(DIR,"/ALL.MIX.K10.qopt") &
-files_to_use != paste0(DIR,"/ALL.MIX.K11.qopt")][1:5]
+#files_to_use <- files_to_use[files_to_use != paste0(DIR,"/ALL.MIX.K10.qopt") &
+#files_to_use != paste0(DIR,"/ALL.MIX.K11.qopt")][1:5]
 
 
 i <- 0
@@ -161,6 +162,26 @@ names[names=="ind"] <- "pop"
 colnames(store_admix) <- names
 
 store_admix$K <- paste0("K=", store_admix$K)
+store_admix <- tibble(store_admix)
+
+tmp <- store_admix %>%
+			filter(K == "K=2" & pop == 1) %>%
+			rowid_to_column(var="rowid") %>%
+			data.frame()
+
+lab = c()
+br = c()
+for(i in 1:nrow(tmp)){
+	row <- tmp[i,]
+	if(!(row$CLUSTER %in% lab)){
+		lab <- append(lab, as.character(row$CLUSTER)) 
+		br <- append(br, row$IID) 
+	}
+
+
+}
+
+
 
 ### plot ####
 g <- ggplot(store_admix, aes(fill=pop, y=values, x=IID, label=pop))+
@@ -171,22 +192,24 @@ g <- ggplot(store_admix, aes(fill=pop, y=values, x=IID, label=pop))+
 		theme_classic()+
 		xlab("")+
 		ylab("")+
-		theme(axis.text.x = element_text(angle = 90, hjust = 1),
+		theme(axis.text.x = element_text(angle = 90, hjust = 1, size =8),
+				 axis.line.y = element_blank(),
 				legend.position = "none",
-				axis.title.y=element_blank(),
-        		axis.text.y=element_blank(),
-        		axis.ticks.y=element_blank(),
-				strip.text.y = element_text(size = 15, angle=0)
+				axis.title.y = element_blank(),
+        		axis.text.y = element_blank(),
+        		axis.ticks.y = element_blank(),
+				strip.text.y = element_text(size = 10, angle=0),
+				strip.background=element_blank()
         		)
-		#ggtitle(title) +
-		#labs(fill = "Ancestral\npopulation")+ 
-		#scale_x_discrete(labels=breed_order)+
-
 pdf(file=out, 6, 6)
 print(g)
 invisible(dev.off())
 
 
+#scale_x_discrete(breaks=br, labels=lab)+
+#ggtitle(title) +
+#labs(fill = "Ancestral\npopulation")+ 
+#scale_x_discrete(labels=breed_order)+
 
 
 #pop<-read.table(clusters, header = TRUE, sep="\t")

@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-04
-# Last Modified: 2020-05-27
+# Last Modified: 2020-06-01
 
 
 
@@ -155,8 +155,10 @@ def snpWindow(beagleIn, listOut, distKB):
 	### sites in beagle file ###
 	print("extracting all sites")
 	no_ext = os.path.splitext(beagleIn)[0]
-	command = "gunzip {} && sed '1d' {} | cut -f 1 | sed 's/_/:/' && gzip {}"\
-						.format(beagleIn, no_ext, no_ext)
+	command = "zcat {} | sed '1d' - | cut -f 1 | sed 's/_/:/'"\
+						.format(beagleIn)
+
+	print("executing: \n" + command + "\n")
 
 	p = subprocess.Popen([command], stdout=subprocess.PIPE, \
 							stderr=subprocess.PIPE, shell=True)
@@ -199,20 +201,24 @@ def subBeagle(beagleIn, beagleOut, posList):
 	no_ext = os.path.splitext(beagleIn)[0]
 	outFile = beagleOut + ".beagle"
 
-	command_main = "gunzip {} && grep -Fw -f {} {} | cat sed -n '1p' {} - > {}"\
-				.format(beagleIn, posList, no_ext, no_ext, outFile)
+	#command_main = "gunzip {} && grep -Fw -f {} {} | cat sed -n '1p' {} - > {}"\
+				#.format(beagleIn, posList, no_ext, no_ext, outFile)
 
+	command_main = "zcat {} | head -1 > {}.TMP.HEAD && zcat {} | grep -Fw -f {} - | cat {}.TMP.HEAD - > {} ".format(beagleIn, beagleIn, beagleIn, posList, beagleIn, outFile)
+
+	print("executing: \n" + command_main + "\n")
 	devna = subprocess.Popen([command_main],  \
-				stderr=subprocess.PIPE, shell=True)
+				stderr=subprocess.PIPE, \
+				stdout=subprocess.PIPE, shell=True)
 
 	# tidy up and gzip
-	gzip = lambda f : subprocess.Popen(["gzip", f])
+	#gzip = lambda f : subprocess.Popen(["gzip", f])
 
 	# allow for catchup, skipped when pauses are absent
-	time.sleep(.1) 
-	devna = gzip(outFile)
-	time.sleep(.1)
-	devna = gzip(no_ext)
+	#time.sleep(.1) 
+	#devna = gzip(outFile)
+	#time.sleep(.1)
+	#devna = gzip(no_ext)
 	return 0
 
 
