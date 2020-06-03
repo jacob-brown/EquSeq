@@ -21,3 +21,4 @@ checkEphemeral.sh
 align2.sh
 copy.sh
 dependancies/
+data/gene_variants/annotate
