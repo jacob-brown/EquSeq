@@ -59,25 +59,7 @@ mkdir \
 	$WGS_DATA/stats/ \
 	$WGS_DATA/merged/
 
-echo '=================================='
-echo -e "\nBuild angsd\n"
 
-cd $DIR_DEP/
-git clone https://github.com/samtools/htslib.git
-git clone https://github.com/ANGSD/angsd.git 
-cd htslib;make;cd ../angsd ;make HTSSRC=../htslib
-
-
-echo '=================================='
-echo -e "\nBuild pcangsd\n"
-
-cd $DIR_DEP/
-git clone https://github.com/Rosemeis/pcangsd.git pcangsd
-
-python pcangsd/setup.py build_ext --inplace
-
-# check if functional
-# python pcangsd.py -h
 
 
 echo '=================================='

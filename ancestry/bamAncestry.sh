@@ -106,7 +106,7 @@ function pcaGL(){
 	# default -minMaf 0.05
  	python $PCANGSD -beagle $BEAGLE_FILE  \
 					-o $ANC_DIR/ALL.PCA -threads 4 \
-					-minMaf 0.05 -sites_save
+					-minMaf 0.05 -inbreed 1 -admix
 
 
 }

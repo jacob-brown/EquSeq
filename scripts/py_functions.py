@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-14
-# Last Modified: 2020-05-20
+# Last Modified: 2020-06-02
 
 
 
@@ -34,8 +34,17 @@ def timer(state="S"):
 	
 	else:
 		stop("state not found, s or e only.")
-		
 
+
+# write csv
+def write_csv(list_file, path):
+	
+	""" Write list to csv """
+
+	with open(path, 'w') as f:
+		writer = csv.writer(f, delimiter=',')
+		for i in list_file:
+			writer.writerow(i)
 	
 
 

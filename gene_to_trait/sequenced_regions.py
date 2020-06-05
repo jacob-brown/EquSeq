@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-22
-# Last Modified: 2020-05-22
+# Last Modified: 2020-06-02
 
 
 
@@ -19,6 +19,7 @@ import mysql.connector
 import re
 import hgvs.parser
 import csv
+import numpy as np
 
 ###########################################
 ############## Function(s) ################
@@ -55,6 +56,15 @@ def open_csv(file):
 
 	return tmp
 
+
+def write_csv(list_file, path):
+	
+	""" Write list to csv """
+
+	with open(path, 'w') as f:
+		writer = csv.writer(f, delimiter=',')
+		for i in list_file:
+			writer.writerow(i)
 ###########################################
 ######### Input(s) and Parameters #########
 ###########################################
@@ -62,7 +72,7 @@ def open_csv(file):
 db = mysql.connector.connect(
 	host="localhost",
 	username="root",
-	passwd="",
+	passwd=pw,
 	database="OMIA")
 
 cursor = db.cursor()
@@ -121,6 +131,7 @@ for var in results:
 			pass
 
 
+# varID, chr, phen, breed, position, position_stop, type, reference_nucleotide, new_nucleotide 
 
 ### filter omio csv - SQL db dump was not updated on OMIAs side ###
 	# hgvs code is the most unique for the presence/absence check
@@ -155,115 +166,136 @@ store = store + store_omia_catch
 # sort store list - chr and start position
 store.sort(key=lambda x: (x[1], x[4]))
 
-depth_store = []
-for variant in store:
-	chrPos = "chr"+str(variant[1])
-	
-	# open bam and determine depth
-	depth = 0 # return value to 0 prior to running
-	
-	for read in bamfile.fetch(chrPos, variant[4], variant[5]+1):
-		depth = len([i for i in read.get_reference_positions() if i >= variant[4] and i <= variant[5]])
-
-	variant.insert(len(variant), depth)
-	depth_store.append(variant)
-
-
-store_best = [i for i in depth_store if i[9] > 0]
-store_notSeq = [i for i in depth_store if i[9]  == 0]
-
 ### write ### 
-#position_String = ["chr" + str(i[0]) + " "  + str(i[1]) for i in store]
+position_String = ["chr" + str(i[1]) + "\t"  + str(i[4]) + "\t"  + str(i[5]) for i in store]
 
-#saveTxt("data/gene_variants/snp.list", position_String)
+store_str = []
+for i in store:
+	for c in range(i[4], i[5]):
+		tmp = str("chr" + str(i[1]) + ":" + str(c))
+		store_str.append(tmp)
 
-###########################################
-############### Analysis ##################
-###########################################
+split_str = np.array_split(np.array(store_str), 10)
 
-
-def deletion():
-	ref = variant[7].upper() # reference from hgvs variant code
-	var = variant[8].upper() # variant from hgvs variant code
-	phen = variant[2]
-	# return true false for base deletion
-	baseDel = [i.is_del == 1 for i in pileupcolumn.pileups]
-
-	return [phen, "del" ,ref, var, seq, baseDel]
-
-def substitution(var):
-	uniqID = var[0]
-	phen = var[2]
-	breed = var[3]
-	ref = var[7].upper() # reference from hgvs variant code
-	var_hgvs = var[8].upper() # variant from hgvs variant code
-	store_list = [uniqID, phen, breed, "sub" ,ref, var_hgvs, seq, [], []]
-
-	# iterate through each base prediction
-	for i in seq:
-		store_list[7].append(i == ref)
-		store_list[8].append(i == var_hgvs)
+for val, elem in enumerate(split_str):
+	saveTxt("data/gene_variants/trait.snps/trait.snp.{}.list".format(val), elem)
 
 
-	return store_list #store_dict
-
-def detectMutation(mutation_type, variant):
-
-	""" switch case control for mutation types """
-
-	switcher = {
-		"del": deletion,
-		"sub":substitution
-		#"ins":insertion,
-	}
-	func=switcher.get(mutation_type, \
-		lambda: mutation_type + ', mutation type currently not recognised (dev. write function).')
-	return func(variant)
+write_csv(store, "data/gene_variants/snp.list.info.csv")
 
 
 
+#----------- work on below, different methods --------- #
+[i for i in store if i[1] == 3]
+
+if False:
+
+	depth_store = []
+	for variant in store:
+		chrPos = "chr"+str(variant[1])
+		
+		# open bam and determine depth
+		depth = 0 # return value to 0 prior to running
+		
+		for read in bamfile.fetch(chrPos, variant[4], variant[5]+1):
+			depth = len([i for i in read.get_reference_positions() if i >= variant[4] and i <= variant[5]])
+
+		variant.insert(len(variant), depth)
+		depth_store.append(variant)
+
+
+	store_best = [i for i in depth_store if i[9] > 0]
+	store_notSeq = [i for i in depth_store if i[9]  == 0]
 
 
 
-variant = [i for i in store if i[0] == 1000][0]
-
-store_PassFail = []
-a = []
-for variant in store:
-	
-	chrPos = "chr" + str(variant[1])
-	
-	for pileupcolumn in bamfile.pileup(chrPos, variant[4], variant[5]+1):
-		if(pileupcolumn.pos >= variant[4] \
-			and pileupcolumn.pos <= variant[5]):
-
-			seq = pileupcolumn.get_query_sequences(mark_matches=True, \
-				mark_ends=True, add_indels=True)
-			# convert - lower match on reverse
-			seq = [i.upper() for i in seq]
-			mapQ = pileupcolumn.get_mapping_qualities()
-			baseQ = pileupcolumn.get_query_qualities() # qualities
-			depth = pileupcolumn.n
-
-			if variant[6] == 'sub':
-				#print(variant)
-				#import ipdb 
-				#ipdb.set_trace()
-				#print(detectMutation(variant[5], variant))
-				store_PassFail.append(detectMutation(variant[6], variant))
+	###########################################
+	############### Analysis ##################
+	###########################################
 
 
-			#print("\nposition: %s depth: %s seq: %s mapQ: %s base qual: %s " %
-			#	(pileupcolumn.pos, str(depth), str(seq), str(mapQ), str(baseQ)))
-			#print(variant[2] + ", "+variant[5])
-			#print("ref: " + variant[6] + " " + str(seq))
-			#print("var: " + str(variant[7]) + " " + str(seq))
+	def deletion():
+		ref = variant[7].upper() # reference from hgvs variant code
+		var = variant[8].upper() # variant from hgvs variant code
+		phen = variant[2]
+		# return true false for base deletion
+		baseDel = [i.is_del == 1 for i in pileupcolumn.pileups]
 
-#bamfile.close()
+		return [phen, "del" ,ref, var, seq, baseDel]
+
+	def substitution(var):
+		uniqID = var[0]
+		phen = var[2]
+		breed = var[3]
+		ref = var[7].upper() # reference from hgvs variant code
+		var_hgvs = var[8].upper() # variant from hgvs variant code
+		store_list = [uniqID, phen, breed, "sub" ,ref, var_hgvs, seq, [], []]
+
+		# iterate through each base prediction
+		for i in seq:
+			store_list[7].append(i == ref)
+			store_list[8].append(i == var_hgvs)
+
+
+		return store_list #store_dict
+
+	def detectMutation(mutation_type, variant):
+
+		""" switch case control for mutation types """
+
+		switcher = {
+			"del": deletion,
+			"sub":substitution
+			#"ins":insertion,
+		}
+		func=switcher.get(mutation_type, \
+			lambda: mutation_type + ', mutation type currently not recognised (dev. write function).')
+		return func(variant)
 
 
 
 
-###########################################
-############### Plotting ##################
-###########################################
+
+
+	variant = [i for i in store if i[0] == 1000][0]
+
+	store_PassFail = []
+	a = []
+	for variant in store:
+		
+		chrPos = "chr" + str(variant[1])
+		
+		for pileupcolumn in bamfile.pileup(chrPos, variant[4], variant[5]+1):
+			if(pileupcolumn.pos >= variant[4] \
+				and pileupcolumn.pos <= variant[5]):
+
+				seq = pileupcolumn.get_query_sequences(mark_matches=True, \
+					mark_ends=True, add_indels=True)
+				# convert - lower match on reverse
+				seq = [i.upper() for i in seq]
+				mapQ = pileupcolumn.get_mapping_qualities()
+				baseQ = pileupcolumn.get_query_qualities() # qualities
+				depth = pileupcolumn.n
+
+				if variant[6] == 'sub':
+					#print(variant)
+					#import ipdb 
+					#ipdb.set_trace()
+					#print(detectMutation(variant[5], variant))
+					store_PassFail.append(detectMutation(variant[6], variant))
+
+
+				#print("\nposition: %s depth: %s seq: %s mapQ: %s base qual: %s " %
+				#	(pileupcolumn.pos, str(depth), str(seq), str(mapQ), str(baseQ)))
+				#print(variant[2] + ", "+variant[5])
+				#print("ref: " + variant[6] + " " + str(seq))
+				#print("var: " + str(variant[7]) + " " + str(seq))
+
+	#bamfile.close()
+
+
+
+
+	###########################################
+	############### Plotting ##################
+	###########################################
