@@ -3,12 +3,13 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-03-31
-# Last Modified: 2020-04-17
+# Last Modified: 2020-06-11
 
 
 
 """ Create a list of desired breeds,
-	and pull the data. """
+	and pull the data. 
+	Deprecated - only used for eu group """
 
 ###########################################
 ################# Modules #################

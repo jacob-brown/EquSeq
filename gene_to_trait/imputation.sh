@@ -1,101 +1,82 @@
 #! /bin/bash
 
+#BEAGLE=$EPHEMERAL/dependencies/beagle.jar 
+BEAGLE=../../dependancies/beagle.jar
+#BREF=$EPHEMERAL/dependencies/bref.jar 
+BREF=../../dependancies/bref.jar
 
-# 1. generate GLs then run the following
+#cd $EPHEMERAL/gene_to_trait
+cd data/gene_variants/
+BCF=gl.out.bcf
 
-#### VERSION 3 - Direct GL imputing ######
+# 0. setup
+#wget -O dependancies/beagle.jar https://faculty.washington.edu/browning/beagle/beagle.27Jan18.7e1.jar
 
-	# V3 beagle - GLs can be used in current format
-	wget http://faculty.washington.edu/browning/beagle/beagle.jar
-	# https://faculty.washington.edu/browning/beagle/b3.html
+#wget -O dependancies/bref.jar http://faculty.washington.edu/browning/beagle/bref.27Jan18.7e1.jar
 
-	#java -jar beagle.18May20.d20.jar gt=snps.chr13.raw.vcf.gz out=new_out chrom=chr13:761-761000
+# 1. generate GLs 
+	# genotypeLiklihood.sh
+# convert to vcf and zip
+#module load bcftools
 
-	#java -Xmx16g -jar beagle.27Jan18.7e1.jar gt=sortieMSL.recode.vcf out=result ref=chr22.1kg.vcf.gz chrom=22 impute=true
+# to run on hpc 
+source activate myenv
 
-	#zcat < ALL.merged.beagle.gz | head -n500 > tmp.beagle
-	#gzip tmp.beagle
-
-	zcat < chr3.gl.out.beagle.gz | head > tmp.beagle
-	gzip tmp.beagle
-
-	java -Xmx6g -jar beagle.jar like=tmp.beagle.gz out=imp
-
-	# remember to impute priot to using the sliding window and subsetting!
-	zcat < imp.tmp.beagle.gz.phased.gz
-	zcat < imp.tmp.beagle.gz.dose.gz
-	zcat < imp.tmp.beagle.gz.gprobs.gz
-	cat imp.tmp.beagle.gz.r2
+# 2. scp to local
+#scp jb1919@login.cx1.hpc.ic.ac.uk:/rds/general/user/jb1919/ephemeral/gene_to_trait/gl.out.bcf data/gene_variants/
 
 
-###### ALT - new beagle, no GLs #######
-cd test_beagle
-wget http://faculty.washington.edu/browning/beagle/beagle.18May20.d20.jar
 
-wget http://faculty.washington.edu/browning/beagle/bref3.18May20.d20.jar
+######################################
+### ALT ###
+	# BCF format from angsd
+#module load bcftools/1.3.1
+#bcftools view gl.out.bcf > gl.out.vcf
+bcftools view $BCF | bcftools sort - > gl.out.vcf
+gzip gl.out.vcf
 
-wget http://faculty.washington.edu/browning/beagle/test.18May20.d20.vcf.gz
-
-
-### VCF file ###
-
-DATA_DIR=data/gene_variants/annotate/
-REF=data/processed_sequences/ref_genome/EquCab3.fna
-BAM_FILE=data/processed_sequences/benson/final.bam
-
-VCF=sandbox/raw.vcf
-
-# snp calling of individual sample
-
-#chr3:79504300-79593715 # variable regions causing traits
-# -b $EPHEMERAL/ancestry/bam.list
-
-### on hpc ###
-module load samtools/1.3.1
-module load bcftools/1.3.1
-
-samtools mpileup -uf $EPHEMERAL/ref_genome/EquCab3.fna -b $EPHEMERAL/ancestry/bam.list -r chr3:79504300-79593715 | bcftools call -m > raw.vcf
-gzip raw.vcf
-
-# scp to local
 
 # test vcf is compatible
-java -jar beagle.18May20.d20.jar gt=raw.vcf.gz out=imp.vcf
+# GT
+#java -jar $BEAGLE gt=gl.out.vcf.gz out=imp.vcf
 
-rm imp*
-# vcf dimensions
-zcat < raw.vcf.gz | tail -1 | tr '\t' '\n' | wc -l
-# vcf is 54 columns wide
-	# 54 is Benson
-	# rest can be used as a ref
+# GL
+#java -jar $BEAGLE gl=gl.out.vcf.gz out=imp.vcf
 
-# split benson from the others
-#zcat < raw.vcf.gz | cut -f1-53 > reference.vcf 
-zcat < raw.vcf.gz | cut -f1-53 | tr '/' '|' | gzip > reference.raw.vcf.gz
-zcat < reference.raw.vcf.gz | tail
+
+### generat reference and target groups ###
+# individual count
+zcat < gl.out.vcf.gz | tail -1 | tr '\t' '\n' | wc -l
+
+# reference
+# 53 should change with the number of individuals
+zcat < gl.out.vcf.gz | cut -f1-53 | tr '/' '|' | gzip > reference.vcf.gz
+#zcat < reference.gl.out.vcf.gz | tail
 
 # filter ungenotyped sites
-bcftools filter --exclude "GT='.|.'" reference.raw.vcf.gz | gzip > reference.vcf.gz
+#bcftools filter --exclude "GT='.|.'" reference.gl.out.vcf.gz | gzip > reference.vcf.gz
 
-#zcat < raw.vcf.gz | cut -f1-9 -f54 > target.vcf
-zcat < raw.vcf.gz | cut -f1-9,54 | gzip > target.vcf.gz
-zcat < target.vcf.gz | tail
+#zcat < reference.vcf.gz | tail -20
+
+# target 
+# 54 should change with the number of individuals
+zcat < gl.out.vcf.gz | cut -f1-9,54 | gzip > target.vcf.gz
+#zcat < target.vcf.gz | tail -20
+
 
 # test with ref
-java -jar beagle.18May20.d20.jar ref=reference.vcf.gz  gt=target.vcf.gz out=imp.vcf
+#java -jar $BEAGLE ref=reference.vcf.gz  gl=target.vcf.gz out=imp.vcf
 
 # make bref
-java -jar bref3.18May20.d20.jar reference.vcf.gz > reference.bref3
+java -jar $BREF reference.vcf.gz 
 
 # run with bref
-java -jar beagle.18May20.d20.jar ref=reference.bref3 gt=target.vcf.gz out=out.bref3
+java -jar $BEAGLE ref=reference.bref gl=target.vcf.gz out=out.bref3
+
+#zcat < out.bref3.vcf.gz | tail -20
+conda deactivate
 
 
-zcat < out.bref3.vcf.gz | tail -20
-zcat < target.vcf.gz | tail -20
-
-
-#### now VEP??? ####
-
-
+#4. now VEP
+scp out.bref3.vcf.gz jb1919@login.cx1.hpc.ic.ac.uk:/rds/general/user/jb1919/ephemeral/gene_to_trait/
 

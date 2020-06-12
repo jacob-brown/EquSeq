@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-16
-# Last Modified: 2020-04-17
+# Last Modified: 2020-06-11
 
 
 
@@ -46,10 +46,15 @@ def write_csv(list_file, path):
 ######### Input(s) and Parameters #########
 ###########################################
 
-code_file = 'data/cleaned_data/sra_runs.txt'
+# if sra_runs is present filter
+if os.path.isfile('data/cleaned_data/sra_runs.txt'):
+	code_file = 'data/cleaned_data/sra_runs.txt'
 
-with open(code_file, 'r') as f:
-	codes = f.readlines() # read file
+	with open(code_file, 'r') as f:
+		codes = f.readlines() # read file
+else:
+	codes = []
+
 
 info_all_path = 'data/cleaned_data/info_all.csv'
 
@@ -85,7 +90,7 @@ i_sub = info_all[0].index('sub_group')
 # not already in code list
 modern_unused = [i for i in modern if i[i_run] not in codes] 
 
-# not a generic horse 
+# not a generic horse - remove ungrouped
 modern_unused = [i for i in modern_unused if i[i_sub]!= '']
 
 modern_unused.insert(0, info_all[0])

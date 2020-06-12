@@ -34,8 +34,9 @@ mkdir $EPHEMERAL/gene_to_trait/
 mkdir $EPHEMERAL/snp_calling/
 mkdir $EPHEMERAL/snp_calling/snp_lists/
 
-#
+# oral diversity
 mkdir $EPHEMERAL/oral_diversity
+mkdir $EPHEMERAL/oral_diversity/{kreport_out,kraken_out}
 
 # dependencies
 mkdir $EPHEMERAL/dependencies/ &&\

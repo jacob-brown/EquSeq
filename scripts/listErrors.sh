@@ -1,13 +1,19 @@
+# usage
+	# list errors in file with specific grep string
+	# sh listErrors.sh fastqDownload.sh closed
+
 FILENAME=$1
 
-files=($(ls $FILENAME.sh.e*)) 
+files=($(ls $FILENAME.e*)) 
+errorGrep="$2"
 
+echo "printing problem files with grep: " $errorGrep
 
 for i in "${files[@]}"
 do
-	tail -1 $i
-	echo $i
+	if grep -q $errorGrep $i; then
+	    echo $i
+	fi
 done
 
 
-# bash listErrors.sh sra_mapping.sh

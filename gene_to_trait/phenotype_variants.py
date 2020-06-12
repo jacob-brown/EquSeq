@@ -3,23 +3,20 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-22
-# Last Modified: 2020-06-02
+# Last Modified: 2020-06-12
 
-
-
-""" check bam file for regions sequenced, 
-	comparing to desired variants """
+""" regions to snp call. based on omia and QTLdb """
 
 ###########################################
 ################# Modules #################
 ###########################################
 
-import pysam
 import mysql.connector
 import re
 import hgvs.parser
 import csv
 import numpy as np
+import getpass
 
 ###########################################
 ############## Function(s) ################
@@ -69,23 +66,21 @@ def write_csv(list_file, path):
 ######### Input(s) and Parameters #########
 ###########################################
 
+print("sql password...")
 db = mysql.connector.connect(
 	host="localhost",
 	username="root",
-	passwd=pw,
+	passwd=getpass.getpass(),
 	database="OMIA")
 
 cursor = db.cursor()
-
 sql_File = "gene_to_trait/variants.sql"
-
-bamfile = pysam.AlignmentFile("data/processed_sequences/new.rg.bam", "rb")
-
 omia_catch = open_csv('data/gene_variants/omia_catch_all.csv')
 
 ###########################################
 ############### Wraggling #################
 ###########################################
+print("accessing sql")
 
 sql_Qry = open(sql_File, "r").read() # read string
 cursor.execute(sql_Qry) # execute qry
@@ -169,9 +164,12 @@ store.sort(key=lambda x: (x[1], x[4]))
 ### write ### 
 position_String = ["chr" + str(i[1]) + "\t"  + str(i[4]) + "\t"  + str(i[5]) for i in store]
 
+# angsd list format chr:pos
+print("making position list files")
+
 store_str = []
 for i in store:
-	for c in range(i[4], i[5]):
+	for c in range(i[4]-1, i[5]+1):
 		tmp = str("chr" + str(i[1]) + ":" + str(c))
 		store_str.append(tmp)
 
@@ -181,121 +179,36 @@ for val, elem in enumerate(split_str):
 	saveTxt("data/gene_variants/trait.snps/trait.snp.{}.list".format(val), elem)
 
 
+# bed list format chr start end - samtools usage
+print("making bed files")
+
+store_bed = []
+for i in store:
+	tmp = str("chr" + str(i[1]) + "\t" + str(i[4]-1) + "\t" + str(i[5]+1))
+	store_bed.append(tmp)
+
+split_bed = np.array_split(np.array(store_bed), 10)
+
+for val, elem in enumerate(split_bed):
+	saveTxt("data/gene_variants/trait.snps/trait.snp.{}.bed".format(val), elem)
+
+
+# non bed list
+tab_sep = [i.replace(":", "\t") for i in store_str]
+split_tab = np.array_split(np.array(tab_sep), 10)
+
+for val, elem in enumerate(split_tab):
+	saveTxt("data/gene_variants/trait.snps/trait.snp.{}.tab".format(val), elem)
+
+# write general info csv
 write_csv(store, "data/gene_variants/snp.list.info.csv")
 
 
 
-#----------- work on below, different methods --------- #
-[i for i in store if i[1] == 3]
-
-if False:
-
-	depth_store = []
-	for variant in store:
-		chrPos = "chr"+str(variant[1])
-		
-		# open bam and determine depth
-		depth = 0 # return value to 0 prior to running
-		
-		for read in bamfile.fetch(chrPos, variant[4], variant[5]+1):
-			depth = len([i for i in read.get_reference_positions() if i >= variant[4] and i <= variant[5]])
-
-		variant.insert(len(variant), depth)
-		depth_store.append(variant)
-
-
-	store_best = [i for i in depth_store if i[9] > 0]
-	store_notSeq = [i for i in depth_store if i[9]  == 0]
-
-
-
-	###########################################
-	############### Analysis ##################
-	###########################################
-
-
-	def deletion():
-		ref = variant[7].upper() # reference from hgvs variant code
-		var = variant[8].upper() # variant from hgvs variant code
-		phen = variant[2]
-		# return true false for base deletion
-		baseDel = [i.is_del == 1 for i in pileupcolumn.pileups]
-
-		return [phen, "del" ,ref, var, seq, baseDel]
-
-	def substitution(var):
-		uniqID = var[0]
-		phen = var[2]
-		breed = var[3]
-		ref = var[7].upper() # reference from hgvs variant code
-		var_hgvs = var[8].upper() # variant from hgvs variant code
-		store_list = [uniqID, phen, breed, "sub" ,ref, var_hgvs, seq, [], []]
-
-		# iterate through each base prediction
-		for i in seq:
-			store_list[7].append(i == ref)
-			store_list[8].append(i == var_hgvs)
-
-
-		return store_list #store_dict
-
-	def detectMutation(mutation_type, variant):
-
-		""" switch case control for mutation types """
-
-		switcher = {
-			"del": deletion,
-			"sub":substitution
-			#"ins":insertion,
-		}
-		func=switcher.get(mutation_type, \
-			lambda: mutation_type + ', mutation type currently not recognised (dev. write function).')
-		return func(variant)
 
 
 
 
 
 
-	variant = [i for i in store if i[0] == 1000][0]
 
-	store_PassFail = []
-	a = []
-	for variant in store:
-		
-		chrPos = "chr" + str(variant[1])
-		
-		for pileupcolumn in bamfile.pileup(chrPos, variant[4], variant[5]+1):
-			if(pileupcolumn.pos >= variant[4] \
-				and pileupcolumn.pos <= variant[5]):
-
-				seq = pileupcolumn.get_query_sequences(mark_matches=True, \
-					mark_ends=True, add_indels=True)
-				# convert - lower match on reverse
-				seq = [i.upper() for i in seq]
-				mapQ = pileupcolumn.get_mapping_qualities()
-				baseQ = pileupcolumn.get_query_qualities() # qualities
-				depth = pileupcolumn.n
-
-				if variant[6] == 'sub':
-					#print(variant)
-					#import ipdb 
-					#ipdb.set_trace()
-					#print(detectMutation(variant[5], variant))
-					store_PassFail.append(detectMutation(variant[6], variant))
-
-
-				#print("\nposition: %s depth: %s seq: %s mapQ: %s base qual: %s " %
-				#	(pileupcolumn.pos, str(depth), str(seq), str(mapQ), str(baseQ)))
-				#print(variant[2] + ", "+variant[5])
-				#print("ref: " + variant[6] + " " + str(seq))
-				#print("var: " + str(variant[7]) + " " + str(seq))
-
-	#bamfile.close()
-
-
-
-
-	###########################################
-	############### Plotting ##################
-	###########################################
