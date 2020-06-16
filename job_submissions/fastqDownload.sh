@@ -3,7 +3,7 @@
 #PBS -lselect=1:ncpus=1:mem=1gb
 
 # Desc: Get files from ncbi sra
-
+	# wc -l 
 	# qsub -J 0-629 fastqDownload.sh
 		# qsub -J 0-3 fastqDownload.sh
 		# qsub -J 3-629 fastqDownload.sh
@@ -26,13 +26,12 @@ module load anaconda3/personal
 echo '=================================='
 echo -e "\nGet Fasta files\n"
 
-# 629 files - soem require merging
+# 629 files - some require merging
 
 # arg1 sra_list location
 # arg2 fasta path out
-#python3 $CODE_DIR/setup/getFastq.py $CODE_DIR/data/cleaned_data/sra_runs_to_do.txt $RES_DIR
-
-#timer
+python3 $CODE_DIR/setup/getFastq.py $CODE_DIR/data/cleaned_data/sra_runs_to_do.txt $RES_DIR
+timer
 
 
 
@@ -43,13 +42,14 @@ echo -e "\nGet Fasta files\n"
 	# 1. delete the partailly downloaded files
 	# 2. rerun the above command 
 
+# uncomment
+#RAW_FILES=($(ls $RES_DIR))
+#RERUNS=$CODE_DIR/data/cleaned_data/rerun.codes.txt
 
 ### remove the files - be careful! 
 	# don't sub as a job, run from command line once
 
 # uncomment
-#RAW_FILES=($(ls $RES_DIR))
-#RERUNS=$CODE_DIR/data/cleaned_data/rerun.codes.txt
 #for file in "${RAW_FILES[@]}"; do
 #	BASE=($(echo $file | cut -d _ -f 1))
 #	if grep -q $BASE $RERUNS; then
@@ -62,8 +62,8 @@ echo -e "\nGet Fasta files\n"
 	# comment out the proper script and run the following
 #wc -l $RERUNS
 	# qsub -J 0-66 fastqDownload.sh
-python3 $CODE_DIR/setup/getFastq.py $RERUNS $RES_DIR
-timer
+#python3 $CODE_DIR/setup/getFastq.py $RERUNS $RES_DIR
+#timer
 
 
 

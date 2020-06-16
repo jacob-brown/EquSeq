@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-01-27
-# Last Modified: 2020-04-17
+# Last Modified: 2020-06-16
 
 
 
@@ -113,8 +113,6 @@ for i in files:
 		biop = [c[1] for c in ref_orlando if c[0] == no_ext] # bioprojects only
 
 		df = pd.merge(df, df_S1_Orl, how='left', left_on=['BioProject', biop[0]], right_on=['BioProject','ID_approx'])
-	
-
 
 
 	###################################
@@ -150,9 +148,14 @@ for i in files:
 		# left join - update df as using same name to save below
 		df = pd.merge(df, sup6, how='left', left_on='Alias', right_on='Horse ID')
 
-		#import ipdb
-		#ipdb.set_trace()
 
+	###################################
+	### Shetland Pony to Shetland	###
+	if no_ext == 'PRJEB14779':
+		df.loc[(df.title == "Shetland Pony"), "title"] = "Shetland"
+
+	#import ipdb
+	#ipdb.set_trace()
 	######################################
 	### clean and subset unwanted data ###
 	df = df[df['Assay Type'] == 'WGS'] # whole genomes only

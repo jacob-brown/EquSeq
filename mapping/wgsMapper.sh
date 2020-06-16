@@ -4,17 +4,14 @@
 
 # ERR868003, ERR868004 - memory maxed when aligning
 
-# gb and IE
-# qsub -J 0-47 wgsMapper.sh
-# rest of the data
-# qsub -J 0-581 wgsMapper.sh 
+# qsub -J 0-626 wgsMapper.sh 
+	#qsub -J 0-3 wgsMapper.sh 
+	#qsub -J 3-626 wgsMapper.sh
 
 
 CODE_DIR=$HOME/genomics/EquSeq/
 DIR=$EPHEMERAL/wgs_data/
-RUNS_LIST=$CODE_DIR/data/cleaned_data/sra_runs.txt
-	# sra_runs.txt - gb and ie
-	# sra_runs_to_do.txt - all others
+RUNS_LIST=$CODE_DIR/data/cleaned_data/sra_runs_to_do.txt
 
 # import unix functions
 source $HOME/genomics/EquSeq/scripts/unix_functions.sh
