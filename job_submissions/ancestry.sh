@@ -5,9 +5,8 @@
 # nthread (avg) and memory is 1 or less
 
 # gl 
-	# qsub -J 0-99 ancestry.sh 
-		#qsub -J 0-3 ancestry.sh
-		# qsub -J 4-99 ancestry.sh
+	# qsub -J 0-399 ancestry.sh # 400 bins 
+	# qsub -J 0-99 ancestry.sh  # 100 bins
 
 CODE_DIR=$HOME/genomics/EquSeq/
 
@@ -25,4 +24,5 @@ echo "snp file: " $FILE
 
 sh $CODE_DIR/ancestry/bamAncestry.sh -g $FILE
 
-
+# vcf generation
+#sh $CODE_DIR/ancestry/bamAncestry.sh -v $FILE

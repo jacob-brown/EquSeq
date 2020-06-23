@@ -7,6 +7,7 @@ echo -e "\nLoading modules\n"
 
 ANGSD=$EPHEMERAL/dependencies/angsd/angsd
 NGSADMIX=$EPHEMERAL/dependencies/angsd/misc/NGSadmix
+PCANGSD=$EPHEMERAL/dependencies/pcangsd/pcangsd.py
 module load anaconda3/personal
 
 
@@ -62,7 +63,8 @@ function qualityCheck(){
 }
 
 
-function genotypeLH(){
+function GLBeagle(){
+	# create beagle file
 
 	SNP=$1
 	BASE=($( basename $SNP))
@@ -91,14 +93,33 @@ function genotypeLH(){
 
 }
 
+function GLVCF(){
+	# create BCF file
 
+	SNP=$1
+	BASE=($( basename $SNP))
+	echo $BASE
 
-function pcaGL(){
+	# doBcf 
+
+	echo '=================================='
+	echo -e "\nGenerating Genotype Liklihoods\n"
+
+	$ANGSD -bam $ANC_DIR/bam.list -ref $REF -P 7 \
+			-out $ANC_DIR/all_bcf/$BASE -rf $SNP \
+			-uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 \
+			-trim 0 -C 50 -baq 1 -minMapQ 20 -minQ 20 \
+			-checkBamHeaders 0 \
+			-GL 1 -doGlf 2 -doMajorMinor 1  -doMaf 1 \
+			-minMaf 0.02 -doPost 1 -doGeno 8 -doCounts 1 -doBcf 1 
+}
+
+function pca(){
 
 
 	echo '=================================='
 	echo -e "\npcangsd - covariance matrix\n"
-	PCANGSD=$EPHEMERAL/dependencies/pcangsd/pcangsd.py
+	
 
 	BEAGLE_FILE=$1
 
@@ -143,14 +164,17 @@ while getopts "mq:g:c:p:a:" opt; do
     q ) # quality control 
        	qualityCheck $OPTARG
       	;;
-    g ) # genotype liklihoods
-      	genotypeLH $OPTARG
+    g ) # genotype liklihoods - beagle
+      	GLBeagle $OPTARG
+      	;;
+    v ) # genotype liklihoods - bcf
+      	GLVCF $OPTARG
       	;;
     c) # genotype calling
 		genoCalling $OPTARG
 		;;
     p) # pcangsd
-    	pcaGL $OPTARG
+    	pca $OPTARG
     	;;
     a) #admixture
 		admix $OPTARG

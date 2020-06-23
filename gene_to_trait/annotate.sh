@@ -20,9 +20,12 @@
 	# --json 
 	# --tab
 
+module load anaconda3/personal
+
 JOB_N=$1
 DATA_DIR=$EPHEMERAL/gene_to_trait/
-VCF=$DATA_DIR/trait.$JOB_N.recode.vcf
+#VCF=$DATA_DIR/trait.$JOB_N.recode.vcf
+VCF=~/genomics/EquSeq/data/gene_variants/vcf/trait.$JOB_N.recode.vcf
 OUT=$DATA_DIR/annot.$JOB_N.raw.txt
 #OUT=$DATA_DIR/annot.$JOB_N.raw.json --json
 
@@ -37,6 +40,10 @@ fi
 
 # raw
 vep --biotype --check_existing --sift b --species equus_caballus --transcript_version --cache --tab --plugin Phenotypes,dir=$HOME/.vep/Plugins/,phenotype_feature=1 --input_file $VCF --output_file $OUT
+
+
+# merged file
+#vep --biotype --check_existing --sift b --species equus_caballus --transcript_version --cache --tab --plugin Phenotypes,dir=$HOME/.vep/Plugins/,phenotype_feature=1 --input_file merged.vcf --output_file annot
 
 
 # working

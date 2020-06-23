@@ -3,6 +3,7 @@
 #PBS -l select=1:ncpus=1:mem=1gb
 
 #qsub -J 0-99 window.sh 
+#qsub -J 0-399 window.sh 
 #qsub -J 0-3 window.sh 
 
 CODE_DIR=$HOME/genomics/EquSeq/

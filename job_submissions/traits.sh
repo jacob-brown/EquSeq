@@ -21,7 +21,7 @@ echo '=================================='
 echo -e "\nGenerating VCF\n"
 	# arg1: bed file
 	# arg2: job number (naming)
-sh $CODE_DIR/gene_to_trait/vcf_generation.sh $FILE $PBS_ARRAY_INDEX
+#sh $CODE_DIR/gene_to_trait/vcf_generation.sh $FILE $PBS_ARRAY_INDEX
 
 timer
 

@@ -22,4 +22,5 @@ align2.sh
 copy.sh
 dependancies/
 data/gene_variants/annotate
-rm_imputation_beaglev5.sh
+rm_*
+tmp_*

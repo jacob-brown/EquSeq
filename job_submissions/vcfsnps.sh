@@ -15,4 +15,6 @@ DIR=$EPHEMERAL/snp_calling/
 	#-b X, qsub -J 0-X ancestry.sh
 
 python3 $CODE_DIR/ancestry/snpHandler.py -c snps \
-			-i $DIR -o $DIR/snp_lists/snp -b 100
+			-i $DIR -o $DIR/snp_lists/snp -b 400
+
+# 100 bins would take ~96hr

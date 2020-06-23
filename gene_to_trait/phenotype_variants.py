@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-22
-# Last Modified: 2020-06-12
+# Last Modified: 2020-06-22
 
 """ regions to snp call. based on omia and QTLdb """
 
@@ -17,6 +17,8 @@ import hgvs.parser
 import csv
 import numpy as np
 import getpass
+import os
+from natsort import natsorted
 
 ###########################################
 ############## Function(s) ################
@@ -76,10 +78,17 @@ db = mysql.connector.connect(
 cursor = db.cursor()
 sql_File = "gene_to_trait/variants.sql"
 omia_catch = open_csv('data/gene_variants/omia_catch_all.csv')
+qtldir = "data/gene_variants/animalqtldb/"
+qtl_files = os.listdir(qtldir)
+
 
 ###########################################
 ############### Wraggling #################
 ###########################################
+
+############
+### OMIA ###
+
 print("accessing sql")
 
 sql_Qry = open(sql_File, "r").read() # read string
@@ -87,6 +96,8 @@ cursor.execute(sql_Qry) # execute qry
 results = cursor.fetchall()
 
 header = cursor.column_names
+
+print("adding omia data data")
 
 ### update header names ###
 match_list = ["g_or_m", "c_or_n", "p"]
@@ -114,11 +125,12 @@ store = []
 for var in results:
 	if var[i_coord] != ''and var[i_chr] != '':
 		try:
+
 			# parser requires an accession number
 			tmp_coor =  "accN:" + var[i_coord] 
 			hgvs_var = hp.parse_hgvs_variant(tmp_coor)
 			info =  hgvsGetInfo(hgvs_var)
-			
+
 			to_append = [int(var[i_varID]), int(var[i_chr]), var[i_phene], var[i_breed]]
 			to_append.extend(info)
 			store.append(to_append)
@@ -161,12 +173,53 @@ store = store + store_omia_catch
 # sort store list - chr and start position
 store.sort(key=lambda x: (x[1], x[4]))
 
-### write ### 
+# form strings of locations
 position_String = ["chr" + str(i[1]) + "\t"  + str(i[4]) + "\t"  + str(i[5]) for i in store]
 
-# angsd list format chr:pos
-print("making position list files")
+##############
+### QTL db ###
+print("adding animalQTL db data")
+qtl_lines = np.array([])
+for num, qf in enumerate(qtl_files):
+	with open(qtldir+qf, "r") as infile:
+		lines = infile.readlines()
+		if num != 0:
+			qtl_lines = np.append(qtl_lines, lines[1:])
+		else:
+			header_qtl = lines[0]
 
+qtl_lines = np.append(header_qtl, qtl_lines) # attach header
+qtl_data = [i.replace("\n", "").split("\t") for i in qtl_lines]
+
+# start and end snp index
+sind = qtl_data[0].index('Cood_A_bp') # spelling is present in qtl db
+eind = qtl_data[0].index('Coord_B_bp')
+chrom = qtl_data[0].index('Chromosome')
+
+# form strings of locations
+qtl_pos = ["chr" + i[chrom] + "\t" + i[sind] + "\t" + i[eind] for i in qtl_data if i[sind] != ""]
+
+del qtl_pos[0]
+# some data isn't specific to genomic location
+qtl_pos_uniq = np.unique(qtl_pos) 
+
+
+#############
+### write ### 
+# first join the omia and  qtl data
+all_position = np.append(position_String, qtl_pos_uniq) # tab
+all_position_list = [i.split("\t") for i in all_position] # nested list
+
+# sort
+all_position_list = natsorted(all_position_list, key=lambda x: (x[0], x[1]))
+
+
+
+
+# angsd list format chr:pos
+#print("making position list files")
+#all_position_list
+#
 store_str = []
 for i in store:
 	for c in range(i[4]-1, i[5]+1):
@@ -183,8 +236,13 @@ for val, elem in enumerate(split_str):
 print("making bed files")
 
 store_bed = []
-for i in store:
-	tmp = str("chr" + str(i[1]) + "\t" + str(i[4]-1) + "\t" + str(i[5]+1))
+for i in all_position_list:
+	if(i[1] != "0"):
+		startbp = str(int(i[1])-10)
+	else: 
+		startbp = "0"
+	endbp =  str(int(i[2])+10)
+	tmp = str(i[0] + "\t" + startbp + "\t" + endbp)
 	store_bed.append(tmp)
 
 split_bed = np.array_split(np.array(store_bed), 10)
@@ -194,13 +252,27 @@ for val, elem in enumerate(split_bed):
 
 
 # non bed list
-tab_sep = [i.replace(":", "\t") for i in store_str]
-split_tab = np.array_split(np.array(tab_sep), 10)
+#tab_sep = [i.replace(":", "\t") for i in store_str]
+#split_tab = np.array_split(np.array(tab_sep), 10)
+#
+#for val, elem in enumerate(split_tab):
+#	saveTxt("data/gene_variants/trait.snps/trait.snp.{}.tab".format(val), elem)
 
-for val, elem in enumerate(split_tab):
-	saveTxt("data/gene_variants/trait.snps/trait.snp.{}.tab".format(val), elem)
+# Mendelian traits only (: sep)
+position_String
+
+store_med = []
+for i in position_String:
+	tmp = i.split("\t")
+	for c in range(int(tmp[1]), int(tmp[2])):
+		str_tmp = str(tmp[0] + "_" + str(c))
+		store_med.append(str_tmp)
+
+saveTxt("data/gene_variants/trait.snps/trait.snp.mend.list", store_med)
 
 # write general info csv
+header_attach = ["variant_id", "chr", "phen", "breed", "start_bp", "end_bp", "mutation", "ref", "new"]
+store.insert(0, header_attach)
 write_csv(store, "data/gene_variants/snp.list.info.csv")
 
 

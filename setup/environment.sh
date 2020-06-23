@@ -26,6 +26,7 @@ mkdir $EPHEMERAL/ancestry/
 mkdir $EPHEMERAL/ancestry/qualityChecks
 mkdir $EPHEMERAL/ancestry/filtered_beagles
 mkdir $EPHEMERAL/ancestry/all_beagles
+mkdir $EPHEMERAL/ancestry/all_bcf
 
 # gene to trait data store
 mkdir $EPHEMERAL/gene_to_trait/
@@ -58,7 +59,8 @@ mkdir \
 	$WGS_DATA/converted/ \
 	$WGS_DATA/sorted/ \
 	$WGS_DATA/stats/ \
-	$WGS_DATA/merged/
+	$WGS_DATA/merged/\
+	$WGS_DATA/final/
 
 
 

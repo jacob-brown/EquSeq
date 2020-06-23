@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-14
-# Last Modified: 2020-06-02
+# Last Modified: 2020-06-23
 
 
 
@@ -44,7 +44,10 @@ def write_csv(list_file, path):
 	with open(path, 'w') as f:
 		writer = csv.writer(f, delimiter=',')
 		for i in list_file:
-			writer.writerow(i)
+			if isinstance(i, list):
+				writer.writerow(i) # multi-column
+			else:
+				writer.writerow([i]) # single column
 	
 
 
@@ -70,3 +73,14 @@ def open_csv(file):
 			tmp.append(row) # add row to list
 
 	return tmp
+
+
+# sub process wrapper
+def subProWrap(command):
+	""" wrapper for a subprocess command """
+	p = subprocess.Popen([command], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+	out, er = p.communicate()
+	out_string = out.decode()
+	files = out_string.replace("\t", ":").split("\n")
+	files.remove("")
+	return files

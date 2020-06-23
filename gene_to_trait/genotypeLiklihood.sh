@@ -39,13 +39,20 @@ echo -e "\nGLs\n"
 SNP=$CODE_DIR/data/gene_variants/trait.snps/trait.snp.9.list
 ### with a bcf output ###
 
-$ANGSD -bam $BAM_LIST -ref $REF -P 4 -out $DIR/gl.out -rf $SNP -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 -baq 1 -minMapQ 15 -minQ 15 -checkBamHeaders 0 -doMajorMinor 1 -doPost 1 -doMaf 1 -minMaf 0 -gl  1 -dobcf 1 --ignore-RG 0 -doGeno 1 -docounts 1
+# beagle
+$ANGSD -bam $BAM_LIST -ref $REF -P 4 -out $DIR/gl.out -rf $SNP -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 -baq 1 -minMapQ 15 -minQ 15 -checkBamHeaders 0 -doMajorMinor 1 -doPost 1 -doMaf 1 -minMaf 0 -gl 1 -doGeno 8 -doGlf 2
+
+# bcf
+$ANGSD -bam $BAM_LIST -ref $REF -P 4 -out $DIR/gl.out -rf $SNP -uniqueOnly 1 -remove_bads 1 -only_proper_pairs 1 -trim 0 -C 50 -baq 1 -minMapQ 15 -minQ 15 -checkBamHeaders 0 -doMajorMinor 1 -doPost 1 -doMaf 1 -minMaf 0 -gl  1 -dobcf 1 --ignore-RG 0 -docounts 1 -doGeno 8 
+
+$ANGSD -beagle gl.out.beagle.gz -fai $REF.fai -out gl.new -doGeno 4
 
 
-timer
 # chr3:79593650-79593670
 # chr16:20103081-20105348
 
+
+$ANGSD
 
 # local
 # scp 

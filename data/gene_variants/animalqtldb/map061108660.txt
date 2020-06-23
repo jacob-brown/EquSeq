@@ -1,0 +1,30 @@
+QTL_ID	Symbol	Chromosome	Center_cM	Range_cM	Cood_A_bp	Coord_B_bp	Trait_Name	Significance	FlankMrkA2	FlankMrkA1	FlankMrkB1	FlankMrkB2
+103433	SPCON	1	199.72	199.72-199.72	94832908	94832948	Sperm concentration	Significant				
+103440	SPMOT	1	199.72	199.72-199.72	54934025	54934065	Sperm progressive motility	Significant				
+103441	SPMOT	1	199.72	199.72-199.72	55034538	55034578	Sperm progressive motility	Significant				
+103450	MOTSCT	1	199.72	199.72-199.72	53958169	53958209	Number of progressively motile sperm	Significant				
+103451	MOTSCT	1	199.72	199.72-199.72	55909301	55909341	Number of progressively motile sperm	Significant				
+103442	SPMOT	3	151.60	151.60-151.60	39054257	39054297	Sperm progressive motility	Significant				
+103443	SPMOT	3	151.60	151.60-151.60	39060001	39060041	Sperm progressive motility	Significant				
+103444	SPMOT	3	151.60	151.60-151.60	108016009	108016049	Sperm progressive motility	Significant				
+103445	SPMOT	3	151.60	151.60-151.60	108016398	108016438	Sperm progressive motility	Significant				
+103446	SPERMCT	3	151.60	151.60-151.60	95981403	95981443	Sperm count	Significant				
+103431	SEMVOL	5	362.17	362.17-362.17	93992317	93992357	Semen volume	Significant				
+103434	SPCON	5	362.17	362.17-362.17	90129807	90129847	Sperm concentration	Significant				
+103452	MOTSCT	8	442.52	442.52-442.52	56115657	56115697	Number of progressively motile sperm	Significant				
+103447	SPERMCT	9	156.79	156.79-156.79	68034902	68034942	Sperm count	Significant				
+103453	MOTSCT	9	156.79	156.79-156.79	70859924	70859964	Number of progressively motile sperm	Significant				
+103454	MOTSCT	9	156.79	156.79-156.79	70863076	70863116	Number of progressively motile sperm	Significant				
+103455	MOTSCT	9	156.79	156.79-156.79	70889191	70889231	Number of progressively motile sperm	-				
+103456	MOTSCT	9	156.79	156.79-156.79	70893232	70893272	Number of progressively motile sperm	Significant				
+103457	MOTSCT	9	156.79	156.79-156.79	70960774	70960814	Number of progressively motile sperm	Significant				
+103458	MOTSCT	15		1765.26-1765.26	54632115	54632155	Number of progressively motile sperm	Significant				
+103448	SPERMCT	19	65.82	65.82-65.82	53770884	53770924	Sperm count	Significant				
+103435	SPCON	20	80.32	80.32-80.32	47313506	47313546	Sperm concentration	Significant				
+103436	SPCON	21	699.58	699.58-699.58	34550391	34550431	Sperm concentration	Significant				
+103437	SPCON	21	699.58	699.58-699.58	34550605	34550645	Sperm concentration	Significant				
+103438	SPCON	21	699.58	699.58-699.58	34563559	34563599	Sperm concentration	Significant				
+103449	SPERMCT	22	77.72	77.72-77.72	8781687	8781727	Sperm count	Significant				
+103459	MOTSCT	22	77.72	77.72-77.72	8781687	8781727	Number of progressively motile sperm	Significant				
+103439	SPCON	26	58.06	58.06-58.06	27827932	27827972	Sperm concentration	Suggestive				
+103432	SEMVOL	28	70.65	70.65-70.65	1673734	1673774	Semen volume	Significant				

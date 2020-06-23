@@ -1,0 +1,51 @@
+QTL_ID	Symbol	Chromosome	Center_cM	Range_cM	Cood_A_bp	Coord_B_bp	Trait_Name	Significance	FlankMrkA2	FlankMrkA1	FlankMrkB1	FlankMrkB2
+56780	CANNON	3	427.19	427.19-427.19	105546982	105547022	Cannon bone circumference	Significant				
+57546	LEGCOM	3	424.98	420.93-429.03	104000000	106000000	Leg conformation	Significant				
+124176	HOCKC	3	427.19	427.19-427.19	105546982	105547022	Hock circumference	Significant				
+124177	KNEEC	3	427.19	427.19-427.19	105546982	105547022	Knee circumference	Significant				
+124180	CANNON	3	427.19	427.19-427.19	105546982	105547022	Cannon bone circumference	Significant				
+124181	CANNON	3	427.19	427.19-427.19	105546982	105547022	Cannon bone circumference	Significant				
+124182	CONFS	3	427.19	427.19-427.19	105546982	105547022	Conformation score	Significant				
+124186	KNEEC	3	425.17	425.17-425.17	105046413	105046453	Knee circumference	Significant				
+124188	HOCKC	3	425.17	425.17-425.17	105046413	105046453	Hock circumference	Significant				
+124191	HOCKC	3	428.53	428.53-428.53	105876377	105876417	Hock circumference	Significant				
+124194	CANNON	3	358.17	358.17-358.17	88493397	88493437	Cannon bone circumference	Significant				
+126961	CANNON	3	427.19	427.19-427.19	105546982	105547022	Cannon bone circumference	Significant				
+126963	CANNON	3	427.19	427.19-427.19	105546982	105547022	Cannon bone circumference	Significant				
+124183	CONFS	6		1385.38-1385.38	81481014	81481114	Conformation score	Significant				
+124184	CONFS	6		1385.38-1385.38	81481014	81481114	Conformation score	Significant				
+124185	CANNON	6		1385.38-1385.38	81481014	81481114	Cannon bone circumference	Significant				
+124190	CANNON	6	720.42	720.41-720.42	42371191	42371231	Cannon bone circumference	Significant				
+29464	JAW	13	659.53	659.53-659.53	40821677	40821717	Jaw alignment	Significant				
+29463	JAW	13	658.78	658.78-658.78	40775392	40775432	Jaw alignment	Significant				
+106335	CONFS	18	69.98	69.98-69.98	65868584	65868624	Conformation score	Significant				
+106336	CONFS	18	69.98	69.98-69.98	65868584	65868624	Conformation score	Significant				
+106337	CONFS	18	69.98	69.98-69.98	66493717	66493757	Conformation score	Significant				
+106338	LEGCOM	18	124.25	124.25-124.25	66495776	66495876	Leg conformation	Significant				
+106339	HOOF	18	124.25	124.25-124.25	66495776	66495876	Hoof conformation	Significant				
+106340	CONFS	18	123.66	123.07-124.25	65868604	66495826	Conformation score	Significant				
+106341	LEGCOM	18	123.66	123.07-124.25	65868604	66495826	Leg conformation	Significant				
+106342	LEGCOM	18	123.66	123.07-124.25	65868604	66495826	Leg conformation	Significant				
+106343	HOOF	18	123.66	123.07-124.25	65868604	66495826	Hoof conformation	Significant				
+106344	CONFS	18	123.66	123.07-124.25	65868604	66495826	Conformation score	Significant				
+37857	BACKS	20	89.06	89.06-89.06	41530773	41530813	Back conformation	Significant				
+37858	BACKS	20	89.22	89.22-89.22	41604721	41604761	Back conformation	Significant				
+37859	BACKS	20	89.58	89.58-89.58	41772487	41772527	Back conformation	Significant				
+37860	BACKS	20	89.69	89.69-89.69	41823822	41823862	Back conformation	Significant				
+37861	BACKS	20	90.20	90.20-90.20	42062420	42062460	Back conformation	Significant				
+37862	BACKS	20	91.10	91.10-91.10	42482130	42482170	Back conformation	Significant				
+37863	BACKS	20	91.36	91.36-91.36	42603847	42603887	Back conformation	Significant				
+37864	BACKS	20	91.52	91.52-91.52	42679596	42679636	Back conformation	Significant				
+37865	BACKS	20	92.18	92.18-92.18	42983698	42983738	Back conformation	Significant				
+37866	BACKS	20	92.63	92.63-92.63	43195468	43195508	Back conformation	Significant				
+37867	BACKS	20	92.90	92.90-92.90	43319348	43319388	Back conformation	Significant				
+37868	BACKS	20	93.14	93.14-93.14	43433782	43433822	Back conformation	Significant				
+37869	BACKS	20	93.33	93.33-93.33	43520702	43520742	Back conformation	Significant				
+37870	BACKS	20	93.39	93.39-93.39	43548877	43548917	Back conformation	Significant				
+37871	BACKS	20	93.51	93.51-93.51	43605838	43605878	Back conformation	Significant				
+37872	BACKS	20	93.69	93.69-93.69	43690915	43690955	Back conformation	Significant				
+37873	BACKS	20	94.43	94.43-94.43	44034779	44034819	Back conformation	Significant				
+37874	BACKS	20	94.55	94.55-94.55	44090151	44090191	Back conformation	Significant				
+37875	BACKS	20	94.87	94.87-94.87	44241183	44241223	Back conformation	Significant				
+37876	BACKS	20	95.39	95.39-95.39	44484304	44484344	Back conformation	Significant				
+37877	BACKS	20	90.21	89.06-91.36	41530793	42603867	Back conformation	Significant		rs69177452	rs69135941	

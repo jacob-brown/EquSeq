@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-15
-# Last Modified: 2020-06-16
+# Last Modified: 2020-06-17
 
 # Desc: 
 
@@ -62,9 +62,9 @@ run_join[is.na(run_join$sub_group),]$sub_group <- "BENSON"
 
 # create and write table
 
+run_join$name <- as.character(run_join$name)
 
-
-table <- cbind(run_join$name,run_join$name, run_join$sub_group)
+table <- cbind(run_join$name, run_join$name, run_join$sub_group)
 #table <- cbind(run_join$name,run_join$name, apprev)
 write.table(table, row.names=F, sep="\t", file="clusters.clst", quote=F, col.names=F)
 

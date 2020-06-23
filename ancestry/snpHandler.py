@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-04
-# Last Modified: 2020-06-01
+# Last Modified: 2020-06-23
 
 
 
@@ -204,7 +204,7 @@ def subBeagle(beagleIn, beagleOut, posList):
 	#command_main = "gunzip {} && grep -Fw -f {} {} | cat sed -n '1p' {} - > {}"\
 				#.format(beagleIn, posList, no_ext, no_ext, outFile)
 
-	command_main = "zcat {} | head -1 > {}.TMP.HEAD && zcat {} | grep -Fw -f {} - | cat {}.TMP.HEAD - > {} ".format(beagleIn, beagleIn, beagleIn, posList, beagleIn, outFile)
+	command_main = "zcat < {} | head -1 > {}.TMP.HEAD && zcat {} | grep -Fw -f {} - | cat {}.TMP.HEAD - > {} ".format(beagleIn, beagleIn, beagleIn, posList, beagleIn, outFile)
 
 	print("executing: \n" + command_main + "\n")
 	devna = subprocess.Popen([command_main],  \
@@ -230,6 +230,7 @@ def subBeagle(beagleIn, beagleOut, posList):
 ####
 ## VCF - SNPs
 
+# Examples
 ### snps from vcf file ###
 # python3 ancestry/snpHandler.py -c snps -i data/processed_sequences/snps/ -o data/ancestry/snp.chr/snp -b 10
 

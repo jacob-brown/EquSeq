@@ -1,0 +1,52 @@
+variant_id,chr,phen,breed,start_bp,end_bp,mutation,ref,new
+290,1,Deficiency of uridine monophosphate synthase,Friesian,69756880,69756880,sub,C,T
+348,1,Hydrocephalus,Friesian,75907505,75907505,sub,C,T
+1001,1,"Dwarfism, ACAN-related",Miniature,95257458,95257500,del,,
+788,1,"Dwarfism, ACAN-related",Miniature Shetland,95282140,95282140,sub,C,G
+1000,1,"Dwarfism, ACAN-related",Miniature,95284530,95284530,sub,C,T
+999,1,"Dwarfism, ACAN-related",Miniature,95291270,95291270,del,,
+157,1,Ehlers-Danlos syndrome,American Quarter Horse,128056148,128056148,sub,G,A
+811,1,Tiger eye,Paso Fino,141660611,141661239,del,,
+810,1,Tiger eye,Paso Fino,141677402,141677402,sub,A,T
+165,2,"Ehlers-Danlos Syndrome, type VI",Warmblood,39711930,39711930,sub,G,A
+154,3,"Coat colour, chesnut",,36259552,36259552,sub,C,T
+155,3,"Coat colour, chesnut",,36259554,36259554,sub,G,A
+882,3,"Coat colour, dominant white",South German Draft,77731743,77731743,sub,G,A
+873,3,"Coat colour, dominant white",Oldenburg,77732055,77732055,sub,A,T
+883,3,"Coat colour, dominant white","Quarter Horse,Miniature Horse",77735380,77735380,sub,G,C
+889,3,"Coat colour, dominant white",Thoroughbred,77735465,77735518,del,,
+891,3,White spotting,Icelandic,77735488,77735488,del,G,
+885,3,"Coat colour, dominant white","Quarter Horse,Appaloosa,Haflinger,Noriker,Lipizzan",77735520,77735520,sub,A,T
+893,3,"Coat colour, dominant white",Italian Trotter,77736559,77736559,sub,C,T
+886,3,"Coat colour, dominant white",Thoroughbred,77737214,77737214,del,G,
+878,3,"Coat colour, dominant white",Franches-Montagnes,77737256,77737256,sub,C,G
+877,3,"Coat colour, dominant white","Quarter Horse,Thoroughbred,Oldenberg,Appaloosa,German Riding Pony,Warmblood,American Paint Horse,Old-Tori,Welsh Pony,Noriker,Gipsy",77739534,77739534,sub,G,A
+875,3,"Coat colour, dominant white",Japanese Draft,77739558,77739558,sub,T,C
+874,3,"Coat colour, dominant white",Japanese Draft,77739579,77739579,sub,A,T
+868,3,"Coat colour, dominant white",Thoroughbred,77740854,77740854,sub,G,A
+869,3,"Coat colour, dominant white",Camarillo White Horse,77741094,77741094,sub,C,T
+871,3,"Coat colour, dominant white",,77741111,77741111,sub,G,A
+872,3,"Coat colour, dominant white",Arabian,77741665,77741665,sub,T,C
+884,3,"Coat colour, dominant white",Swiss Warmblood,77745065,77745065,sub,G,A
+876,3,"Coat colour, dominant white",Arabian,77745090,77745090,sub,A,G
+887,3,"Coat colour, dominant white",Quarter Horse,77758240,77758243,del,,
+870,3,"Coat colour, dominant white",Thoroughbred,77765059,77765059,sub,G,A
+892,3,White spotting,Arabian,77769789,77769789,sub,C,G
+879,3,"Coat colour, dominant white",Arabian,77769840,77769840,sub,A,T
+938,3,"Coat colour, dominant white",Thoroughbred,77769878,77769878,sub,A,G
+888,3,"Coat colour, dominant white",Thoroughbred,77771079,77771083,del,TCTGC,
+880,3,"Coat colour, dominant white",Thoroughbred,77771305,77771305,sub,G,C
+791,6,Splashed white,"Quarter Horse,Noriker,Lipizzan",11429753,11429753,sub,G,A
+978,6,Splashed white ,Appaloosa,11429867,11429867,sub,G,C
+965,8,Hoof wall separation syndrome ,Connemara pony,80111598,80111599,ins,,C
+163,10,Polysaccharide storage myopathy/Exertional rhabdomyolysis,"Quarter Horse,Appaloosa,Draft,Warmblood,American Paint Horse",18940324,18940324,sub,G,A
+856,11,Curly coat,"Curly,Bashkir Curly Horse",21891160,21891160,sub,G,A
+973,11,Immune-mediated myositis,Quarter Horse,53345548,53345548,sub,T,C
+421,14,"Dwarfism, Friesian",Friesian,4535550,4535550,sub,C,T
+152,14,"Coat colour, champagne",,26701092,26701092,sub,C,G
+166,16,White,American Standardbred,20094630,20094630,sub,C,T
+806,16,White splashing,Menorca,20147039,20147039,sub,C,T
+185,18,Dominant black,Icelandic,14757910,14757910,sub,T,C
+443,18,Racing distance,,66493737,66493737,sub,C,T
+153,21,"Coat colour, cream dilution",,30666626,30666626,sub,G,A
+158,26,Foal immunodeficiency syndrome in the Fell and Dales Pony,"Fell Pony,Dales Pony",30660224,30660224,sub,G,T

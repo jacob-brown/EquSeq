@@ -3,11 +3,11 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-05
-# Last Modified: 2020-05-23
+# Last Modified: 2020-06-23
 
 
 
-""" merge files from sra """
+""" merge wgs_all bam files """
 
 ###########################################
 ################# Modules #################
@@ -55,7 +55,7 @@ def timer():
 ######### Input(s) and Parameters #########
 ###########################################
 
-to_merge = open_csv("/rds/general/user/jb1919/ephemeral/wgs_data/files_to_align/to_merge.csv")
+to_merge = open_csv("/rds/general/user/jb1919/home/genomics/EquSeq/data/to_merge.csv")
 directory = "/rds/general/user/jb1919/ephemeral/wgs_data/files_to_align/sorted/"
 out_directory = "/rds/general/user/jb1919/ephemeral/wgs_data/files_to_align/merged/"
 

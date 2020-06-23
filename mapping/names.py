@@ -3,11 +3,11 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-03-23
-# Last Modified: 2020-04-09
+# Last Modified: 2020-06-23
 
 
 
-""" Generate names to be used """
+""" Generate names to be used for novel data """
 
 ###########################################
 ################# Modules #################

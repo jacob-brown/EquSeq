@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-16
-# Last Modified: 2020-05-27
+# Last Modified: 2020-06-23
 
 
 
@@ -11,9 +11,7 @@
 
 
 
-# python3 scripts/toMerge.py -b data/bam.list.all.txt -o data/to_merge.csv -i data/cleaned_data/info_all.csv -r Run -g BioSample
-
-# python3 scripts/toMerge.py -b sandbox/bam.list.txt -o data/to_merge.csv -i data/cleaned_data/info_all.csv -r Run -g BioSample
+# python3 scripts/toMerge.py -b data/bam.list -o data/ -i data/cleaned_data/info_all.csv -r Run -g BioSample
 
 ###########################################
 ################# Modules #################
@@ -35,20 +33,20 @@ parser.add_argument("-b", "--bam.list", dest="bamlist", type=str,
 					required=True, metavar="IN_LIST",
 					help="IN_LIST.csv of unique RUN ID and grouping, eg. individual")
 
-# output list
+# input file
 parser.add_argument("-i", "--in.file", dest="infile", type=str,
                  	 help="IN_FILE with information on RUN_ID and GROUP_ID",
                  	 required=True, metavar="IN_FILE")
 
-# output list
+# output list prefix
 parser.add_argument("-o", "--out.list", dest="outfile", type=str,
                  	 help="write OUT_LIST of RUN IDs to merge and the grouping",
                  	 required=True, metavar="OUT_LIST")
-
+# unique id
 parser.add_argument("-r", "--runID", dest="runid", type=str,
                   required=True, help="RUN_ID name, should be unique.",
                   metavar="RUN_ID")
-
+# group by key
 parser.add_argument("-g", "--groupby", dest="grp", type=str,
                   required=True, help="group by GROUP_ID variable name.",metavar="GROUP_ID")
 
@@ -80,7 +78,17 @@ def write_csv(list_file, path):
 	with open(path, 'w') as f:
 		writer = csv.writer(f, delimiter=',')
 		for i in list_file:
-			writer.writerow(i)
+			if isinstance(i, list):
+				writer.writerow(i) # multi-column
+			else:
+				writer.writerow([i]) # single column
+
+def stripPE(string):
+	""" strip path and extension from 
+		file string """
+	noext = string.split(os.extsep, 1)[0]
+	elem = os.path.split(noext)[1]
+	return elem
 
 ###########################################
 ######### Input(s) and Parameters #########
@@ -89,16 +97,11 @@ def write_csv(list_file, path):
 #bamlist = args.bamlist
 #args.runid  # Run
 #args.grp # BioSample
-#args.outfile # '../data/cleaned_data/to_merge.csv'
-#args.infile #'../data/cleaned_data/info_all.csv'
+#args.outfile = 'data/cleaned_data/to_merge.csv'
+#args.infile #'data/cleaned_data/info_all.csv'
 
-# test locally 
-#echo -e "ERR2179543.bam \nSRR1769892.bam \nSRR1769922.bam \nSRR515202.bam \nSRR515204.bam \nSRR515206.bam \nSRR515209.bam \nSRR515212.bam \nSRR515214.bam \nSRR515216.bam \nERR2731056.bam \nSRR1769893.bam \nSRR1790681.bam \nSRR515203.bam \nSRR515205.bam \nSRR515208.bam \nSRR515211.bam \nSRR515213.bam \nSRR515215.bam \n ERR979130.bam \nERR979131.bam \nERR979133.bam \nERR979134.bam \n ERR979218.bam \nERR979219.bam \nERR979220.bam \nERR979221.bam \nERR979223.bam \nERR979224.bam \nERR979225.bam" > sandbox/bam.list.txt
-
-#echo -e "SRR515203.bam \nSRR515213.bam" > sandbox/bam.list.txt
-
-
-
+#info_all = open_csv('data/cleaned_data/info_all.csv')
+#bam_txt = open('data/bam.list', "r")
 
 info_all = open_csv(args.infile)
 bam_txt = open(args.bamlist, "r")
@@ -108,8 +111,7 @@ bams = [i.split()[0] for i in bam_txt.readlines()]
 ############### Wraggling #################
 ###########################################
 
-
-bamlist_no_ext = [i.split(os.extsep, 1)[0] for i in bams]
+bamlist_no_ext = [stripPE(i) for i in bams]
 
 i_run = info_all[0].index(args.runid)
 i_grp = info_all[0].index(args.grp)
@@ -136,5 +138,12 @@ for val in not_unique_vals:
 store.insert(0, [args.grp, args.runid + '*'])
 
 # write to file
-write_csv(store, args.outfile)
+path_merge = args.outfile + "to_merge.csv"
+path_not = args.outfile + "no_merge.csv"
+
+write_csv(store, path_merge) # those to merge 
+write_csv(unique_vals, path_not) # those not to merge
+
+
+
 
