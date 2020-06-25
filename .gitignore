@@ -24,5 +24,8 @@ dependancies/
 data/gene_variants/annotate
 rm_*
 tmp_*
-data/gene_variants/*
+data/gene_variants/vcf
 data/gene_variants/snp.list.info.csv
+data/bam.list
+data/no_merge.csv
+data/to_merge.csv

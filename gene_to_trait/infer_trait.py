@@ -3,14 +3,14 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-22
-# Last Modified: 2020-06-23
+# Last Modified: 2020-06-25
 
 
 
 """  """
-#scp jb1919@login.cx1.hpc.ic.ac.uk:/rds/general/user/jb1919/ephemeral/gene_to_trait/gl.out.* sandbox/
-# convert beagle to non binary
+#scp jb1919@login.cx1.hpc.ic.ac.uk:/rds/general/user/jb1919/ephemeral/gene_to_trait/gl.out.* results/gene_to_trait/
 # gunzip sandbox/gl.out.beagle.gz
+# convert beagle to non binary
 # python3 scripts/beagleBinary2Non.py sandbox/gl.out.beagle sandbox/gl.out.rn.beagle
 
 ###########################################
@@ -30,7 +30,7 @@ import numpy as np
 ###########################################
 
 snp_info = pd.read_csv("data/gene_variants/snp.list.info.csv")
-fi = open("sandbox/gl.out.rn.beagle", "r")
+fi = open("results/gene_to_trait/gl.out.rn.beagle", "r")
 beagle_str = fi.readlines()
 beagle = [i.replace("\n", "").split("\t") for i in beagle_str]
 header = beagle[0]
@@ -49,4 +49,4 @@ marker_ar = np.array("chr" + subs["chr"].astype(str) + "_" + subs["start_bp"].as
 subs["marker"] = marker_ar
 subs_trim = subs[["marker", "phen", "ref", "new"]]
 beagle_subs = pd.merge(subs_trim, beagle_df, how="inner")
-beagle_subs.to_csv("sandbox/beaglesub.csv")
+beagle_subs.to_csv("results/gene_to_trait/beaglesub.csv")

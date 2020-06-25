@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-22
-# Last Modified: 2020-06-22
+# Last Modified: 2020-06-25
 
 """ regions to snp call. based on omia and QTLdb """
 
@@ -259,16 +259,19 @@ for val, elem in enumerate(split_bed):
 #	saveTxt("data/gene_variants/trait.snps/trait.snp.{}.tab".format(val), elem)
 
 # Mendelian traits only (: sep)
-position_String
+print("making list files of mendelian traits only")
 
-store_med = []
-for i in position_String:
-	tmp = i.split("\t")
-	for c in range(int(tmp[1]), int(tmp[2])):
-		str_tmp = str(tmp[0] + "_" + str(c))
-		store_med.append(str_tmp)
+split_pos_med = [i.split("\t") for i in position_String]
+andgs_str_med = [i[0] + ":" + i[1] + "-" + i[2] for i in split_pos_med]
 
-saveTxt("data/gene_variants/trait.snps/trait.snp.mend.list", store_med)
+#store_med = []
+#for i in position_String:
+#	tmp = i.split("\t")
+#	for c in range(int(tmp[1]), int(tmp[2])):
+#		str_tmp = str(tmp[0] + "_" + str(c))
+#		store_med.append(str_tmp)
+
+saveTxt("data/gene_variants/trait.snps/trait.snp.mend.list", andgs_str_med)
 
 # write general info csv
 header_attach = ["variant_id", "chr", "phen", "breed", "start_bp", "end_bp", "mutation", "ref", "new"]

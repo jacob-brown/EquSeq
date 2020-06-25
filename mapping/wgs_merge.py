@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-05
-# Last Modified: 2020-06-23
+# Last Modified: 2020-06-25
 
 
 
@@ -56,8 +56,8 @@ def timer():
 ###########################################
 
 to_merge = open_csv("/rds/general/user/jb1919/home/genomics/EquSeq/data/to_merge.csv")
-directory = "/rds/general/user/jb1919/ephemeral/wgs_data/files_to_align/sorted/"
-out_directory = "/rds/general/user/jb1919/ephemeral/wgs_data/files_to_align/merged/"
+directory = "/rds/general/user/jb1919/ephemeral/wgs_data/sorted/"
+out_directory = "/rds/general/user/jb1919/ephemeral/wgs_data/merged/"
 
 ###########################################
 ############### Wraggling #################
@@ -73,10 +73,12 @@ files = [directory + i + ".sorted.bam" for i in job[1:]]
 
 files_string = " ".join(files)
 
+
 # merge
 print("merging")
 cmd_merge = "samtools merge --threads 31 {} {}".format(out_name, files_string)
 
+#print(cmd_merge)
 os.system(cmd_merge)
 
 timer()
@@ -84,7 +86,7 @@ timer()
 # index
 print("indexing")
 cmd_index = "samtools index {} {}.bai ".format(out_name, out_name)
-
+#print(cmd_index)
 os.system(cmd_index)
 
 timer()

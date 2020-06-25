@@ -16,7 +16,8 @@ ANC_DIR=$EPHEMERAL/ancestry/
 
 
 # refernece genome
-REF=$EPHEMERAL/ref_genome/EquCab3.fna
+#REF=$EPHEMERAL/ref_genome/EquCab3.fna
+REF=~/genomics/old_wd/ref_genome/EquCab3.fna
 SAMPLE=$EPHEMERAL/novel_data/merged/final.bam
  
 

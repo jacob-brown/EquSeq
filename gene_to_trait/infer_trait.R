@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-22
-# Last Modified: 2020-06-23
+# Last Modified: 2020-06-25
 
 # Desc: 
 
@@ -33,8 +33,8 @@ require(ggplot2)
 ######### Input(s) and Parameters #########
 ###########################################
 
-#df = read.csv("sandbox/variants_info.csv")
-df = read.csv("sandbox/beaglesub.csv")
+#df = read.csv("results/gene_to_trait/variants_info.csv")
+df = read.csv("results/gene_to_trait/beaglesub.csv")
 cbbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#000000")
 
 ###########################################
@@ -123,15 +123,15 @@ p <- ggplot(tmp_logic, mapping = aes(ind, paste(marker,phen), fill = category)) 
     	theme(axis.text.x = element_text(angle = 90))
 
 
-pdf("sandbox/heat.pdf", 20, 10)
+pdf("results/gene_to_trait/heat.pdf", 20, 10)
 print(p)
 dev.off()
-system("open -a Skim.app sandbox/heat.pdf")
+system("open -a Skim.app results/gene_to_trait/heat.pdf")
 
 
 
 
-#write.csv(tmp_logic, "sandbox/logic.csv")
+#write.csv(tmp_logic, "results/gene_to_trait/logic.csv")
 
 
 ###########

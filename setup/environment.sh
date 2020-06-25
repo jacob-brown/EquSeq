@@ -43,8 +43,6 @@ mkdir $EPHEMERAL/oral_diversity/{kreport_out,kraken_out}
 mkdir $EPHEMERAL/dependencies/ &&\
 DIR_DEP=$EPHEMERAL/dependencies/
 
-# snp calling
-mkdir $EPHEMERAL/snp_calling
 
 mkdir \
 	$DIR_NOV/raw_files/ \

@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-16
-# Last Modified: 2020-06-23
+# Last Modified: 2020-06-24
 
 
 
@@ -125,14 +125,21 @@ groups = [i[i_grp] for i in present_only]
 # return non unique grouping codes
 not_unique_vals = [i for i in {*groups} if groups.count(i) > 1]
 
-# and unique ones
-unique_vals = [i for i in {*groups} if groups.count(i) == 1]
-
 store = []
 for val in not_unique_vals:
 	tmp = [i[i_run] for i in present_only if val == i[i_grp]]
 	tmp.insert(0, val)
 	store.append(tmp)
+
+# and unique ones
+unique_vals = [i for i in {*groups} if groups.count(i) == 1]
+
+store_uniq = []
+for val in unique_vals:
+	tmp = [i[i_run] for i in present_only if val == i[i_grp]]
+	tmp.insert(0, val)
+	store_uniq.append(tmp)
+
 
 # append a header
 store.insert(0, [args.grp, args.runid + '*'])
@@ -142,7 +149,7 @@ path_merge = args.outfile + "to_merge.csv"
 path_not = args.outfile + "no_merge.csv"
 
 write_csv(store, path_merge) # those to merge 
-write_csv(unique_vals, path_not) # those not to merge
+write_csv(store_uniq, path_not) # those not to merge
 
 
 
