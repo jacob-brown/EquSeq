@@ -1,5 +1,5 @@
 #! /bin/bash
-while getopts "pa" opt; do
+while getopts "pak" opt; do
   case ${opt} in
   	p) # pca
 		Rscript ancestry/plotPCA.R
@@ -9,6 +9,10 @@ while getopts "pa" opt; do
        	Rscript ancestry/plotAdmix.R 
        	open -a Skim.app results/ancestry/ALL.MIX.pdf
       	;;
+    k) # validate K
+        Rscript ancestry/validate_K.R 
+        open -a Skim.app results/ancestry/k_validation.pdf
+        ;;
     \?) echo "usage [-p][-a]"
       ;;
   esac

@@ -11,7 +11,16 @@ cd htslib;make;cd ../angsd ;make HTSSRC=../htslib
 # pcangsd
 cd ../
 git clone https://github.com/Rosemeis/pcangsd.git pcangsd
-python3 pcangsd/setup.py build_ext --inplace
+python pcangsd/setup.py build_ext --inplace
 
 # check if functional
 # python pcangsd.py -h
+
+module load anaconda3/personal
+python3 setup.py build_ext --inplace
+
+# issues? try in conda
+source activate myenv
+python pcangsd.py -h
+conda deactivate
+module load anaconda3/personal

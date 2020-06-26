@@ -5,16 +5,17 @@
 # uses very little memory, but takes a long time 
 	# check for threading
 
-#qsub -J 0-32 snps.sh 
 #qsub -J 0-number of files snps.sh 
+# qsub -J 0-213 snps.sh 
+	# qsub -J 0-3 snps.sh 
+	# qsub -J 0-213 snps.sh 
 
 # import unix functions
 source $HOME/genomics/EquSeq/scripts/unix_functions.sh
 CODE_DIR=$HOME/genomics/EquSeq/
-SNP_DIR=$CODE_DIR/data/snp_calling_lists/
+SNP_DIR=$CODE_DIR/data/snp_calling_list/
 
-ALL_FILES=$(ls data/snp_calling_lists/))
-#FILE=$SNP_DIR${ALL_FILES[0]} 
+ALL_FILES=($(ls $SNP_DIR))
 FILE=$SNP_DIR${ALL_FILES[$PBS_ARRAY_INDEX]} 
 echo $FILE
 
@@ -22,7 +23,7 @@ echo "running snpCaller"
 
 sh $CODE_DIR/scripts/snpCaller.sh $FILE $PBS_ARRAY_INDEX
 
-
+timer
 
 
 # old methods

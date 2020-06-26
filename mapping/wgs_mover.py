@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-23
-# Last Modified: 2020-06-24
+# Last Modified: 2020-06-25
 
 
 """ move wgs_data bam files to the final directory.
@@ -13,7 +13,7 @@
 ################# Modules #################
 ###########################################
 
-#module load anaconda3/personal # python
+
 import csv
 import subprocess
 import os 
@@ -68,22 +68,24 @@ def saveTxt(dirfile, listToSave, sep='\n'):
 ######### Input(s) and Parameters #########
 ###########################################
 
-no_merge = open_csv("data/no_merge.csv")
+no_merge = open_csv("/rds/general/user/jb1919/home/genomics/EquSeq/data/no_merge.csv")
 no_runs = [i[1] for i in no_merge] # runs only
 
-to_merge = open_csv("data/to_merge.csv")
+to_merge = open_csv("/rds/general/user/jb1919/home/genomics/EquSeq/data/to_merge.csv")
 to_runs_nest = [i[1:] for i in to_merge] # runs only
 to_runs = [item for sublist in to_runs_nest for item in sublist] # flattern 
-#sorted_files = listAbsFile("ls /rds/general/user/jb1919/ephemeral/wgs_data/sorted/*")
-#merged_files = listAbsFile("ls /rds/general/user/jb1919/ephemeral/wgs_data/merged/*")
+
+# files in dirs
+sorted_files = listAbsFile("ls /rds/general/user/jb1919/ephemeral/wgs_data/sorted/*")
+merged_files = listAbsFile("ls /rds/general/user/jb1919/ephemeral/wgs_data/merged/*")
 
 # lists from HPC
 # sorted
-sorted_files = open_csv("sandbox/ls_all_sort.list")
-sorted_files = [i[0] for i in sorted_files] # flatten
+#sorted_files = open_csv("sandbox/ls_all_sort.list")
+#sorted_files = [i[0] for i in sorted_files] # flatten
 
 # merged
-merged_files = open_csv("sandbox/ls_all_sort.list")
+#merged_files = open_csv("sandbox/ls_all_sort.list")
 #merged_files = [i[0] for i in merged_files] # flatten
 
 ###########################################
@@ -102,7 +104,12 @@ codes_from_merge = [i for i in srt_run_codes if i in to_runs]
 # others - should be none
 others = [i for i in srt_run_codes if i not in to_runs and i not in no_runs]
 
+
 print("number of files missing from merge/sort search: " + str(len(others)))
+
+if len(others) > 0:
+	print("exiting.")
+	sys.exit()
 
 # get the path strings
 
@@ -116,14 +123,14 @@ else:
 	sys.exit()
 
 # merged - should be fine as is
-merged_files
+#merged_files
 
 # combine 
-paths_from_sort.append(merged_files)
+final_paths = paths_from_sort + merged_files
 
 # save list
-files = listAbsFile("sandbox/moving/fol1/")
-saveTxt("sandbox/moving/move.list", files)
+#files = listAbsFile("sandbox/moving/fol1/")
+saveTxt("/rds/general/user/jb1919/ephemeral/wgs_data/move.list", final_paths)
 
 
 

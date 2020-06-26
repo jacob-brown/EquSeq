@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-23
-# Last Modified: 2020-06-23
+# Last Modified: 2020-06-25
 
 
 
@@ -72,7 +72,7 @@ for elem in data_chrom:
 	for i in range(0, len(start)):
 		string = chrom + "\t" + start[i] + "\t" + stop[i]
 		store.append(string)
-		path = "data/snp_calling_lists/snpcall.{}.{}.list.bed".format(chrom, i)
+		path = "data/snp_calling_list/snpcall.{}.{}.list.bed".format(chrom, i)
 		wfile = open(path, 'w')
 		wfile.writelines(string)
 		

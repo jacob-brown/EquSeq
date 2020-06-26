@@ -41,13 +41,17 @@ cbbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00"
 ############### Wraggling #################
 ###########################################
 
+# filter(ind %in% c("Ind171", "Ind171.1", "Ind171.2")) %>% # REMOVE ME
+#ifelse(str_detect(ind, ".1"), "hetero", 
+#								ifelse(str_detect(ind, ".2"), "homo_min", 
+#									"homo_maj"))
 
 dft <- df %>%
 		dplyr::select(-X) %>%
 		pivot_longer(cols = starts_with("Ind"), 
 				names_to = "ind", values_to = "GL") %>% 
-		mutate(type = ifelse(str_detect(ind, ".1"), "hetero", 
-								ifelse(str_detect(ind, ".2"), "homo_min", 
+		mutate(type = ifelse(str_sub(ind, start= -2) == ".1", "hetero", 
+								ifelse(str_sub(ind, start= -2) == ".2", "homo_min", 
 									"homo_maj")),
 				ind = gsub("\\..*","", ind),
 				row = row_number()) %>%
@@ -59,6 +63,7 @@ dft <- df %>%
 					homo_min = sum(homo_min),
 					hetero = sum(hetero)) 
 
+# dft %>% filter(ind == "ind28")
 # cat, val
 # absent, NA
 # homo, GL
@@ -80,6 +85,7 @@ tmp$type <- as.character(NA)
 tmp$value <- as.numeric(NA)
 
 # determine highest value category and value
+print("determining genotypes.")
 for(i in 1:nrow(tmp)){
 	
 	elem <- tmp[i,]
@@ -123,7 +129,7 @@ p <- ggplot(tmp_logic, mapping = aes(ind, paste(marker,phen), fill = category)) 
     	theme(axis.text.x = element_text(angle = 90))
 
 
-pdf("results/gene_to_trait/heat.pdf", 20, 10)
+pdf("results/gene_to_trait/heat.pdf", 30, 10)
 print(p)
 dev.off()
 system("open -a Skim.app results/gene_to_trait/heat.pdf")
@@ -140,9 +146,9 @@ system("open -a Skim.app results/gene_to_trait/heat.pdf")
 #
 #
 #
-#tmp_logic %>%
-#	filter(ind =="Ind44") %>%
-#	data.frame()
+tmp_logic %>%
+	filter(ind =="Ind171") %>%
+	data.frame()
 #	
 #tmp_logic %>%
 #	filter(marker == "chr3_77739558" & ind =="Ind0")

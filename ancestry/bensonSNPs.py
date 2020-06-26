@@ -2,9 +2,10 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-16
-# Last Modified: 2020-06-16
+# Last Modified: 2020-06-25
 # Desc: remove snps from treemix file that have 0,0 for novel sample
 	# treemix returns errors whentoo many are present in one sample
+
 
 import subprocess, gzip
 

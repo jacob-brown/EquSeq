@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-05
-# Last Modified: 2020-06-25
+# Last Modified: 2020-06-26
 # Desc: sync local files with those on HPC ignoring those in gitignore 
 
 LOCAL_DIR=./
@@ -15,6 +15,8 @@ rsync -av --delete --include='data/ancestry/*' \
 		--include='data/gene_variants/trait.snps/trait.snp.mend.list'\
 		--include='checkEphemeral.py'\
 		--include='checkEphemeral.sh'\
+		--include='data/ancestry/bam_list_grps/*'\
+		--include='data/snp_calling_list/*'\
 		--exclude-from='.gitignore' \
 		--exclude='.git/' \
 		$LOCAL_DIR $REMOTE_DIR

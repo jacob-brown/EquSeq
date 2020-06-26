@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-15
-# Last Modified: 2020-06-17
+# Last Modified: 2020-06-26
 
 # Desc: 
 
@@ -43,32 +43,48 @@ info <- read.csv("../data/cleaned_data/info_all.csv")
 runDf <- data.frame(index = seq(1,length(runName)), name = runName)
 
 # match the code with info_all
-info_trim <- info[c("Run", "sub_group")]
+info_trim <- info[c("Run", "sub_group", "BioSample")]
 
+# join on runs
 run_join <- left_join(runDf, info_trim, by=c("name" = "Run"))
+#head(run_join)
+# join on biosamples
+biosam_df <- run_join[is.na(run_join$sub_group),1:2]
+biosam_names <- unique(biosam_df$name)
 
-# if Run doesn't match, possible that merging has occured
-	# match to BioProject 
+# unique df of biosample and cluster name
+biosam_clust <- unique(info_trim[info_trim$BioSample %in% biosam_names,2:3])
+run_join_biosam <- left_join(biosam_df, biosam_clust, by=c("name" = "BioSample"))
 
-run_join$sub_group <- as.character(run_join$sub_group)
-run_join$sub_group <- gsub("\\(>50%Quarter)","", gsub(" ", "", run_join$sub_group))
-#run_join$sub_group <- gsub(" \\(>50% Quarter)","", run_join$sub_group)
+# remove nas from run_join and rbind run_join_biosam
+df_all <- run_join %>%
+				filter(!is.na(sub_group)) %>%
+				dplyr::select(-BioSample) %>%
+				rbind(run_join_biosam) %>%
+				arrange(index)
+
+
+df_all$sub_group <- as.character(df_all$sub_group)
 
 # add benson
-run_join[is.na(run_join$sub_group),]$sub_group <- "BENSON"
+df_all[is.na(df_all$sub_group),]$sub_group <- "BENSON"
+# correct some of the cluster names
+df_all$sub_group <- gsub("\\(>50%Quarter)","50Quarter", gsub(" ", "", df_all$sub_group))
+#df_all$sub_group <- gsub(" \\(>50% Quarter)","", df_all$sub_group)
+
 
 # make appreviations
-#apprev <- makeInitials(run_join$sub_group)
+#apprev <- makeInitials(df_all$sub_group)
 
 # create and write table
 
-run_join$name <- as.character(run_join$name)
+df_all$name <- as.character(df_all$name)
 
-table <- cbind(run_join$name, run_join$name, run_join$sub_group)
-#table <- cbind(run_join$name,run_join$name, apprev)
+table <- cbind(df_all$name, df_all$name, df_all$sub_group)
+#table <- cbind(df_all$name,df_all$name, apprev)
 write.table(table, row.names=F, sep="\t", file="clusters.clst", quote=F, col.names=F)
 
 
 
 #clst  <- c(rep("pop1", 10), rep("pop2", 10), rep("pop3", 10), rep("pop4", 15))
-#table <- cbind(run_join$name,run_join$name, clst)
+#table <- cbind(df_all$name,df_all$name, clst)

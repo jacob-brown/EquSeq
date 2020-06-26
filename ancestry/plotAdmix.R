@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-11
-# Last Modified: 2020-06-03
+# Last Modified: 2020-06-26
 
 # Desc: 
 
@@ -17,6 +17,7 @@ require(tools)
 require(dplyr)
 require(tibble)
 require(RColorBrewer)
+require(stringr)
 
 ###########################################
 ############## Function(s) ################
@@ -92,8 +93,8 @@ admixture <- function(fileIn, orderIndex){
 ######### Input(s) and Parameters #########
 ###########################################
 
-DIR <- "results/ancestry/eu_more_wg_5kb_05maf/"
-
+#DIR <- "results/ancestry/eu_more_wg_5kb_05maf/"
+DIR <- "results/ancestry/all_test/"
 files <- list.files(DIR, full.names=T)
 out <- "results/ancestry/ALL.MIX.pdf"
 clusters <- "results/ancestry/clusters"
@@ -101,6 +102,10 @@ clusters <- "results/ancestry/clusters"
 cbPalette <- c( "#999999", "#E69F00", "#56B4E9", 
 				"#009E73", "#F0E442", "#0072B2", "#D55E00", 
 				"#CC79A7", "#000000")
+
+cbPalettelrg <- c("#004949","#009292","#ff6db6","#ffb6db",
+ 					"#490092","#006ddb","#b66dff","#6db6ff","#b6dbff",
+ 					"#920000","#924900","#db6d00","#24ff24","#ffff6d", "#000000")
 
 ###########################################
 ############### Wraggling #################
@@ -123,7 +128,7 @@ title <- paste(sites, " ", maf)
 i <- 0
 store_admix <- 0
 orderIndex <- idOrder(files_to_use[2])
-orderIndex <- seq(1,45)
+orderIndex <- seq(1,length(orderIndex))
 for(i in seq_along(files_to_use)){
 	
 	# retrieve order on first iter
@@ -182,12 +187,14 @@ for(i in 1:nrow(tmp)){
 }
 
 
+k_levels <- str_sort(unique(store_admix$K), numeric = TRUE)
+store_admix$K <- factor(store_admix$K, levels = k_levels)
 
 ### plot ####
 g <- ggplot(store_admix, aes(fill=pop, y=values, x=IID, label=pop))+
 		facet_grid(rows = vars(store_admix$K))+
 		geom_bar(position=position_stack(reverse = TRUE), stat="identity")+
-		scale_fill_manual(values = cbPalette) +
+		scale_fill_manual(values = cbPalettelrg) +
 		scale_x_discrete(labels=breed_order)+
 		theme_classic()+
 		xlab("")+
@@ -198,10 +205,10 @@ g <- ggplot(store_admix, aes(fill=pop, y=values, x=IID, label=pop))+
 				axis.title.y = element_blank(),
         		axis.text.y = element_blank(),
         		axis.ticks.y = element_blank(),
-				strip.text.y = element_text(size = 10, angle=0),
+				strip.text.y = element_text(size = 4, angle=0),
 				strip.background=element_blank()
         		)
-pdf(file=out, 6, 6)
+pdf(file=out, 20, 6)
 print(g)
 invisible(dev.off())
 

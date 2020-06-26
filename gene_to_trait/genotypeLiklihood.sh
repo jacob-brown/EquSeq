@@ -1,5 +1,5 @@
 #! /bin/bash
-#PBS -l walltime=00:30:00
+#PBS -l walltime=24:00:00
 #PBS -l select=1:ncpus=5:mem=5gb
 
 
@@ -18,7 +18,7 @@ source $CODE_DIR/scripts/unix_functions.sh
 DIR=$EPHEMERAL/gene_to_trait/
 
 # use same bam list as ancestry
-BAM_LIST=$EPHEMERAL/old_ancestry/bam.list2
+BAM_LIST=$EPHEMERAL/ancestry/bam.list
 
 # refernece genome
 #REF=$EPHEMERAL/ref_genome/EquCab3.fna

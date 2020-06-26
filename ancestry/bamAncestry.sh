@@ -123,14 +123,15 @@ function pca(){
 	
 
 	BEAGLE_FILE=$1
+	source activate myenv # issues with install
 
 	# Estimate covariance matrix and individual admixture proportions
 	# default -minMaf 0.05
  	python $PCANGSD -beagle $BEAGLE_FILE  \
 					-o $ANC_DIR/ALL.PCA -threads 4 \
-					-minMaf 0.05 -inbreed 1 -admix
+					-minMaf 0.02 -inbreed 1  -sites_save
 
-
+	conda deactivate # issues with install
 }
 
 
@@ -146,7 +147,7 @@ function admix(){
 	for K in "${K_ARRAY[@]}"; do
 
 		$NGSADMIX -likes $BEAGLE_FILE -K $K\
-			-outfiles $ANC_DIR/ALL.MIX.K$K -P 4 -minMaf 0.05
+			-outfiles $ANC_DIR/ALL.MIX.K$K -P 4 -minMaf 0.02 -seed 212
 	done
 	#$NGSADMIX -likes ALL.merged.beagle.gz -K 3 -minMaf 0.02 -outfiles ./ALL.MIX -P 4
 

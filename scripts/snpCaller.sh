@@ -14,7 +14,8 @@ echo -e "\nDirectories\n"
 
 
 DIR=$EPHEMERAL/snp_calling/
-REF=$EPHEMERAL/ref_genome/EquCab3.fna
+#REF=$EPHEMERAL/ref_genome/EquCab3.fna
+REF=~/genomics/old_wd/ref_genome/EquCab3.fna
 
 
 
@@ -35,7 +36,7 @@ function samtoolsCaller(){
 }
 
 
-samtoolsCaller $1
+samtoolsCaller $1 $2
 
 
 # old methods - 1 chrom per run

@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-05
-# Last Modified: 2020-06-03
+# Last Modified: 2020-06-26
 
 # Desc: generate a table of names for running the pcangsd script
 
@@ -27,8 +27,10 @@ require(RColorBrewer)
 ###########################################
 
 MAF <- "0.05"
-covIN <- "results/ancestry/eu_more_wg_5kb_05maf/ALL.PCA.cov"
-sitesIN <- "results/ancestry/eu_more_wg_5kb_05maf/ALL.PCA.sites"
+#covIN <- "results/ancestry/eu_more_wg_5kb_05maf/ALL.PCA.cov"
+#sitesIN <- "results/ancestry/eu_more_wg_5kb_05maf/ALL.PCA.sites"
+covIN <- "results/ancestry/all_test/ALL.PCA.cov"
+sitesIN <- "results/ancestry/all_test/ALL.PCA.sites"
 out <- "results/ancestry/ALL.PCA.pdf"
 
 ###########################################
@@ -89,7 +91,6 @@ n <- length(unique(PC$Pop))
 col_vector <- c(brewer.pal(8, "Dark2"), brewer.pal(8, "Set2"), brewer.pal(12, "Paired"))
 col_vector <- unique(col_vector)
 
-
 shapes <- c(0:n)# c(0:7, 15:18)
 
 # sort order and levels
@@ -98,18 +99,29 @@ shapes <- c(0:n)# c(0:7, 15:18)
 #factor(PC$Pop, levels = c("BENSON", sort(poplv[poplv!="BENSON"])))
 #reorder(PC$Pop, new.order=c("BENSON", sort(poplv[poplv!="BENSON"])))
 
-
+#PC$PC1
+#PC$PC2
 g <- ggplot() + 
-		geom_point(data=PC, aes_string(x=x_axis, y=y_axis, shape="Pop", color="Pop")) + 
+		geom_point(data=PC, aes_string(x=x_axis, y=y_axis, color="Pop")) + 
 		ggtitle(paste(title, title_append)) + 
-		scale_colour_manual(values = col_vector)+
-		#scale_colour_discrete(breaks = leg_lvs) +
-		scale_shape_manual(values =shapes) + 
-		theme_bw() #+
+		theme_bw() +
+		guides(col = guide_legend(ncol = 2))
+		#scale_colour_manual(values = col_vector)+
+		#scale_shape_manual(values =shapes) + 
 		#theme(legend.position=c(1,1), 
 		#	legend.justification=c(1,1))
 
-pdf(file=out, 7, 5)
+
+#g <- ggplot() + 
+#		geom_point(data=PC, aes_string(x=x_axis, y=y_axis, shape="Pop", color="Pop")) + 
+#		ggtitle(paste(title, title_append)) + 
+#		theme_bw() #+
+#		scale_colour_manual(values = col_vector)+
+#		scale_shape_manual(values =shapes) + 
+#		#theme(legend.position=c(1,1), 
+#		#	legend.justification=c(1,1))
+
+pdf(file=out, 15, 7)
 print(g)
 invisible(dev.off())
 

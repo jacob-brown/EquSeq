@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-14
-# Last Modified: 2020-06-23
+# Last Modified: 2020-06-26
 
 
 
@@ -76,11 +76,13 @@ def open_csv(file):
 
 
 # sub process wrapper
-def subProWrap(command):
-	""" wrapper for a subprocess command """
+def subProWrap(command, returnList=True):
+	""" wrapper for a subprocess command 
+		returns list as default """
 	p = subprocess.Popen([command], stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 	out, er = p.communicate()
-	out_string = out.decode()
-	files = out_string.replace("\t", ":").split("\n")
-	files.remove("")
-	return files
+	if(returnList):
+		out_string = out.decode()
+		files = out_string.replace("\t", ":").split("\n")
+		files.remove("")
+		return files

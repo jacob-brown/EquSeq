@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-11
-# Last Modified: 2020-06-15
+# Last Modified: 2020-06-25
 
 # Desc: 
 
@@ -23,8 +23,8 @@ require(dplyr)
 ######### Input(s) and Parameters #########
 ###########################################
 
-files <- read.table("data/ancestry/bam.list.gbie")
-files_ww <- read.table("data/ancestry/bam.list")
+#files <- read.table("data/ancestry/bam.list.gbie")
+files <- read.table("data/ancestry/bam.list")
 info <- read.csv("data/cleaned_data/info_all.csv")
 
 ###########################################
