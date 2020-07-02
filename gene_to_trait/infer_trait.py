@@ -3,15 +3,12 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-22
-# Last Modified: 2020-06-25
+# Last Modified: 2020-06-30
 
 
 
-"""  """
-#scp jb1919@login.cx1.hpc.ic.ac.uk:/rds/general/user/jb1919/ephemeral/gene_to_trait/gl.out.* results/gene_to_trait/
-# gunzip sandbox/gl.out.beagle.gz
-# convert beagle to non binary
-# python3 scripts/beagleBinary2Non.py sandbox/gl.out.beagle sandbox/gl.out.rn.beagle
+""" extract sites from beagle file 
+	and compare to info list """
 
 ###########################################
 ################# Modules #################
@@ -29,7 +26,8 @@ import numpy as np
 ######### Input(s) and Parameters #########
 ###########################################
 
-snp_info = pd.read_csv("data/gene_variants/snp.list.info.csv")
+#snp_info = pd.read_csv("data/gene_variants/snp.list.info.csv")
+snp_info = pd.read_csv("data/gene_variants/snp.list.alt.info.csv")
 fi = open("results/gene_to_trait/gl.out.rn.beagle", "r")
 beagle_str = fi.readlines()
 beagle = [i.replace("\n", "").split("\t") for i in beagle_str]
@@ -49,4 +47,7 @@ marker_ar = np.array("chr" + subs["chr"].astype(str) + "_" + subs["start_bp"].as
 subs["marker"] = marker_ar
 subs_trim = subs[["marker", "phen", "ref", "new"]]
 beagle_subs = pd.merge(subs_trim, beagle_df, how="inner")
+
+# remove issue sites  - unknown causes, investigate  later
+
 beagle_subs.to_csv("results/gene_to_trait/beaglesub.csv")

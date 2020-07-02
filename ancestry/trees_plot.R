@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-15
-# Last Modified: 2020-06-26
+# Last Modified: 2020-07-01
 
 # Desc: plot treemix results
 
@@ -21,13 +21,12 @@ singleMig <- function(){
 	### single migrations ###
 	pdf("tree.pdf", 30, 15)
 	par(mfrow=c(1,2))
-	#par(mfrow=c(2,1), pin=c(5, 5))
-	plot_tree("tree.out.no")
-	#par(pin=c(4, 4))
+	plot_tree("tree.out.no", o = NA, cex = 1, disp = 0.003, plus = 0.01, flip = vector(), arrow = 0.05, scale = T, ybar = 0.1, mbar = T, plotmig = T, plotnames = T, xmin = 0, lwd = 1, font = 1)
 	plot_resid("tree.out.no", "poporder")
 	dev.off()
 	system("open -a Skim.app tree.pdf")
 }
+singleMig()
 ############################
 ### multiple  migrations ###
 muliMig <- function(){
@@ -84,6 +83,7 @@ migLike <- function(){
 	system("open -a Skim.app choose_m.pdf")
 
 }
+
 ################################
 ### f3 stat interpretation
 f3 <- function(){
@@ -140,3 +140,35 @@ if(args[1] == "s"){
 
 
 
+########
+# ape plotting testing
+# cp tree.out.no.treeout.gz tree.ape.gz
+# gunzip tree.ape.gz
+if(F){
+
+require(ape)
+
+tree <- read.tree(gzfile("tree.out.no.treeout.gz"))
+#tree$edge <- read.table(gzfile("tree.out.no.edges.gz"), as.is  = T, comment.char = "", quote = "")
+
+
+pdf("ape.pdf", 15, 15)
+plot(tree)
+dev.off()
+system("open -a Skim.app ape.pdf")
+
+install.packages("phyloseq")
+
+require(popcorn)
+source("../scripts/popcorn_treemix.R")
+tree <- read_treemix("tree.out.no")
+pdf("pop.pdf", 15, 15)
+p <- plot_treemix(tree) + theme_treemix()
+print(p)
+dev.off()
+system("open -a Skim.app pop.pdf")
+
+
+
+
+}

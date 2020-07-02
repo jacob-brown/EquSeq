@@ -4,12 +4,16 @@
 
 #cd sandbox
 
+
+CODEDIR=~/genomics/EquSeq/
+
 #--------------- file prep ---------------#
 
 echo '=================================='
 echo "\ncopying vcf file to sandbox\n\n"
 #cp snps/snps.chr3.raw.vcf ./snps.vcf
-bcftools view snps/out.bcf  > snps.vcf
+mv snps/snps.79.raw.vcf ./snps.vcf
+#bcftools view snps/out.bcf  > snps.vcf
 
 #cp snps/snps.vcf .
 #tail snps.vcf
@@ -18,7 +22,7 @@ bcftools view snps/out.bcf  > snps.vcf
 echo '=================================='
 echo "\nmaking snp list\n"
 #use only sites present in pca and admixture
-#zcat < ../data/processed_sequences/beagle/ALL.merged.beagle.gz | grep chr3_ | cut -f1 | tr "_" "\t" > snp.list
+#zcat < $CODEDIR/data/processed_sequences/beagle/ALL.merged.beagle.gz | grep chr3_ | cut -f1 | tr "_" "\t" > snp.list
 
 
 echo '=================================='
@@ -40,7 +44,7 @@ sed $LINE_NUM's/fixflag/BENSON/g' snps.vcf | sed $LINE_NUM's!/rds/general/user/j
 
 echo '=================================='
 echo "\nmaking cluster file\n"
-Rscript ../ancestry/cluster_trees.R  snps.rename.vcf
+Rscript $CODEDIR/ancestry/cluster_trees.R  snps.rename.vcf
 # cat clusters.clst 
 # below is modified of: https://speciationgenomics.github.io/Treemix/
 
@@ -68,13 +72,13 @@ mv better.map ${file}.map
 # generate stratified freq file 
 	# and filter 
 	# --mind 0.1 # important for SE but benson is absent, instead remove sites manually later
-plink/plink --file snps.rename --freq --missing --snps-only --geno 0.1  --maf 0.02 --within clusters.clst --out $file --mind 0.1 
+plink/plink --file snps.rename --freq --missing --snps-only --geno 0.1  --maf 0.02 --within clusters.clst --out $file #--mind 0.1 
 gzip -f $file".frq.strat"
 #zcat < $file".frq.strat.gz" | head
 
 
 # convert using treemix python script
-python2 ../dependancies/plink2treemix.py $file".frq.strat.gz" treemix.frq.gz
+python2 $CODEDIR/dependancies/plink2treemix.py $file".frq.strat.gz" treemix.frq.gz
 #zcat < treemix.frq.gz | head
 #zcat < treemix.frq.gz | grep BENSON
 #zcat < treemix.frq.gz | head -n1 | tr " " "\n" | wc -l
@@ -83,7 +87,7 @@ python2 ../dependancies/plink2treemix.py $file".frq.strat.gz" treemix.frq.gz
 	# issues arise with treemix algorithms if lots of our sample is absent
 
 #### KEEP FOR NOW!!!!
-#python3 ../ancestry/bensonSNPs.py
+#python3 $CODEDIR/ancestry/bensonSNPs.py
 
 echo "snp count:"
 zcat < treemix.frq.gz | wc -l
@@ -98,15 +102,15 @@ for i in {0..5}
 do 
 	echo $i "/5 migrations"
  treemix -i treemix.frq.gz -m $i -o tree.out.$i -root KoninklijkWarmbloedPaardNederland -noss -n_warn 5 > tree.out.${i}.log &
-done; #wait
+done; 
 
 
 # bootstrap and migration events
 for i in {0..2}
 do 
 	echo $i "/5 migrations"
- treemix -i treemix.frq.gz -m $i -o tree.out.$i -root KoninklijkWarmbloedPaardNederland -bootstrap -k 500 -noss -n_warn 5 > tree.out.${i}_log #&
-done; #wait
+ treemix -i treemix.frq.gz -m $i -o tree.out.$i -root KoninklijkWarmbloedPaardNederland -bootstrap -k 500 -noss -n_warn 5 > tree.out.${i}_log
+done; 
 
 
 ### repeats of the analysis ###
@@ -134,10 +138,10 @@ cat clusters.clst | cut -f3 | sort | uniq > poporder # if benson is present
 cat clusters.clst | cut -f3  | sed 's/BENSON//g' | sed '/^$/d' | sort | uniq > poporder
 #cat poporder
 
-#Rscript ../ancestry/trees_plot.R s # single population 
-#Rscript ../ancestry/trees_plot.R m # multiple migrations 
-#Rscript ../ancestry/trees_plot.R l  # migration liklihood	
-#Rscript ../ancestry/trees_plot.R f # f3 stats
+#Rscript $CODEDIR/ancestry/trees_plot.R s # single population 
+#Rscript $CODEDIR/ancestry/trees_plot.R m # multiple migrations 
+#Rscript $CODEDIR/ancestry/trees_plot.R l  # migration liklihood	
+#Rscript $CODEDIR/ancestry/trees_plot.R f # f3 stats
 
 
 

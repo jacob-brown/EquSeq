@@ -142,7 +142,7 @@ function admix(){
 
 	# default -minMaf 0.05
 	BEAGLE_FILE=$1
-	K_ARRAY=(2 3 4 5 6) 
+	K_ARRAY=(2 3 4 5 6 7 8 9 10 11) 
 
 	for K in "${K_ARRAY[@]}"; do
 

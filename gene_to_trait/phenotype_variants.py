@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-22
-# Last Modified: 2020-06-25
+# Last Modified: 2020-06-30
 
 """ regions to snp call. based on omia and QTLdb """
 
@@ -77,10 +77,11 @@ db = mysql.connector.connect(
 
 cursor = db.cursor()
 sql_File = "gene_to_trait/variants.sql"
-omia_catch = open_csv('data/gene_variants/omia_catch_all.csv')
+omia_catch = open_csv("data/gene_variants/omia_catch_all.csv")
 qtldir = "data/gene_variants/animalqtldb/"
 qtl_files = os.listdir(qtldir)
 
+paper_variants = open_csv("data/gene_variants/combined_paper_traits.csv")
 
 ###########################################
 ############### Wraggling #################
@@ -171,7 +172,7 @@ for o in omia_catch:
 store = store + store_omia_catch
 
 # sort store list - chr and start position
-store.sort(key=lambda x: (x[1], x[4]))
+#store.sort(key=lambda x: (x[1], x[4]))
 
 # form strings of locations
 position_String = ["chr" + str(i[1]) + "\t"  + str(i[4]) + "\t"  + str(i[5]) for i in store]
@@ -204,6 +205,42 @@ del qtl_pos[0]
 qtl_pos_uniq = np.unique(qtl_pos) 
 
 
+#############################################
+### sites from 10 year horse genome paper ###
+
+paper_header = paper_variants[0]
+del paper_variants[0]
+
+
+# varID, chr, phen, breed, position, position_stop, type, reference_nucleotide, new_nucleotide 
+
+# some genomic (.g) coordinates are not correctly formatted or are empty
+	# as cDNA and/or protein positions are given (.c .p)
+paper_store = []
+for num, var in enumerate(paper_variants):
+	if var[5] != ''and var[4] != '': # mutation and chromosome
+		try:
+
+			# parser requires an accession number
+			tmp_coor =  "accN:" + var[5] 
+			hgvs_var = hp.parse_hgvs_variant(tmp_coor)
+			info =  hgvsGetInfo(hgvs_var)
+
+			# id, chrom, phen, breed
+			to_append = [int(num), int(var[4]), var[0], var[8]]
+			to_append.extend(info)
+			paper_store.append(to_append)
+		except:
+			pass
+
+
+# sort
+paper_store.sort(key=lambda x: (x[1], x[4]))
+
+# position list
+position_apper_String = ["chr" + str(i[1]) + "\t"  + str(i[4]) + "\t"  + str(i[5]) for i in paper_store]
+
+
 #############
 ### write ### 
 # first join the omia and  qtl data
@@ -212,8 +249,6 @@ all_position_list = [i.split("\t") for i in all_position] # nested list
 
 # sort
 all_position_list = natsorted(all_position_list, key=lambda x: (x[0], x[1]))
-
-
 
 
 # angsd list format chr:pos
@@ -264,6 +299,15 @@ print("making list files of mendelian traits only")
 split_pos_med = [i.split("\t") for i in position_String]
 andgs_str_med = [i[0] + ":" + i[1] + "-" + i[2] for i in split_pos_med]
 
+# alt mendelian list
+split_pos_med_paper = [i.split("\t") for i in position_apper_String]
+andgs_str_med_paper = [i[0] + ":" + i[1] + "-" + i[2] for i in split_pos_med_paper]
+
+# combine lists for a catchall run
+combined_position = split_pos_med + split_pos_med_paper
+comb_pos_sort = natsorted(combined_position, key=lambda x: (x[0], x[1]))
+comb_str = [i[0] + ":" + i[1] + "-" + i[2] for i in split_pos_med_paper]
+
 #store_med = []
 #for i in position_String:
 #	tmp = i.split("\t")
@@ -272,13 +316,17 @@ andgs_str_med = [i[0] + ":" + i[1] + "-" + i[2] for i in split_pos_med]
 #		store_med.append(str_tmp)
 
 saveTxt("data/gene_variants/trait.snps/trait.snp.mend.list", andgs_str_med)
+saveTxt("data/gene_variants/trait.snps/trait.snp.mend.alt.list", andgs_str_med_paper)
+saveTxt("data/gene_variants/trait.snps/trait.snp.mend.all.list", comb_str)
 
 # write general info csv
 header_attach = ["variant_id", "chr", "phen", "breed", "start_bp", "end_bp", "mutation", "ref", "new"]
 store.insert(0, header_attach)
 write_csv(store, "data/gene_variants/snp.list.info.csv")
 
-
+# alternative list write
+paper_store.insert(0, header_attach)
+write_csv(paper_store, "data/gene_variants/snp.list.alt.info.csv")
 
 
 

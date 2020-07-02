@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-22
-# Last Modified: 2020-06-25
+# Last Modified: 2020-06-30
 
 # Desc: 
 
@@ -74,6 +74,10 @@ dft <- df %>%
 maxValInd <- function(vec) return(which(max(vec) == vec))
 
 homhet <- c("homo_maj", "homo_min", "hetero")
+
+dft$new <- as.character(dft$new)
+dft$allele1 <- as.character(dft$allele1)
+dft$allele2 <- as.character(dft$allele2)
 
 tmp <- dft %>%
 			mutate(absent = ifelse(new == allele1, FALSE,

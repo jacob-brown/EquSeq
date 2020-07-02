@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
-# Date:   2020-03-18
+# Date:   2020-07-02
 # Last Modified: 2020-07-02
 
-# Desc: Read kraken reports and generate plots and 
-	# calculate diversity
-
+# Desc: 
 
 ###########################################
 ################# Modules #################
@@ -27,53 +25,6 @@ require(vegan)
 ############## Function(s) ################
 ###########################################
 
-### standard error ###
-#se <- function(x){
-#	sd(x)/(sqrt(length(x)))
-#}
-
-### read kraken report and combine with lineage data ###
-readKReport <- function(fileIn, lineageFile){
-
-	lineages <- read.delim(lineageFile, sep="\t", 
-						header=T, na.strings = c("","NA"))
-	tmp_rep <- read.delim(fileIn, sep="\t", head=F)
-	colnames(tmp_rep) <- c("perc", "frag", "frag_uniq", "rankAb", "taxid", "name")
-	# perc = (frag/sum(tmp_rep$frag_uniq))*100
-
-	# remove whitespace
-	tmp_rep$name <- trimws(tmp_rep$name, which="both")
-
-	# determine ranks from lineages
-	rank <- apply(lineages, 1, 
-					function(x) colnames(lineages)[length(x[!is.na(x)])])
-	rank <- replace(rank, rank=="taxid", "root")
-	lineages_df <- cbind(lineages, rank)
-
-	tmp_rep$rankAb <- as.character(tmp_rep$rankAb)
-
-	# join report and lineages
-	df <- tmp_rep %>%
-			left_join(lineages_df, by="taxid") %>%
-			mutate(
-				rank = 
-					ifelse(rankAb == "D", "domain",
-						ifelse(rankAb == "U", "unclassified",
-						# update rank
-						ifelse(grepl("\\d", rankAb),
-									paste0(rank,"_", str_extract(rankAb, "[[:digit:]]+")),
-									as.character(rank))))#,
-				#kingdom = ifelse(name != kingdom, name, kingdom)
-					# some kingdoms were defined incorretly
-				) %>%
-			arrange(rank, desc(perc))
-
-	return(df)
-
-}
-
-
-# read stats files in and compute into df #
 readStats <- function(passIn, failIn, lineageFile){
 
 	### read pass stats in ###
@@ -112,62 +63,54 @@ readStats <- function(passIn, failIn, lineageFile){
 ######### Input(s) and Parameters #########
 ###########################################
 
-lineageFile <- "results/oral_diversity/taxaKR.df"
-reports <- list.files("results/oral_diversity/kraken_reports/", full.names=T)
+
+lineageFile = "results/oral_diversity/taxa.df"
+passIn = "results/oral_diversity/stats/stat.pass.csv"
+failIn = "results/oral_diversity/stats/stat.fail.csv"
 
 ###########################################
 ############### Wraggling #################
 ###########################################
 
-# generate lists and bind them to a single df
-print("loading reports to memory.")
-data_list <- lapply(reports, function(x) readKReport(x, lineageFile))
 
-data_merged <- do.call("rbind", data_list)
+df <- readStats(passIn, failIn, lineageFile)
+tibble(lineages)
 
-grps <- setdiff(names(data_merged), c("perc", "frag", "frag_uniq"))
+df_BacVir <- df[(df$kingdom %in% c("Bacteria", "Viruses"),]
+
+grp_by <- colnames(df)[-c(1,2)]
+
+df_BacVir <- df %>%
+				filter(kingdom %in% c("Bacteria", "Viruses") 
+						& rank =="species") %>%
+				group_by_at(grp_by) %>%
+				summarise(count=sum(count), # correct duplicate taxaid - NCBI issues
+							taxid = min(taxid)) %>%
+				ungroup()
 
 
-# use total frag counts across all the files
-df_total <- data_merged %>% 
-					group_by_at(grps) %>%
-					summarise(tot_perc = sum(perc), 
-								tot_frag = as.numeric(sum(frag)), 
-								tot_frag_uniq = sum(frag_uniq),
-								count=n()) %>%
-					arrange(desc(tot_perc)) %>%
-					ungroup()
-
-# correct column names - issues with taxonkit misassigning at higher taxa levels
-	# domian and superkingdoms are under kingdom
-	# kingdoms are not present
-	# others classifications are correct 
-# include only bacteria and virus data
-
-df_corrected <- df_total %>%
-					mutate(domain_supking = 
-							ifelse(is.na(kingdom), name, as.character(kingdom))) %>%
-					dplyr::select(-kingdom) %>%
-					filter(domain_supking %in% c("Bacteria", "Viruses"))
 # abundance
-tot_rank_frag <- df_corrected %>% 
+tot_rank_frag <- df_BacVir %>% 
 					group_by(rank) %>%
-					summarise(tot_rank_frag = sum(tot_frag))
-df_abund <- df_corrected %>%
+					summarise(rank_count = sum(count))
+
+df_abund <- df_BacVir %>%
 				left_join(tot_rank_frag, by='rank') %>% 
-				mutate(rel_abundance = tot_frag/tot_rank_frag)
+				mutate(rel_abundance = count/rank_count)
 
 ### species only ###
 
 # bacteria
 df_species_bact <- df_abund %>%
 					filter(rank %in% c("species")) %>%
-					filter(domain_supking == "Bacteria")
-		
+					filter(kingdom == "Bacteria")
+
+
 # virus				
 df_species_virus <- df_abund %>%
 					filter(rank %in% c("species")) %>%
-					filter(domain_supking == "Viruses")
+					filter(kingdom == "Viruses")
+
 
 ###########################################
 ############### Analysis ##################
@@ -175,12 +118,12 @@ df_species_virus <- df_abund %>%
 
 ### diversity and effective species number (ESN) ###
 # bacteria 
-bacteria_counts <- df_species_bact$tot_frag
+bacteria_counts <- df_species_bact$count
 shannon_bact <- diversity(bacteria_counts, index = "shannon")
 eff_species_bact <- exp(shannon_bact) # effective number of species
 
 # virus 
-virus_counts <- df_species_virus$tot_frag
+virus_counts <- df_species_virus$count
 shannon_virus <- diversity(virus_counts, index = "shannon")
 eff_species_virus <- exp(shannon_virus) # effective number of species
 
@@ -191,6 +134,7 @@ print(paste("ENS: ", eff_species_bact))
 print("Virus...")
 print(paste("shannon: ", shannon_virus))
 print(paste("ENS: ", eff_species_virus))
+
 
 ###########################################
 ############### Plotting ##################
@@ -204,25 +148,20 @@ data_head_bact <- df_species_bact %>%
 					arrange(desc(rel_abundance)) %>%
 					head(ceiling(eff_species_bact))
 
-pal <- wes_palette("Darjeeling1", nrow(data_head_bact), type = "continuous")
-#pal <- c("#999999", "#E69F00", "#56B4E9", "#009E73", 
-#			"#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#000000")
+#scale_fill_manual(values = pal)+
+#pal <- wes_palette("Darjeeling1", nrow(data_head_bact), type = "continuous")
 
-
-#log(tot_frag)
-g <- ggplot(data=data_head_bact, aes(x=name, y=tot_frag, fill =name)) +
+g <- ggplot(data=df_species_bact, aes(x=species, y=count, fill =species)) +
 		facet_grid(vars(phylum), scales="free", space = "free")+
 		geom_col(colour='black', show.legend = FALSE)+
-		scale_fill_manual(values = pal)+
 		theme_classic() +
-		ylab("total kmer match") +
+		ylab("total read match") +
 		xlab("") +
 		coord_flip()+
 		theme(strip.text.y = element_text(size = 15, angle=0),
 				text = element_text(size=20))
-
-pdf("results/oral_diversity/oralDiv_bacteria.pdf", 15, 20)
 #options(scipen=10000)
+pdf("results/oral_diversity/oralDiv_bacteria.pdf", 15, 20)
 print(g)
 invisible(dev.off())
 
@@ -233,28 +172,21 @@ data_head_virus <- df_species_virus %>%
 					head(ceiling(eff_species_virus))
 
 pal <- wes_palette("Darjeeling1", nrow(data_head_virus), type = "continuous")
-#pal <- c("#999999", "#E69F00", "#56B4E9", "#009E73", 
-#			"#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#000000")
 
-
-#log(tot_frag)
-p <- ggplot(data=data_head_virus, aes(x=name, y=tot_frag, fill =name)) +
+p <- ggplot(data=data_head_virus, aes(x=species, y=count, fill =species)) +
 		facet_grid(vars(phylum), scales="free", space = "free")+
 		geom_col(colour='black', show.legend = FALSE)+
 		scale_fill_manual(values = pal)+
 		theme_classic() +
-		ylab("total kmer match") +
+		ylab("total read match") +
 		xlab("") +
 		coord_flip()+
 		theme(strip.text.y = element_text(size = 15, angle=0),
 				text = element_text(size=20))
 
 pdf("results/oral_diversity/oralDiv_virus.pdf", 15, 20)
-#options(scipen=10000)
 print(p)
 invisible(dev.off())
-
-
 
 system("open -a Skim.app results/oral_diversity/oralDiv_bacteria.pdf")
 system("open -a Skim.app results/oral_diversity/oralDiv_virus.pdf")
@@ -266,17 +198,17 @@ system("open -a Skim.app results/oral_diversity/oralDiv_virus.pdf")
 # number of 
 	# plants, archea, fungi, virus
 
-unique(df_total$kingdom)
+#unique(df_total$kingdom)
 
 
-df_total %>%
-	mutate(domain_supking = 
-			ifelse(is.na(kingdom), name, as.character(kingdom))) %>%
-	dplyr::select(-kingdom) %>%
-	dplyr::select(name, domain_supking, phylum, class) %>%
-	unique() %>%
-	group_by(domain_supking) %>%
-	summarise(count=n()) #%>%
-	#write.table("sandbox/fungi_plant.txt", quote=FALSE, row.names = F)
+#df_total %>%
+#	mutate(domain_supking = 
+#			ifelse(is.na(kingdom), name, as.character(kingdom))) %>%
+#	dplyr::select(-kingdom) %>%
+#	dplyr::select(name, domain_supking, phylum, class) %>%
+#	unique() %>%
+#	group_by(domain_supking) %>%
+#	summarise(count=n()) #%>%
+#	#write.table("sandbox/fungi_plant.txt", quote=FALSE, row.names = F)
 
 

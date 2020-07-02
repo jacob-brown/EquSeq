@@ -23,4 +23,3 @@ python3 setup.py build_ext --inplace
 source activate myenv
 python pcangsd.py -h
 conda deactivate
-module load anaconda3/personal

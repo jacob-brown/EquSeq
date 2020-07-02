@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-15
-# Last Modified: 2020-06-26
+# Last Modified: 2020-06-30
 
 # Desc: 
 
@@ -22,22 +22,24 @@ args = commandArgs(trailingOnly=TRUE)
 
 makeInitials <- function(charVec) {
   #make.unique(
-  	vapply(strsplit(toupper(charVec), " "), 
+  	vret <- vapply(strsplit(toupper(charVec), " "), 
                      function(x) paste(substr(x, 1, 1), collapse = ""), 
-                     vector("character", 1L))#)
+                     	vector("character", 1L))#)
+  	vret[vret == "NA"] <- NA # correct NAs
+  	return(vret)
 }
 
 ###########################################
 ######### Input(s) and Parameters #########
 ###########################################
 vcffile <- as.character(args[1])
+#vcffile <- as.character("snps.rename.vcf")
 runName <- system(sprintf("bcftools query -l %s", vcffile), intern = T)
 info <- read.csv("../data/cleaned_data/info_all.csv")
 
 ###########################################
 ############### Wraggling #################
 ###########################################
-
 
 #runName <- apply(files, 1, base)
 runDf <- data.frame(index = seq(1,length(runName)), name = runName)
@@ -64,20 +66,21 @@ df_all <- run_join %>%
 				arrange(index)
 
 
+#####
+# further improve cluster names
+# make appreviations
+#df_all$sub_group <- makeInitials(df_all$sub_group)
+
 df_all$sub_group <- as.character(df_all$sub_group)
 
 # add benson
 df_all[is.na(df_all$sub_group),]$sub_group <- "BENSON"
+
 # correct some of the cluster names
 df_all$sub_group <- gsub("\\(>50%Quarter)","50Quarter", gsub(" ", "", df_all$sub_group))
-#df_all$sub_group <- gsub(" \\(>50% Quarter)","", df_all$sub_group)
 
-
-# make appreviations
-#apprev <- makeInitials(df_all$sub_group)
 
 # create and write table
-
 df_all$name <- as.character(df_all$name)
 
 table <- cbind(df_all$name, df_all$name, df_all$sub_group)
