@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-11
-# Last Modified: 2020-06-25
+# Last Modified: 2020-07-07
 
 # Desc: 
 
@@ -23,7 +23,6 @@ require(dplyr)
 ######### Input(s) and Parameters #########
 ###########################################
 
-#files <- read.table("data/ancestry/bam.list.gbie")
 files <- read.table("data/ancestry/bam.list")
 info <- read.csv("data/cleaned_data/info_all.csv")
 
@@ -79,8 +78,12 @@ len <- length(run_join$sub_group)
 
 table <- cbind(run_join$index,rep(1,len), run_join$sub_group)
 colnames(table) <- c("IID","FID","CLUSTER")
+df <- data.frame(table)
+df$IID <- as.numeric(as.character(df$IID))
+df <- df[order(df$IID),]
+
 # write table out
-write.table(table, row.names=F, sep="\t", file="results/ancestry/clusters", quote=F)
+write.table(df, row.names=F, sep="\t", file="results/ancestry/clusters", quote=F)
 
 #write.table(table, row.names=F, sep="\t", col.names=c("FID","IID","CLUSTER"), file="results/ancestry/test.clst", quote=F)
 

@@ -129,7 +129,7 @@ function pca(){
 	# default -minMaf 0.05
  	python $PCANGSD -beagle $BEAGLE_FILE  \
 					-o $ANC_DIR/ALL.PCA -threads 4 \
-					-minMaf 0.02 -inbreed 1  -sites_save
+					-minMaf 0.02 -inbreed 1 -sites_save
 
 	conda deactivate # issues with install
 }
@@ -142,14 +142,14 @@ function admix(){
 
 	# default -minMaf 0.05
 	BEAGLE_FILE=$1
-	K_ARRAY=(2 3 4 5 6 7 8 9 10 11) 
+	K_ARRAY=(2 3 4 5 6) 
 
 	for K in "${K_ARRAY[@]}"; do
 
 		$NGSADMIX -likes $BEAGLE_FILE -K $K\
 			-outfiles $ANC_DIR/ALL.MIX.K$K -P 4 -minMaf 0.02 -seed 212
 	done
-	#$NGSADMIX -likes ALL.merged.beagle.gz -K 3 -minMaf 0.02 -outfiles ./ALL.MIX -P 4
+	
 
 }
 
@@ -158,7 +158,7 @@ function admix(){
 ############ Main ###########
 #############################
 
-while getopts "mq:g:c:p:a:" opt; do
+while getopts "mq:g:c:p:a:b:" opt; do
   case ${opt} in
   	m) # make bam list
 		makeBamList
@@ -169,7 +169,7 @@ while getopts "mq:g:c:p:a:" opt; do
     g ) # genotype liklihoods - beagle
       	GLBeagle $OPTARG
       	;;
-    v ) # genotype liklihoods - bcf
+    b) # genotype liklihoods - bcf
       	GLVCF $OPTARG
       	;;
     c) # genotype calling
@@ -181,7 +181,7 @@ while getopts "mq:g:c:p:a:" opt; do
     a) #admixture
 		admix $OPTARG
     	;;
-    \? ) echo "Usage: cmd [-m] [-q] chrN [-g] chrN [-p]"
+    \? ) echo "Usage: cmd [-m] [-q] chrN [-g] chrN [-p] [-b]"
       ;;
   esac
 done

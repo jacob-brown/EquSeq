@@ -2,58 +2,80 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-15
-# Last Modified: 2020-07-01
+# Last Modified: 2020-07-08
 
 # Desc: plot treemix results
 
 
-args = commandArgs(trailingOnly=TRUE)
+args <- commandArgs(trailingOnly=TRUE)
 
 library(dplyr)
 library(ggplot2)
+library(stringr)
+
+source("dependancies/treemix-1.13/src/plotting_funcs.R")
+prefix <- "results/ancestry/treemix/no_jackknife/tree.out"
+dir_jack <- "results/ancestry/treemix/jackknife/"
+out <- "results/ancestry"
+
+#pop_order = "results/ancestry/treemix/poporder.dot"
+# poporder should use . not -
+#stem ="results/ancestry/treemix/no_jackknife/tree.out.5"
+
 
 ################################
 ### plot trees
-
-source("../dependancies/treemix-1.13/src/plotting_funcs.R")
-
 singleMig <- function(){
 	### single migrations ###
-	pdf("tree.pdf", 30, 15)
+	pdf("../tree.pdf", 30, 15)
+	prefix <- "results/ancestry/treemix/no_jackknife/tree.out.0"
 	par(mfrow=c(1,2))
-	plot_tree("tree.out.no", o = NA, cex = 1, disp = 0.003, plus = 0.01, flip = vector(), arrow = 0.05, scale = T, ybar = 0.1, mbar = T, plotmig = T, plotnames = T, xmin = 0, lwd = 1, font = 1)
-	plot_resid("tree.out.no", "poporder")
+	plot_tree(prefix, o = NA, cex = 1, disp = 0.003, plus = 0.00001, flip = vector(), arrow = 0.05, scale = T, ybar = 0.1, mbar = T, plotmig = T, plotnames = T, xmin = 0, lwd = 1, font = 1)
+	plot_resid("tree.out.0", "poporder")
 	dev.off()
-	system("open -a Skim.app tree.pdf")
+	system("open -a Skim.app ../tree.pdf")
 }
-singleMig()
+
 ############################
 ### multiple  migrations ###
-muliMig <- function(){
-	prefix="tree.out"
-	pdf("tree.pdf", 10, 8)
+muliMig <- function(prefix, out){
+	outtree <- paste0(out, "/tree.migr.pdf")
+	outres <- paste0(out, "/tree.residuals.pdf")
+	poporder <- paste0(out, "/treemix/poporder")
+
+	pdf(outtree, 10, 8)
 	par(mfrow=c(2,3))
 	for(edge in 0:5){
-	  plot_tree(cex=0.8,paste0(prefix,".",edge))
+	  # suppress function output
+	  invisible(capture.output(x <- 
+	  	plot_tree(paste0(prefix,".",edge), plus=0.0001, disp=0.00003, cex=0.8)
+	  	))
 	  title(paste(edge,"edges"))
 	}
 	dev.off()
-	system("open -a Skim.app tree.pdf")
+	system(paste0("open -a Skim.app ", outtree))
 
-	pdf("residuals.pdf", 20, 15)
+	pdf(outres, 20, 15)
 	par(mfrow=c(2,3), pin=c(4, 4))
 	for(edge in 0:5){
-	 plot_resid(stem=paste0(prefix,".",edge),pop_order="poporder")
+	 invisible(capture.output(x <- 
+	 	plot_resid(stem=paste0(prefix,".",edge),pop_order=poporder)
+	 	))
 	}
 	dev.off()
-	system("open -a Skim.app residuals.pdf")
+	system(paste0("open -a Skim.app ", outres))
 }
+#muliMig(prefix, out)
 ###################################
 ### check migration likelihoods ###
-migLike <- function(){
 
-	files <- list.files("out_treemix", pattern ="*.llik", full.names=T)
+
+migLike <- function(dir, out){
+	plotout <- paste0(out, "/tree.choose_m.pdf")
+
+	files <- list.files(dir, pattern ="*.llik", full.names=T)
 	df <- data.frame()
+
 	for(num in 1:length(files)){
 		if(length(readLines(file(files[num], "r"))) > 0){ # remove problem repeats
 			liketab <- read.table(files[num], sep = ":")
@@ -68,28 +90,66 @@ migLike <- function(){
 	df_exit$migrations <- as.factor(gsub("\\D", "", df_exit$output))
 
 	### anova ###
-	head(df_exit)
+
+	#head(df_exit)
 	summary(df_exit)
 	mod <- aov(likelihood~migrations, df_exit)
 	summary(mod)
 	TukeyHSD(mod)
 
 	# for repeats
-	pdf("choose_m.pdf", 10, 5)
+	pdf(plotout, 10, 5)
 	par(mfrow=c(1,2))
 	boxplot(likelihood~migrations, df_exit)
 	plot(TukeyHSD(mod), cex=0.1, las=1)
 	dev.off()
-	system("open -a Skim.app choose_m.pdf")
+	system(paste0("open -a Skim.app ", plotout))
 
 }
 
+
+#migLike(migLike, out)
+
+################################
+### Variance per migration
+variance <- function(prefix){
+	df <- data.frame()
+	for(i in 0:5){
+		stem <- paste0(prefix, ".", i)
+		df <- rbind(df, c(i, get_f(stem)))
+	}
+	colnames(df) <- c("migration", "variance")
+	return(df)
+}
+################################
+### Investigate p values for migration edges
+#dir_jack
+#if(F){
+#files <- list.files(dir_jack, pattern ="*.treeout.gz", full.names=T)
+#df_store <- data.frame()
+#for(i in 100:length(files)){
+#
+#mN <- as.factor(str_extract(files[i], pattern = "[0-9]+")) # migration N
+#lines <- readLines((gzfile(files[i])))
+#if(length(lines) > 2){
+#	migonly <- lines[3:length(lines)]
+#	print(migonly)
+#	}else{
+#		print("no mig")
+#	}
+#}
+#
+#colnames(df_store) <- c("edge_weight", "jack_weight", "jack_se", "pval", "migN")
+#head(df_store)
+#}
+
+
 ################################
 ### f3 stat interpretation
-f3 <- function(){
-
-	data <- read.delim("f3stat.txt", stringsAsFactors = FALSE)
-
+fileIn <- "results/ancestry/treemix/no_jackknife/f3stat.txt"
+plotout <- "results/ancestry/f3.pdf"
+f3 <- function(fileIn, plotout){
+	data <- read.delim(fileIn, stringsAsFactors = FALSE)
 	res <- list()
 	misc <- list()
 	for(i in 1:nrow(data)){
@@ -100,75 +160,51 @@ f3 <- function(){
 		}
 	}
 
-	#head(unlist(res))
-	#str = "BENSON;NativeMongolianChakouyiHorse,SwissWarmblood 0.00596735 0.00501543 1.1898" 
-	#unlist(strsplit(str, "\\;|\\,| "))
-
 	ls_res_split <- lapply(unlist(res), function(str) unlist(strsplit(str, "\\;|\\,| ")))
 	res_split <- data.frame(matrix(unlist(ls_res_split), nrow=length(ls_res_split), byrow=T))
-	#head(res_split)
-	colnames(res_split) <- c("a", "b", "c", "f3", "stderr", "zscore")
 
+	colnames(res_split) <- c("target", "source_1", "source_2", "f3", "stderr", "zscore")
+
+	cat("writing to flat table: results/ancestry/f3.all.csv")
+	write.csv(res_split, "results/ancestry/f3.all.csv", row.names = F)
+
+	res_benson <- res_split %>% 
+					filter(target=="BENSON") %>%
+					mutate(f3 = as.numeric(as.character(f3)))
+	write.csv(res_benson, "results/ancestry/f3.benson.csv", row.names = F)
+
+	
+	pdf(plotout, 10, 5)
+	boxplot(f3~source_1, res_benson)
+	dev.off()
+	system(paste0("open -a Skim.app ", plotout))
 
 	# modified from: http://popgen.dk/popgen19/pass/slides/Session7_F-stats%20tutorial%20worksheet%20Thursday%20morning.html
 	p <- res_split %>%
-			filter(b=="BENSON") %>%
+			filter(target=="BENSON") %>%
 	    	mutate(is_significant=zscore <-3) %>%
 	    	ggplot(aes(x=a, y=f3, ymin=f3-3*stderr, ymax = f3+3*stderr, color=is_significant)) +
 	    	geom_point() + geom_errorbar() + geom_hline(yintercept = 0)
 
-	pdf("f3stat.pdf", 15, 15)
+	pdf(plotout, 15, 15)
 	print(p)
 	dev.off()
-	system("open -a Skim.app f3stat.pdf")
+	system(paste0("open -a Skim.app ", plotout))
 
 
 }
-
+#f3(fileIn, plotout)
 ############################
+########## Main ############
 
 if(args[1] == "s"){
 	singleMig() # single population 
 }else if(args[1] == "m"){
-	muliMig() # multiple migrations 
+	muliMig(prefix, out) # multiple migrations 
 }else if(args[1] == "l"){
-	migLike() # migration liklihood	
+	migLike(dir_jack, out) # migration liklihood	
 }else if(args[1] == "f"){
 	f3() # f3 stats
 }
 
 
-
-
-########
-# ape plotting testing
-# cp tree.out.no.treeout.gz tree.ape.gz
-# gunzip tree.ape.gz
-if(F){
-
-require(ape)
-
-tree <- read.tree(gzfile("tree.out.no.treeout.gz"))
-#tree$edge <- read.table(gzfile("tree.out.no.edges.gz"), as.is  = T, comment.char = "", quote = "")
-
-
-pdf("ape.pdf", 15, 15)
-plot(tree)
-dev.off()
-system("open -a Skim.app ape.pdf")
-
-install.packages("phyloseq")
-
-require(popcorn)
-source("../scripts/popcorn_treemix.R")
-tree <- read_treemix("tree.out.no")
-pdf("pop.pdf", 15, 15)
-p <- plot_treemix(tree) + theme_treemix()
-print(p)
-dev.off()
-system("open -a Skim.app pop.pdf")
-
-
-
-
-}

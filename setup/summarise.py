@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-01-22
-# Last Modified: 2020-04-17
+# Last Modified: 2020-07-08
 
 
 
@@ -181,6 +181,25 @@ for pid in prj_ID:
 ### re-add the header ###
 select_list = [i.replace(' ','_') for i in select_list] # replace spaces
 store.insert(0, select_list) # header to store
+
+
+
+
+### correct names of a few of the clusters ###
+
+# index and order is important for the two lists below
+to_replace = ["Koninklijk Warmbloed Paard Nederland", "Vollblut - female", "American Paint Horse", "Arabian Horse", "Connemara", "Deutsches Reitpony", "Mangalarga Marchador Horse", "Native Mongolian Chakouyi Horse", "duelmener"]
+
+replace_with = ["Dutch Warmblood","Thoroughbred","American Paint","Arabian","Connemara Pony","German Riding Pony","Mangalarga Marchador","Mongolian","Dulmen pony"]
+
+print("converting problem names")
+for num, elem in enumerate(store):
+	
+	if elem[4] in to_replace:
+		ibreed = to_replace.index(elem[4])
+		newbreed = replace_with[ibreed]
+		print(elem[4] + " to " + newbreed)
+		store[num][4] = newbreed
 
 
 ### save to csv ###

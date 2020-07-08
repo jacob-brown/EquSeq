@@ -2,11 +2,11 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-11
-# Last Modified: 2020-06-26
+# Last Modified: 2020-07-08
 
 # Desc: 
 
-# Rscript scripts/plotAdmix.R -i results/ancestry/ALL.MIX.qopt -o  results/ancestry/ALL.MIX.pdf &> /dev/null
+# matteos: Rscript scripts/plotAdmix.R -i results/ancestry/ALL.MIX.qopt -o  results/ancestry/ALL.MIX.pdf &> /dev/null
 
 ###########################################
 ################# Modules #################
@@ -51,23 +51,38 @@ idOrder <- function(fileIn){
 }
 
 
-admixture <- function(fileIn, orderIndex){
+admixtureV1 <- function(fileIn, orderIndex){
 
 	file_read_in <- read.table(fileIn)
 
 	### sort by order, then row ###
 		# corrects random order of population assignment
-	file_ls <- file_read_in[order(match(rownames(file_read_in), orderIndex)),]
+	file <- file_read_in[order(match(rownames(file_read_in), orderIndex)),]
+	# transform
+	colnames(file) <- seq(1, ncol(file))
+	admix <- utils::stack(file)
+	admix <- cbind(admix, IID = rep(1:nrow(file)))
 
-	# row - source as reference 
-	#ref_trans <- t(file_ls[10,])
-	####### CHANGE HERE file_ls[10,] ########
-	#ref_df <- data.frame(ref_trans, rownames(ref_trans))
-	#colnames(ref_df) <- c("value", "pop")
-	#ref_order <- arrange(ref_df, desc(value))
-	#col_order <- as.vector(ref_order$pop)
-	#file <- file_ls[, col_order]
-	file <- file_ls
+	K <- length(unique(admix$ind)) # nrow(admix)
+	#if (K > 8) stop("Maximum number of colours for admixture proportions is 8.")
+
+	# annotate with clusters
+	pop <- read.table(clusters, header = TRUE, sep="\t")
+	admix_pop <- left_join(admix, pop, by=c("IID"))
+	admix_pop <- cbind(admix_pop, K=K)
+	
+	return(admix_pop)
+
+
+}
+
+admixture <- function(fileIn, orderIndex){
+
+	file_read_in <- read.table(fileIn)
+	file <- file_read_in
+	### sort by order, then row ###
+		# corrects random order of population assignment
+	#file <- file_read_in[order(match(rownames(file_read_in), orderIndex)),]
 	# transform
 	colnames(file) <- seq(1, ncol(file))
 	admix <- utils::stack(file)
@@ -87,14 +102,13 @@ admixture <- function(fileIn, orderIndex){
 }
 
 
-
-
 ###########################################
 ######### Input(s) and Parameters #########
 ###########################################
 
-#DIR <- "results/ancestry/eu_more_wg_5kb_05maf/"
-DIR <- "results/ancestry/all_test/"
+maxAnc <- 6
+
+DIR <- "results/ancestry/ALL_5kb_02maf/"
 files <- list.files(DIR, full.names=T)
 out <- "results/ancestry/ALL.MIX.pdf"
 clusters <- "results/ancestry/clusters"
@@ -113,22 +127,21 @@ cbPalettelrg <- c("#004949","#009292","#ff6db6","#ffb6db",
 
 # select the files
 files_to_use <- subset(files, file_ext(files) == "qopt")
+files_to_use <- str_sort(files_to_use, numeric = TRUE) # natural sort
+files_to_use <- files_to_use[1:maxAnc-1]
+
 
 # one log file for sites used
-logs <- subset(files, file_ext(files) == "log")[1]
+logs <- subset(files, file_ext(files) == "log")[3]
 d <- read.table(logs, sep="\n")
 sites <- strsplit(as.character(d[6,]), " ")[[1]][7]
 maf <- strsplit(as.character(d[4,]), " ")[[1]][3]
 title <- paste(sites, " ", maf)
 
-#files_to_use <- files_to_use[files_to_use != paste0(DIR,"/ALL.MIX.K10.qopt") &
-#files_to_use != paste0(DIR,"/ALL.MIX.K11.qopt")][1:5]
 
-
-i <- 0
 store_admix <- 0
 orderIndex <- idOrder(files_to_use[2])
-orderIndex <- seq(1,length(orderIndex))
+#orderIndex <- seq(1,length(orderIndex))
 for(i in seq_along(files_to_use)){
 	
 	# retrieve order on first iter
@@ -152,14 +165,6 @@ breeds <- filter(store_admix, K==2)$CLUSTER
 breed_order <- breeds[orderIndex]
 store_admix$IID <- factor(store_admix$IID, levels=orderIndex)
 
-# plots differ in the groups assigned
-
-#cbPalette <- brewer.pal(K, "Paired")
-#cbPalette <- brewer.pal(K, "BrBG")
-#admixture(files_to_use[6], orderIndex) %>% filter(CLUSTER == "BENSON")
-
-#cbPalette[1:5]
-#cbPalette <- sample(cbPalette, length(cbPalette))
 
 # rename
 names <- colnames(store_admix)
@@ -189,12 +194,15 @@ for(i in 1:nrow(tmp)){
 
 k_levels <- str_sort(unique(store_admix$K), numeric = TRUE)
 store_admix$K <- factor(store_admix$K, levels = k_levels)
+clst_lvls <- as.character(unique(store_admix$CLUSTER))
+#store_admix$CLUSTER <- factor(store_admix$CLUSTER, levels = clst_lvls)
+
 
 ### plot ####
 g <- ggplot(store_admix, aes(fill=pop, y=values, x=IID, label=pop))+
 		facet_grid(rows = vars(store_admix$K))+
 		geom_bar(position=position_stack(reverse = TRUE), stat="identity")+
-		scale_fill_manual(values = cbPalettelrg) +
+		#scale_fill_manual(values = cbPalettelrg) +
 		scale_x_discrete(labels=breed_order)+
 		theme_classic()+
 		xlab("")+
@@ -208,7 +216,7 @@ g <- ggplot(store_admix, aes(fill=pop, y=values, x=IID, label=pop))+
 				strip.text.y = element_text(size = 4, angle=0),
 				strip.background=element_blank()
         		)
-pdf(file=out, 20, 6)
+pdf(file=out, 20, 20)
 print(g)
 invisible(dev.off())
 

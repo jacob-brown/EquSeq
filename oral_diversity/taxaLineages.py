@@ -9,7 +9,16 @@
 
 """ Generate ncbi taxa dataframe from Kraken2 reports and taxonkit  """
 
-# python3 oral_diversity/taxaLineages.py -p results/oral_diversity/stats/stat.pass.csv -f results/oral_diversity/stats/stat.fail.csv -o results/oral_diversity/
+### merge summary stat files ###
+# pass 
+#python3 oral_diversity/taxaLineages.py -c merge -d results/oral_diversity/stats/ -o results/oral_diversity/stat.all.pass -t pass
+
+# fail
+#python3 oral_diversity/taxaLineages.py -c merge -d results/oral_diversity/stats/ -o results/oral_diversity/stat.all.fail -t fail
+
+
+### taxanomic lineages ###
+# python3 oral_diversity/taxaLineages.py -c taxa -p results/oral_diversity/stat.all.pass.csv -f results/oral_diversity/stat.all.fail.csv -o results/oral_diversity/ -t df
 
 
 ###########################################
@@ -23,6 +32,7 @@ import numpy as np
 import pandas as pd
 import argparse
 import csv
+from scipy import ndimage
 
 ###########################################
 ################# Options #################
@@ -31,27 +41,37 @@ import csv
 parser = argparse.ArgumentParser(description=\
 		'Generate ncbi taxa dataframe from summary stat files.')
 
+choose = ["taxa", "merge"]
+
+parser.add_argument("-c", "--command", dest="command", type=str,
+					required=True, choices=choose, 
+					help="choice function. taxa lineages or merge stats files.")
+
 # directory to kraken2 reports
 #parser.add_argument("-d", "--dirIn", dest="dirin", type=str,
 #					required=True, help="directory to kraken files")
 
 # pass stats file in
 parser.add_argument("-p", "--passIn", dest="pin", type=str,
-					required=True, help="pass stat file")
+					required=False, help="pass stat file")
 
 # fail stats file in
 parser.add_argument("-f", "--failIn", dest="fin", type=str,
-					required=True, help="fail stat file")
+					required=False, help="fail stat file")
 
 #  output directory
 parser.add_argument("-o", "--out", dest="outdir", type=str,
                   required=False, default="./", help="directory of output files")
 
-#  output directory
+#  format: taxa lineages (df or l), merging (pass or fail)
 parser.add_argument("-t", "--format", dest="format", type=str,
-                  required=False, default="df", \
-                  help="""df: output tab-deliminated dataframe; 
-                  			l: one line list of lineage""")
+                  required=False, \
+                  help=""" for lineages...df: output tab-deliminated dataframe and l: one line list of lineage; for merging pass or fail """)
+
+# stats files dir - merging
+parser.add_argument("-d", "--statsDir", dest="dirstat", type=str,
+					required=False, help="stats file directory")
+
 
 # define args
 args = parser.parse_args()
@@ -59,6 +79,65 @@ args = parser.parse_args()
 ###########################################
 ############## Function(s) ################
 ###########################################
+
+def open_csv(file):
+	
+	""" open a csv into a list format """
+
+	tmp = [] # initialise the list
+	with open(file, 'r') as f:
+		reader = csv.reader(f)
+		for row in reader:
+			tmp.append(row) # add row to list
+
+	return tmp
+
+# write csv
+def write_csv(list_file, path):
+	
+	""" Write list to csv """
+
+	with open(path, 'w') as f:
+		writer = csv.writer(f, delimiter=',')
+		for i in list_file:
+			if isinstance(i, list):
+				writer.writerow(i) # multi-column
+			else:
+				writer.writerow([i]) # single column
+
+def groupBy(nestedList):
+	
+	""" group by within a nested list 
+		index 0 key, index 1 value """
+
+	# group by
+	data = np.array([int(i[1]) for i in nestedList])
+	groups = np.array([i[0] for i in nestedList])
+	groups_un = np.unique(groups)
+	sums = ndimage.sum(data, groups, groups_un)
+
+	# create list and save
+	store = []
+	for i in range(0,len(sums)):
+		store.append([groups_un[i], int(sums[i])])
+
+	return store
+
+def mergeStats(path, passfail, out):
+	
+	# which files to compute
+	all_files = os.listdir(path)
+	files = [path + i for i in all_files if passfail in i]
+
+	# open into single level lists
+	data = []
+	for fil in files:
+		data = data + open_csv(fil)
+
+	gb = groupBy(data)
+	write_csv(gb, out+".csv")
+
+
 
 ### get lineage of taxa - based pass/fail stats files ###
 def taxLineage(statPass, statFail, dirOut, outFormat):
@@ -203,14 +282,18 @@ def taxLineageKR(dirIn, dirOut, outFormat):
 ################# main ####################
 ###########################################
 
+if args.command == "merge":
+	# merging stats
+	mergeStats(path=args.dirstat, passfail=args.format, out=args.outdir)
+elif args.command == "taxa":
+	# lineage data
+	taxLineage(statPass=args.pin, statFail=args.fin, dirOut=args.outdir, outFormat=args.format)
+else:
+	print("unknown command")
 
 
-# lineage data
 
-taxLineage(statPass=args.pin, statFail=args.fin, dirOut=args.outdir, outFormat=args.format)
 
+
+#### old
 #taxLineageKR(dirIn="results/oral_diversity/kraken_reports/", dirOut= "results/oral_diversity", outFormat="df")
-
-
-
-

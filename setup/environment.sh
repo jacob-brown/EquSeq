@@ -27,6 +27,7 @@ mkdir $EPHEMERAL/ancestry/qualityChecks
 mkdir $EPHEMERAL/ancestry/filtered_beagles
 mkdir $EPHEMERAL/ancestry/all_beagles
 mkdir $EPHEMERAL/ancestry/all_bcf
+mkdir $EPHEMERAL/ancestry/treemix
 
 # gene to trait data store
 mkdir $EPHEMERAL/gene_to_trait/

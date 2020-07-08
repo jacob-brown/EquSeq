@@ -20,7 +20,7 @@ data/oral_diversity/taxonkit_misc
 checkEphemeral.py
 checkEphemeral.sh
 align2.sh
-copy.sh
+#copy.sh
 dependancies/
 data/gene_variants/annotate
 rm_*

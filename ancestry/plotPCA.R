@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-05
-# Last Modified: 2020-06-26
+# Last Modified: 2020-07-07
 
 # Desc: generate a table of names for running the pcangsd script
 
@@ -26,13 +26,19 @@ require(RColorBrewer)
 ######### Input(s) and Parameters #########
 ###########################################
 
-MAF <- "0.05"
-#covIN <- "results/ancestry/eu_more_wg_5kb_05maf/ALL.PCA.cov"
-#sitesIN <- "results/ancestry/eu_more_wg_5kb_05maf/ALL.PCA.sites"
-covIN <- "results/ancestry/all_test/ALL.PCA.cov"
-sitesIN <- "results/ancestry/all_test/ALL.PCA.sites"
+przewalski <- T
+
+MAF <- "0.02"
+covIN <- "results/ancestry/ALL_5kb_02maf/ALL.PCA.cov"
+sitesIN <- "results/ancestry/ALL_5kb_02maf/ALL.PCA.sites"
 out <- "results/ancestry/ALL.PCA.pdf"
 
+## below is for dataset with no prw horses
+if(przewalski){
+	covIN <- "results/ancestry/NO_PREZ_5kb_02maf/NO.PRZ.PCA.cov"
+	sitesIN <- "results/ancestry/NO_PREZ_5kb_02maf/NO.PRZ.PCA.sites"
+	out <- "results/ancestry/NO.PRZ.PCA.pdf"
+}
 ###########################################
 ############### Wraggling #################
 ###########################################
@@ -45,12 +51,6 @@ title_append <- paste("nsites=", nSites, " ", "minMaf=", MAF)
 ################## Plot ###################
 ###########################################
 
-#cov <- as.matrix(read.table("results/ancestry/test.cov"))
-#e <- eigen(cov)
-#
-#
-#plot(e$vectors[,1:2], col=ID$CLUSTER)
-#legend("topleft",fill=1:4,levels(ID$CLUSTER))
 
 ###### run PCA script ########
 	# Modified Matteo's plotPCA.R 
@@ -62,6 +62,9 @@ title_append <- paste("nsites=", nSites, " ", "minMaf=", MAF)
 #system(com)
 cbPalette <- c("#000000", "#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
+cbPalettelrg <- c("#004949","#009292","#ff6db6","#ffb6db",
+ 					"#490092","#006ddb","#b66dff","#6db6ff","#b6dbff",
+ 					"#920000","#924900","#db6d00","#24ff24","#ffff6d", "#000000")
 # Read input file
 covar <- read.table(covIN, stringsAsFact=F);
 
@@ -79,6 +82,14 @@ cat(signif(eig$val, digits=3)*100,"\n");
 # Plot
 PC <- as.data.frame(eig$vectors)
 colnames(PC) <- gsub("V", "PC", colnames(PC))
+
+#####
+# remove przewalski? - testing a different PCA 
+if(covIN == "results/ancestry/NO_PREZ_5kb_02maf/NO.PRZ.PCA.cov"){
+	annot <- annot[(annot$CLUSTER != "Przewalski" & annot$CLUSTER != "Przewalski-hybrid"),]
+}
+
+# update cluster values
 PC$Pop <- factor(annot$CLUSTER)
 
 title <- paste("PC",comp[1]," (",signif(eig$val[comp[1]], digits=3)*100,"%)"," / PC",comp[2]," (",signif(eig$val[comp[2]], digits=3)*100,"%)",sep="",collapse="")
@@ -86,46 +97,39 @@ title <- paste("PC",comp[1]," (",signif(eig$val[comp[1]], digits=3)*100,"%)"," /
 x_axis = paste("PC",comp[1],sep="")
 y_axis = paste("PC",comp[2],sep="")
 
-### colour palette ###
-n <- length(unique(PC$Pop))
-col_vector <- c(brewer.pal(8, "Dark2"), brewer.pal(8, "Set2"), brewer.pal(12, "Paired"))
-col_vector <- unique(col_vector)
+popCount <- length(unique(PC$Pop))
 
-shapes <- c(0:n)# c(0:7, 15:18)
-
-# sort order and levels
-#poplv <- levels(PC$Pop)
-#levels(PC$Pop) <- c("BENSON", sort(poplv[poplv!="BENSON"]))
-#factor(PC$Pop, levels = c("BENSON", sort(poplv[poplv!="BENSON"])))
-#reorder(PC$Pop, new.order=c("BENSON", sort(poplv[poplv!="BENSON"])))
-
-#PC$PC1
-#PC$PC2
-g <- ggplot() + 
-		geom_point(data=PC, aes_string(x=x_axis, y=y_axis, color="Pop")) + 
+# ggrepel::geom_text_repel() + 
+# theme(legend.position = "none") 
+#geom_text(position=position_jitter(width=1,height=1)) + 
+g <- ggplot(data=PC, aes_string(x=x_axis, y=y_axis, color="Pop", label = "Pop")) + 
+		geom_text() + 
 		ggtitle(paste(title, title_append)) + 
 		theme_bw() +
-		guides(col = guide_legend(ncol = 2))
-		#scale_colour_manual(values = col_vector)+
-		#scale_shape_manual(values =shapes) + 
-		#theme(legend.position=c(1,1), 
-		#	legend.justification=c(1,1))
+		scale_colour_manual(values = rep(cbPalette, len = popCount))+
+		theme(legend.position = "none") 
+		#guides(col = guide_legend(ncol = 2))
 
-
-#g <- ggplot() + 
-#		geom_point(data=PC, aes_string(x=x_axis, y=y_axis, shape="Pop", color="Pop")) + 
-#		ggtitle(paste(title, title_append)) + 
-#		theme_bw() #+
-#		scale_colour_manual(values = col_vector)+
-#		scale_shape_manual(values =shapes) + 
-#		#theme(legend.position=c(1,1), 
-#		#	legend.justification=c(1,1))
-
-pdf(file=out, 15, 7)
+pdf(file=paste0(out,".txt.pdf"), 15, 15)
 print(g)
 invisible(dev.off())
 
+p <- ggplot(data=PC, aes_string(x=x_axis, y=y_axis, color="Pop", shape = "Pop")) + 
+		geom_point(size = 3) + 
+		ggtitle(paste(title, title_append)) + 
+		theme_bw() +
+		scale_shape_manual(values = rep(0:18, len = popCount)) + 
+		scale_colour_manual(values = rep(cbPalette, len = popCount))+
+		guides(col = guide_legend(ncol = 2))+
+		theme(legend.position="bottom")
 
+pdf(file=out, 15, 15)
+print(p)
+invisible(dev.off())
+
+
+system(paste0("open -a Skim.app ", out,".txt.pdf"))
+system(paste0("open -a Skim.app ", out))
 
 
 

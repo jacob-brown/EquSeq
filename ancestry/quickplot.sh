@@ -3,7 +3,6 @@ while getopts "pak" opt; do
   case ${opt} in
   	p) # pca
 		Rscript ancestry/plotPCA.R
-		open -a Skim.app results/ancestry/ALL.PCA.pdf
 		;;
     a) # admixture
        	Rscript ancestry/plotAdmix.R 

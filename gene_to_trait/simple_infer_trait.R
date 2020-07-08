@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-29
-# Last Modified: 2020-06-30
+# Last Modified: 2020-07-03
 
 # Desc: 
 
@@ -26,13 +26,13 @@ require(pdftools)
 
 df = read.csv("results/gene_to_trait/beaglesub.csv")
 pop <- read.table("results/ancestry/clusters", header = TRUE, sep="\t")
-pop$ind <- paste0("Ind", seq(1:nrow(pop))-1)
+pop$ind <- paste0("Ind", pop$IID-1)
 
 cols <-  colnames(df)
 col_inds <- cols[8:length(cols)]
 col_info <- cols[2:7]
 cbbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#000000")
-
+borderCols <- c("white", "#56B4E9", "#009E73", "#E69F00", "#0072B2", "#D55E00", "#CC79A7","#F0E442", "#000000")# c("white", "#f1a340", "#b2182b", "#01665e")
 ###########################################
 ############### Wraggling #################
 ###########################################
@@ -105,16 +105,24 @@ homo_min_df_piv <- tibble(homo_min_df) %>%
 					left_join(pop, by="ind")
 
 
-
-
+homo_min_df_piv%>%
+filter(CLUSTER=="BENSON") %>%
+select(ind)
+pop%>%
+filter(CLUSTER=="BENSON")
+homo_min_df_piv %>% filter(CLUSTER == "BENSON")
 #################
 ### homo major ###
 homo_maj_df <- cbind(data, df[homo_maj]) %>% 
 	select(-pres_homo_min, -pres_hetero)
 
 # convert to NA if varient is absent
-homo_maj_df[!homo_maj_df$pres_homo_maj,9:ncol(homo_maj_df)] <- 0
 
+##### SHOULD GL FOR ABSENT ALLELES...
+	# be assumed as 1 
+	# or should they be noted as NA
+	# or remain the same
+homo_maj_df[!homo_maj_df$pres_homo_maj,9:ncol(homo_maj_df)]# <- 0
 
 
 # ggplot heatmap
@@ -134,6 +142,8 @@ homo_maj_df_piv <- tibble(homo_maj_df) %>%
 	# and add clusters 
 data_all <- rbind(homo_maj_df_piv, homo_min_df_piv, hetero_df_piv)
 data_all$clust_ind <- paste0(data_all$CLUSTER, "_", data_all$ind)
+
+
 ###########################################
 ############### Analysis ##################
 ###########################################
@@ -241,12 +251,12 @@ draws <- ifelse(maj_logic + het_logic == 2, "het-maj",
 				ifelse(het_logic + min_logic == 2, "het-min",
 					ifelse(het_logic + maj_logic +  min_logic == 2, 
 							"het-min-maj", NA))))
+
 # determine clear winners
 types <- ifelse(!is.na(draws), draws,
 			ifelse(het_logic, "het",
 				ifelse(min_logic, "min",
 					ifelse(maj_logic, "maj", NA))))
-
 
 # condition matrix
 maj_cond <- (types == "maj" | 
@@ -265,6 +275,17 @@ vmat <- ifelse(maj_cond, homo_maj_mat,
 					NA)))
 
 
+# check position of absent alleles and corret types
+	# this will keep the GL, but highlight that the value it absent
+if(!unique(homo_maj_df$absent == homo_min_df$absent & 
+				hetero_df$absent == homo_min_df$absent)[1]){
+	stop("absent values are not the same, issues with df positioning.")
+}else{
+	types[homo_maj_df$absent, ] <- "absent"
+
+}
+
+
 # value  matrix to long df
 vdf <- as.data.frame(columnNameILike=row.names(vmat), vmat)
 vdf$marker_phen <- rownames(vdf)
@@ -281,25 +302,37 @@ tdf_long <- tibble(tdf) %>%
 				pivot_longer(cols = starts_with("Ind"), 
 					names_to = "ind", values_to = "type")
 
+##### ABSENT SHOULD BE SWITCHED AROUND HERE ####
+	# commented out below as 0 does no longer correspond to 0
 
 # join  
 tvdf <- left_join(tdf_long, vdf_long, by=c("marker_phen", "ind")) %>%
-			left_join(pop, by="ind") %>%
-			mutate(type = ifelse(GL == 0, "absent", as.character(type)))
+			left_join(pop, by="ind")# %>%
+			#mutate(type = ifelse(GL == 0, "absent", as.character(type)))
 
 tvdf$clust_ind <- paste0(tvdf$CLUSTER, "_", tvdf$ind)
+
+# levels
+clust_ind_levels <- sort(unique(tvdf$clust_ind))
+clust_ind_levels <- rev(c("BENSON_Ind171", clust_ind_levels[clust_ind_levels != "BENSON_Ind171"]))
+tvdf$clust_ind <- factor(tvdf$clust_ind, levels=clust_ind_levels)
+
+# make all min and maj labels homozygous
+tvdf$type <- as.character(tvdf$type)
+tvdf$type[tvdf$type %in% c("maj", "min", "min-maj")] <- "homo"
+tvdf$type[tvdf$type %in% c("het-min", "het-maj")] <- "het-hom"  
+
 
 #tvdf <- filter(tvdf, CLUSTER %in% c("BENSON", "Friesian dwarf", "Standardbred", "Akhal-Teke"))
 #filter(tvdf, CLUSTER == "BENSON") %>% data.frame()
 # plot and save
 g <- ggplot(tvdf, mapping = aes(marker_phen, clust_ind, fill = GL)) + 
   		geom_tile(aes(colour=type, width=0.8, height=0.85), size=0.7) +
-    	scale_fill_gradient(low="white", high="blue")+
+    	scale_fill_gradient(low="white", high="dark grey")+
     	coord_fixed()+
-    	scale_colour_manual(values=c("white",cbbPalette))+
+    	scale_colour_manual(values=c(borderCols))+
     	theme(axis.text.x = element_text(angle = 90, hjust=1, size=6))+
     	guides(color=guide_legend(override.aes=list(fill=NA)))
-    	
     	 
 ggsave(filename="results/gene_to_trait/heat.comb.pdf", 
 		plot=g, device ="pdf", width=10, height=30, units="in", dpi ="screen")

@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-15
-# Last Modified: 2020-06-30
+# Last Modified: 2020-07-07
 
 # Desc: 
 
@@ -35,7 +35,10 @@ makeInitials <- function(charVec) {
 vcffile <- as.character(args[1])
 #vcffile <- as.character("snps.rename.vcf")
 runName <- system(sprintf("bcftools query -l %s", vcffile), intern = T)
-info <- read.csv("../data/cleaned_data/info_all.csv")
+info <- read.csv(args[2])
+out <- args[3]
+#info <- read.csv("../data/cleaned_data/info_all.csv")
+#info <- read.csv("/rds/general/user/jb1919/home/genomics/EquSeq/data/cleaned_data/info_all.csv")
 
 ###########################################
 ############### Wraggling #################
@@ -85,7 +88,7 @@ df_all$name <- as.character(df_all$name)
 
 table <- cbind(df_all$name, df_all$name, df_all$sub_group)
 #table <- cbind(df_all$name,df_all$name, apprev)
-write.table(table, row.names=F, sep="\t", file="clusters.clst", quote=F, col.names=F)
+write.table(table, row.names=F, sep="\t", file=out, quote=F, col.names=F)
 
 
 

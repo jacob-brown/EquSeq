@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-22
-# Last Modified: 2020-06-30
+# Last Modified: 2020-07-03
 
 # Desc: 
 
@@ -13,8 +13,6 @@
 # heterozygous
 # homozygouse
 # not present
-
-
 
 ###########################################
 ################# Modules #################
@@ -89,7 +87,7 @@ tmp$type <- as.character(NA)
 tmp$value <- as.numeric(NA)
 
 # determine highest value category and value
-print("determining genotypes.")
+cat("determining genotypes.")
 for(i in 1:nrow(tmp)){
 	
 	elem <- tmp[i,]

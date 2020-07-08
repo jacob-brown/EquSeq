@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-09
-# Last Modified: 2020-06-26
+# Last Modified: 2020-07-08
 
 # Desc: Validate K for admixture analysis
 
@@ -10,8 +10,7 @@
 ######### Input(s) and Parameters #########
 ###########################################
 
-#location <- "results/ancestry/eu_wg_5kb_02maf/"
-location <- "results/ancestry/all_test/"
+location <- "results/ancestry/ALL_5kb_02maf"
 command <- paste("sh ancestry/validate_K.sh ", location)
 system(command)
 logs <- as.data.frame(read.table(paste0(location, "/logfile.merge")))

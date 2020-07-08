@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-04-14
-# Last Modified: 2020-06-26
+# Last Modified: 2020-07-02
 
 
 
@@ -86,3 +86,22 @@ def subProWrap(command, returnList=True):
 		files = out_string.replace("\t", ":").split("\n")
 		files.remove("")
 		return files
+
+
+def groupBy(nestedList):
+	
+	""" group by within a nested list 
+		index 0 key, index 1 value """
+
+	# group by
+	data = np.array([int(i[1]) for i in nestedList])
+	groups = np.array([i[0] for i in nestedList])
+	groups_un = np.unique(groups)
+	sums = sc.ndimage.sum(data, groups, groups_un)
+
+	# create list and save
+	store = []
+	for i in range(0,len(sums)):
+		store.append([groups_un[i], sums[i]])
+
+	return store
