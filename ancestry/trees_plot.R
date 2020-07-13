@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-15
-# Last Modified: 2020-07-08
+# Last Modified: 2020-07-13
 
 # Desc: plot treemix results
 
@@ -14,9 +14,10 @@ library(ggplot2)
 library(stringr)
 
 source("dependancies/treemix-1.13/src/plotting_funcs.R")
-prefix <- "results/ancestry/treemix/no_jackknife/tree.out"
-dir_jack <- "results/ancestry/treemix/jackknife/"
-out <- "results/ancestry"
+#prefix <- "results/ancestry/treemix/no_jackknife/tree.out"
+#prefix <- "results/ancestry/treemix/no_jackknife/tree.benson.out"
+#dir_jack <- "results/ancestry/treemix/jackknife/"
+out <- "results/ancestry/"
 
 #pop_order = "results/ancestry/treemix/poporder.dot"
 # poporder should use . not -
@@ -25,15 +26,24 @@ out <- "results/ancestry"
 
 ################################
 ### plot trees
-singleMig <- function(){
+singleMig <- function(out){
+	
+	prefix <- "results/ancestry/treemix/tree.out.0"
+	outtree <- paste0(out, "/tree.pdf")
+	poporder <- paste0(out, "/treemix/poporder")
+
 	### single migrations ###
-	pdf("../tree.pdf", 30, 15)
-	prefix <- "results/ancestry/treemix/no_jackknife/tree.out.0"
+	pdf(outtree, 30, 15)
+	options(scipen=5)
 	par(mfrow=c(1,2))
-	plot_tree(prefix, o = NA, cex = 1, disp = 0.003, plus = 0.00001, flip = vector(), arrow = 0.05, scale = T, ybar = 0.1, mbar = T, plotmig = T, plotnames = T, xmin = 0, lwd = 1, font = 1)
-	plot_resid("tree.out.0", "poporder")
+	 invisible(capture.output(x <- 
+	  	plot_tree(prefix, plus=0.0001, disp=0.00003, cex=0.8)
+	  	))
+	invisible(capture.output(x <- 
+		plot_resid(prefix, poporder)
+		))
 	dev.off()
-	system("open -a Skim.app ../tree.pdf")
+	#system(paste0("open -a Skim.app ", outtree))
 }
 
 ############################
@@ -43,8 +53,9 @@ muliMig <- function(prefix, out){
 	outres <- paste0(out, "/tree.residuals.pdf")
 	poporder <- paste0(out, "/treemix/poporder")
 
-	pdf(outtree, 10, 8)
+	pdf(outtree, 20, 15)
 	par(mfrow=c(2,3))
+	options(scipen=5)
 	for(edge in 0:5){
 	  # suppress function output
 	  invisible(capture.output(x <- 
@@ -68,7 +79,6 @@ muliMig <- function(prefix, out){
 #muliMig(prefix, out)
 ###################################
 ### check migration likelihoods ###
-
 
 migLike <- function(dir, out){
 	plotout <- paste0(out, "/tree.choose_m.pdf")
@@ -146,8 +156,7 @@ variance <- function(prefix){
 
 ################################
 ### f3 stat interpretation
-fileIn <- "results/ancestry/treemix/no_jackknife/f3stat.txt"
-plotout <- "results/ancestry/f3.pdf"
+
 f3 <- function(fileIn, plotout){
 	data <- read.delim(fileIn, stringsAsFactors = FALSE)
 	res <- list()
@@ -180,16 +189,16 @@ f3 <- function(fileIn, plotout){
 	system(paste0("open -a Skim.app ", plotout))
 
 	# modified from: http://popgen.dk/popgen19/pass/slides/Session7_F-stats%20tutorial%20worksheet%20Thursday%20morning.html
-	p <- res_split %>%
-			filter(target=="BENSON") %>%
-	    	mutate(is_significant=zscore <-3) %>%
-	    	ggplot(aes(x=a, y=f3, ymin=f3-3*stderr, ymax = f3+3*stderr, color=is_significant)) +
-	    	geom_point() + geom_errorbar() + geom_hline(yintercept = 0)
-
-	pdf(plotout, 15, 15)
-	print(p)
-	dev.off()
-	system(paste0("open -a Skim.app ", plotout))
+	#p <- res_split %>%
+	#		filter(target=="BENSON") %>%
+	#    	mutate(is_significant=zscore <-3) %>%
+	#    	ggplot(aes(x=a, y=f3, ymin=f3-3*stderr, ymax = f3+3*stderr, color=is_significant)) +
+	#    	geom_point() + geom_errorbar() + geom_hline(yintercept = 0)
+#
+#	#pdf(plotout, 15, 15)
+#	#print(p)
+#	#dev.off()
+	#system(paste0("open -a Skim.app ", plotout))
 
 
 }
@@ -198,13 +207,16 @@ f3 <- function(fileIn, plotout){
 ########## Main ############
 
 if(args[1] == "s"){
-	singleMig() # single population 
+	singleMig(out) # single population 
 }else if(args[1] == "m"){
 	muliMig(prefix, out) # multiple migrations 
 }else if(args[1] == "l"){
 	migLike(dir_jack, out) # migration liklihood	
 }else if(args[1] == "f"){
-	f3() # f3 stats
+	f3(fileIn = "results/ancestry/fstat/f3stat.txt", 
+		plotout = "results/ancestry/f3.pdf") # f3 stats
+}else if(args[1] == "v"){
+	variance(prefix)
 }
 
 

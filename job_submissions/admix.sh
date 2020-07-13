@@ -2,7 +2,7 @@
 #PBS -l walltime=12:00:00
 #PBS -l select=1:ncpus=5:mem=5gb
 
-# qsub -J 2-20 pca_admix.sh 
+# qsub -J 1-20 pca_admix.sh 
 
 CODE_DIR=$HOME/genomics/EquSeq/
 DIR=$EPHEMERAL/ancestry/
@@ -37,7 +37,7 @@ NGSADMIX=$EPHEMERAL/dependencies/angsd/misc/NGSadmix
 K=$PBS_ARRAY_INDEX
 
 $NGSADMIX -likes $DIR/ALL.merged.beagle.gz -K $K\
-			-outfiles $DIR/admix_05/ALL.MIX.K$K -P 4 -minMaf 0.05
+			-outfiles $DIR/admix_02/ALL.MIX.K$K -P 4 -minMaf 0.02
 
 
 # -minMaf 0.02

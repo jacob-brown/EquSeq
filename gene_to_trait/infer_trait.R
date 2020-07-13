@@ -1,25 +1,18 @@
 # -*- coding: utf-8 -*-
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
-# Date:   2020-06-22
-# Last Modified: 2020-07-03
+# Date:   2020-06-29
+# Last Modified: 2020-07-10
 
 # Desc: 
 
-
-# first run infer_traits.py
-
-# absent
-# heterozygous
-# homozygouse
-# not present
 
 ###########################################
 ################# Modules #################
 ###########################################
 
 require(tidyverse)
-require(ggplot2)
+#require(pdftools)
 
 ###########################################
 ############## Function(s) ################
@@ -31,141 +24,349 @@ require(ggplot2)
 ######### Input(s) and Parameters #########
 ###########################################
 
-#df = read.csv("results/gene_to_trait/variants_info.csv")
-df = read.csv("results/gene_to_trait/beaglesub.csv")
-cbbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#000000")
+df <- read.csv("results/gene_to_trait/genosub.csv")
+counts_df <- read.csv("results/gene_to_trait/markercount.csv")
+pop <- read.table("results/ancestry/clusters", header = TRUE, sep="\t")
+pop$ind <- paste0("Ind", pop$IID-1)
 
+cols <-  colnames(df)
+col_inds <- cols[8:length(cols)]
+col_info <- cols[2:7]
+cbbPalette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", 
+					"#0072B2", "#D55E00", "#CC79A7", "#000000")
+borderCols <- c("white", "#56B4E9", "#009E73", "#E69F00", "#0072B2", 
+					"#D55E00", "#CC79A7","#F0E442", "#000000")
 ###########################################
 ############### Wraggling #################
 ###########################################
 
-# filter(ind %in% c("Ind171", "Ind171.1", "Ind171.2")) %>% # REMOVE ME
-#ifelse(str_detect(ind, ".1"), "hetero", 
-#								ifelse(str_detect(ind, ".2"), "homo_min", 
-#									"homo_maj"))
-
-dft <- df %>%
-		dplyr::select(-X) %>%
-		pivot_longer(cols = starts_with("Ind"), 
-				names_to = "ind", values_to = "GL") %>% 
-		mutate(type = ifelse(str_sub(ind, start= -2) == ".1", "hetero", 
-								ifelse(str_sub(ind, start= -2) == ".2", "homo_min", 
-									"homo_maj")),
-				ind = gsub("\\..*","", ind),
-				row = row_number()) %>%
-		pivot_wider(names_from = type, values_from = GL) %>%
-		replace(is.na(.), 0) %>%
-		group_by(marker, phen, ref, new, 
-					allele1, allele2, ind) %>%
-		summarise(homo_maj = sum(homo_maj),
-					homo_min = sum(homo_min),
-					hetero = sum(hetero)) 
-
-# dft %>% filter(ind == "ind28")
-# cat, val
-# absent, NA
-# homo, GL
-# hetero, GL
-
-# return the index of the maximum value
-	# draws return both
-maxValInd <- function(vec) return(which(max(vec) == vec))
-
-homhet <- c("homo_maj", "homo_min", "hetero")
-
-dft$new <- as.character(dft$new)
-dft$allele1 <- as.character(dft$allele1)
-dft$allele2 <- as.character(dft$allele2)
-
-tmp <- dft %>%
-			mutate(absent = ifelse(new == allele1, FALSE,
-								ifelse(new == allele2, FALSE, TRUE))) %>%
-			data.frame()
+# get columns
+hetero <- col_inds[str_sub(col_inds, start= -2) == ".1"]
+homo_min <- col_inds[str_sub(col_inds, start= -2) == ".2"]
+homo_maj <- col_inds[!(col_inds %in% homo_min | col_inds %in% hetero)]
 
 
-tmp$type <- as.character(NA)
-tmp$value <- as.numeric(NA)
+# prep the general data columns
+df$new <- as.character(df$new)
+df$allele1 <- as.character(df$allele1)
+df$allele2 <- as.character(df$allele2)
+df$marker <- as.character(df$marker)
+df$phen <- as.character(df$phen)
 
-# determine highest value category and value
-cat("determining genotypes.")
-for(i in 1:nrow(tmp)){
-	
-	elem <- tmp[i,]
-	type_select <- homhet[maxValInd(elem[homhet])]  # type
-	val_select <-  as.vector(elem[type_select][1,]) # GL value
-	if(length(type_select) > 1){
-		type_select <- "NN"
-		val_select <- as.numeric(NA)
-	}
-	# update
-	tmp[i,]$type <- type_select
-	tmp[i,]$value <- val_select 
-}
-
-# check if major or minor and compare to "new" trait allele
-tmp_logic <- tmp %>%
-				mutate(new_present = 
-					ifelse(absent, FALSE, # if not in pop at all
-						ifelse(type == "hetero", TRUE, # hetero must be present
-							ifelse(type == "homo_maj",  
-								ifelse(new == allele1, TRUE, FALSE), # major
-								ifelse(new == allele2, TRUE, FALSE)))), # minor 
-						value = ifelse((new_present | absent), value, as.numeric(NA)) # update the value
-						) %>%
-				mutate(category = 
-						ifelse(type == "NN", "ungenotyped", # ensure categorised first
-							ifelse(!new_present, NA, # absent 
-								ifelse(type == "hetero", "hetero", "homo"))),
-						value = ifelse(is.na(category), NA, value)
-						) # categories for plot
-
-
-
-tmp_logic$ind <- factor(tmp_logic$ind, levels = str_sort(unique(tmp_logic$ind), numeric = T))
-
-
-p <- ggplot(tmp_logic, mapping = aes(ind, paste(marker,phen), fill = category)) + 
-  		geom_tile() +
-  		geom_text(aes(label = round(value, 1))) +
-    	scale_fill_manual(values = cbbPalette, na.value="white")+
-    	theme(axis.text.x = element_text(angle = 90))
-
-
-pdf("results/gene_to_trait/heat.pdf", 30, 10)
-print(p)
-dev.off()
-system("open -a Skim.app results/gene_to_trait/heat.pdf")
+data <- tibble(df[col_info]) %>%
+			mutate(major = allele1,
+					minor = allele2,
+					absent = ifelse(new == major, FALSE,
+										ifelse(new == minor, FALSE, TRUE))) %>%
+			select(-ref, -allele1, -allele2) %>%
+			mutate(pres_hetero = ifelse(!absent, TRUE, FALSE),
+					pres_homo_min = ifelse(!absent & new == minor, TRUE, FALSE),
+					pres_homo_maj = ifelse(!absent & new == major, TRUE, FALSE),
+					phen_marker = paste0(phen, "_", marker))
 
 
 
 
-#write.csv(tmp_logic, "results/gene_to_trait/logic.csv")
+# seperate data
+
+##############
+### hetero ###
+hetero_df <- cbind(data, df[hetero]) %>% 
+		select(-pres_homo_min, -pres_homo_maj)
+
+# convert to NA if varient is absent
+hetero_df[!hetero_df$pres_hetero,9:ncol(hetero_df)] <- 0
 
 
-###########
 
-#tmp_logic %>% filter(ind =="Ind5") %>% data.frame() 
-#
-#
-#
-tmp_logic %>%
-	filter(ind =="Ind171") %>%
-	data.frame()
-#	
-#tmp_logic %>%
-#	filter(marker == "chr3_77739558" & ind =="Ind0")
-#
-#tmp_logic %>%
-#	filter(marker == "chr3_77739558") 
 
+# heatmap
+hetero_df_piv <- tibble(hetero_df) %>%
+					pivot_longer(cols = starts_with("Ind"), 
+								names_to = "ind", values_to = "GP")%>%
+					mutate(type = "hetero", 
+							ind = gsub(".1", "", ind, fixed = T))%>%
+					select(-pres_hetero) %>% 
+					left_join(pop, by="ind")
+
+
+#################
+### homo minor ###
+homo_min_df <- cbind(data, df[homo_min]) %>% 
+	select(-pres_hetero, -pres_homo_maj) 
+
+# convert to NA if varient is absent
+homo_min_df[!homo_min_df$pres_homo_min,9:ncol(homo_min_df)] <- 0
+
+# ggplot heatmap
+homo_min_df_piv <- tibble(homo_min_df) %>%
+					pivot_longer(cols = starts_with("Ind"), 
+								names_to = "ind", values_to = "GP")%>%
+					mutate(type = "homo_min", 
+						ind = gsub(".2", "", ind, fixed = T))%>%
+					select(-pres_homo_min)%>% 
+					left_join(pop, by="ind")
+
+
+
+#################
+### homo major ###
+homo_maj_df <- cbind(data, df[homo_maj]) %>% 
+	select(-pres_homo_min, -pres_hetero)
+
+# convert to NA if varient is absent
+
+##### SHOULD GP FOR ABSENT ALLELES...
+	# be assumed as 1 
+	# or should they be noted as NA
+	# or remain the same
+#homo_maj_df[!homo_maj_df$pres_homo_maj,9:ncol(homo_maj_df)]# <- 0
+
+homo_maj_df_piv <- tibble(homo_maj_df) %>%
+					pivot_longer(cols = starts_with("Ind"), 
+								names_to = "ind", values_to = "GP") %>%
+					mutate(type = "homo_maj") %>%
+					select(-pres_homo_maj) %>% 
+					left_join(pop, by="ind")
+
+
+
+
+
+####### 
+### Combine datasets ###
+	# and add clusters 
+data_all <- rbind(homo_maj_df_piv, homo_min_df_piv, hetero_df_piv)
+data_all$clust_ind <- paste0(data_all$CLUSTER, "_", data_all$ind)
 
 
 ###########################################
 ############### Analysis ##################
 ###########################################
 
-
+#inds <- c(paste0("Ind", seq(0:44)), "ind177")
+#tmp_data_all <- data_all %>% filter(ind %in% inds)
 
 ###########################################
 ############### Plotting ##################
 ###########################################
+
+
+#p <- ggplot(data_all, aes(clust_ind, phen_marker, fill= GP)) + 
+# 	 facet_grid(rows=vars(type))+
+# 	 geom_tile()+
+# 	 scale_fill_gradient(low="white", high="blue") +
+# 	 theme(axis.text.x = element_text(angle = 90))
+
+#pdf("sandbox/heat.pdf", 20, 20)
+#print(p)
+#dev.off()
+#system("open -a Skim.app sandbox/heat.pdf")
+
+#ggsave(filename="results/gene_to_trait/heat.pdf", 
+#		plot=p, device ="pdf", width=20, height=20, units="in", dpi ="screen")
+#
+#bitmap <- pdf_render_page("results/gene_to_trait/heat.pdf", page = 1)
+
+# issues with R and ariel font with newest mac update... 
+#png::writePNG(bitmap, "results/gene_to_trait/heat.png")
+#system("open -a Preview.app results/gene_to_trait/heat.png")
+
+
+#pdf("sandbox/heat2.pdf", 20, 7)
+#
+#for(i in 1:3){
+#	df <- list(data_all, homo_min_df_piv, hetero_df_piv)[[i]]
+#	type <- unique(df$type)
+#
+#	df$clust_ind <- paste0(df$CLUSTER, "_", df$ind)
+#
+#	g <- ggplot(df, aes(clust_ind, phen_marker, fill= GP)) + 
+# 	 geom_tile()+
+# 	 ggtitle(type)+
+# 	 scale_fill_gradient(low="white", high="blue") +
+# 	 theme(axis.text.x = element_text(angle = 90))
+#
+# 	print(g)
+#}
+#
+#dev.off()
+#system("open -a Skim.app sandbox/heat2.pdf")
+
+
+#####################
+### assign a type ###
+	# hetero, homo min, homo maj
+
+
+# create a group by of the max values at each marker-ind
+filter_group <- data_all %>%
+	group_by(clust_ind, phen_marker) %>%
+	summarise(GP = max(GP)) %>%
+	ungroup() %>%
+	filter(GP != 0)
+	#data.frame() %>%
+	#tibble()
+#	inner_join(data_all, by=c("clust_ind", "phen_marker", "GP")) 
+#data_all %>%
+#	mutate(type = ifelse(GP==0.333333, "ungeno", type)) %>% 
+#	filter(type=="ungeno") %>% arrange(ind, phen_marker)
+#	unique() %>%
+#	inner_join(filter_group, 
+#		by=c("clust_ind", "phen_marker", "GP"))
+
+
+
+### convert to matrix ###
+
+# hetero
+hetero_mat <- as.matrix(hetero_df[9:ncol(hetero_df)])
+rownames(hetero_mat) <- hetero_df$phen_marker
+colnames(hetero_mat) <- gsub(".1", "", colnames(hetero_mat), fixed = T)
+
+# homo minor
+homo_min_mat <- as.matrix(homo_min_df[9:ncol(homo_min_df)])
+rownames(homo_min_mat) <- homo_min_df$phen_marker
+colnames(homo_min_mat) <- gsub(".2", "", colnames(homo_min_mat), fixed = T)
+
+# homo major
+homo_maj_mat <- as.matrix(homo_maj_df[9:ncol(homo_maj_df)])
+rownames(homo_maj_mat) <- homo_maj_df$phen_marker
+
+# compare
+winners <- pmax(hetero_mat, homo_min_mat, homo_maj_mat)
+
+# identify the winners
+het_logic <- hetero_mat == winners
+min_logic <- homo_min_mat == winners
+maj_logic <- homo_maj_mat == winners
+
+# determine which values are draws
+draws <- ifelse(maj_logic + het_logic == 2, "het-maj",
+			ifelse(maj_logic + min_logic == 2, "min-maj",
+				ifelse(het_logic + min_logic == 2, "het-min",
+					ifelse(het_logic + maj_logic +  min_logic == 2, 
+							"het-min-maj", NA))))
+
+# determine clear winners
+types <- ifelse(!is.na(draws), draws,
+			ifelse(het_logic, "het",
+				ifelse(min_logic, "min",
+					ifelse(maj_logic, "maj", NA))))
+
+# condition matrix
+maj_cond <- (types == "maj" | 
+				types == "het-maj" | 
+				types == "min-maj")
+
+min_cond <- (types == "min" | 
+				types == "het-min")
+
+het_cond <- (types == "het")
+
+# value matrix
+vmat <- ifelse(maj_cond, homo_maj_mat, 
+			ifelse(min_cond, homo_min_mat,
+	 			ifelse(het_cond, hetero_mat,
+					NA)))
+
+
+# check position of absent alleles and corret types
+	# this will keep the GP, but highlight that the value it absent
+if(!unique(homo_maj_df$absent == homo_min_df$absent & 
+				hetero_df$absent == homo_min_df$absent)[1]){
+	stop("absent values are not the same, issues with df positioning.")
+}else{
+	types[homo_maj_df$absent, ] <- "absent"
+
+}
+
+
+# value  matrix to long df
+vdf <- as.data.frame(columnNameILike=row.names(vmat), vmat)
+vdf$marker_phen <- rownames(vdf)
+
+vdf_long <- tibble(vdf) %>%
+				pivot_longer(cols = starts_with("Ind"), 
+					names_to = "ind", values_to = "GP")
+
+# category matrix to long df
+tdf <- as.data.frame(columnNameILike=row.names(types), types)
+tdf$marker_phen <- rownames(tdf)
+
+tdf_long <- tibble(tdf) %>%
+				pivot_longer(cols = starts_with("Ind"), 
+					names_to = "ind", values_to = "type")
+
+##### ABSENT SHOULD BE SWITCHED AROUND HERE ####
+	# commented out below as 0 does no longer correspond to 0
+
+# join  
+tvdf <- left_join(tdf_long, vdf_long, by=c("marker_phen", "ind")) %>%
+			left_join(pop, by="ind")# %>%
+			#mutate(type = ifelse(GP == 0, "absent", as.character(type)))
+
+tvdf$clust_ind <- paste0(tvdf$CLUSTER, "_", tvdf$ind)
+
+# levels
+clust_ind_levels <- sort(unique(tvdf$clust_ind))
+clust_ind_levels <- rev(c("BENSON_Ind171", clust_ind_levels[clust_ind_levels != "BENSON_Ind171"]))
+tvdf$clust_ind <- factor(tvdf$clust_ind, levels=clust_ind_levels)
+
+# make all min and maj labels homozygous
+tvdf$type <- as.character(tvdf$type)
+tvdf$type[tvdf$type %in% c("maj", "min", "min-maj")] <- "homo"
+tvdf$type[tvdf$type %in% c("het-min", "het-maj")] <- "het-hom"  
+
+
+#######################
+##### Adjust DF #######
+	# based on matteos feedback
+		# equal GLs? no data --> NA
+			# none of the data appears to be like this 
+		# homo-het? 1 read --> NA
+		# 0 or 1 read? --> NA
+	# quick and dirty fix
+
+# 0-1 reads?
+count_longdf <- tibble(counts_df) %>%
+					dplyr::select(-X) %>%
+					pivot_longer(cols = starts_with("Ind"), 
+						names_to = "ind", values_to = "count") %>%
+					mutate(marker = as.character(marker))
+
+# equal GLs?  
+	# none present
+# homo-het?
+
+# add NAs to:
+	# unassigned genotypes
+	# 0-1 reads from counts
+	# 
+
+plt_tvdf <- tvdf %>%
+			mutate(type = ifelse(type %in% c("het-hom", "het-min-maj"), NA, type),
+					marker = str_split(marker_phen, "_", n = 2)[[1]][2]) %>%
+			left_join(count_longdf, by=c("marker", "ind")) %>%
+			mutate(type = ifelse(count <= 1, NA, type),
+				GP = ifelse(is.na(type), NA, GP))
+#filter(CLUSTER %in% as.character(head(sort(unique(tvdf$CLUSTER))))) %>%
+
+# plot and save
+g <- ggplot(plt_tvdf, mapping = aes(marker_phen, clust_ind, fill = GP)) + 
+  		geom_tile(aes(colour=type, width=0.8, height=0.85), size=0.7) +
+    	scale_fill_gradient(low="white", high="blue", na.value = "red")+
+    	coord_fixed()+
+    	scale_colour_manual(values=c(borderCols), na.value = "red")+
+    	theme(axis.text.x = element_text(angle = 90, hjust=1, size=6))+
+    	guides(color=guide_legend(override.aes=list(fill=NA)))
+    	 
+ggsave(filename="results/gene_to_trait/heat.comb.pdf", 
+		plot=g, device ="pdf", width=10, height=30, units="in", dpi ="screen")
+system("open -a Skim.app results/gene_to_trait/heat.comb.pdf")
+# issues with R and ariel font with newest mac update... 
+#bitmap <- pdf_render_page("results/gene_to_trait/heat.comb.pdf", page = 1)
+#png::writePNG(bitmap, "results/gene_to_trait/heat.comb.png")
+#system("open -a Preview.app results/gene_to_trait/heat.comb.png")
+
+

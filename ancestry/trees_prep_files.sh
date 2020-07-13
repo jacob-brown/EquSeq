@@ -6,6 +6,7 @@
 module load anaconda3/personal
 module load vcftools
 module load plink
+module load bcftools
 
 CODEDIR=~/genomics/EquSeq/
 DIR=$EPHEMERAL/ancestry/treemix/
@@ -96,7 +97,7 @@ python2 $EPHEMERAL/dependencies/plink2treemix.py $FILE_NEW".frq.strat.gz" $DIR/t
 
 #### KEEP FOR NOW - remove snps not associated with BENSON
 	# run as parallel analysis
-python $CODEDIR/ancestry/bensonSNPs.py
+#python $CODEDIR/ancestry/bensonSNPs.py
 
 echo "snp count:"
 zcat $DIR/treemix.frq.gz | wc -l
@@ -104,8 +105,8 @@ zcat $DIR/treemix.frq.gz | wc -l
 echo '=================================='
 echo "\nprepare cluster file for plotting\n"
 # create poporder file for residual plot
-cat $DIR/ALL.clst | cut -f3 | sort | uniq > poporder # if benson is present
-cat $DIR/ALL.clst | cut -f3  | sed 's/BENSON//g' | sed '/^$/d' | sort | uniq > poporder.benson
+cat $DIR/ALL.clst | cut -f3 | sort | uniq > $DIR/poporder # if benson is present
+#cat $DIR/ALL.clst | cut -f3  | sed 's/BENSON//g' | sed '/^$/d' | sort | uniq > poporder.benson
 
 
 

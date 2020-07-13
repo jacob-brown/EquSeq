@@ -31,3 +31,4 @@ data/bam.list
 data/no_merge.csv
 data/to_merge.csv
 data/snp_calling_list/*
+dump_delete

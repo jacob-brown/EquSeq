@@ -1,5 +1,5 @@
 #! /bin/bash
-while getopts "pak" opt; do
+while getopts "pakt" opt; do
   case ${opt} in
   	p) # pca
 		Rscript ancestry/plotPCA.R
@@ -11,6 +11,10 @@ while getopts "pak" opt; do
     k) # validate K
         Rscript ancestry/validate_K.R 
         open -a Skim.app results/ancestry/k_validation.pdf
+        ;;
+    t) # plot 0 migratin tree and res
+        Rscript ancestry/trees_plot.R s 
+        open -a Skim.app results/ancestry/tree.pdf
         ;;
     \?) echo "usage [-p][-a]"
       ;;

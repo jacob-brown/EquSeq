@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-11
-# Last Modified: 2020-07-08
+# Last Modified: 2020-07-13
 
 # Desc: 
 
@@ -23,66 +23,12 @@ require(stringr)
 ############## Function(s) ################
 ###########################################
 
-idOrder <- function(fileIn){
-	# individual order for plotting from file
-	file <- read.table(fileIn)
-	admix <- cbind(file, IID=as.integer(rownames(file)))
-	pop <- read.table(clusters, header = TRUE, sep="\t")
 
-	admix_pop <- left_join(admix, pop, by=c("IID"))
-	# get the highest value for source and use it to order
-	source_index <- which(admix_pop$CLUSTER == "BENSON")
-	vals <- admix_pop[source_index,1:2]
-	
-	if(vals[1] > vals[2]){
-			admix_pop <- admix_pop %>% arrange(desc(V1))
-		}else{
-			admix_pop <- admix_pop %>% arrange(desc(V2))
-		}
-
-
-	#admix_pop <- admix_pop %>% arrange(desc(V1))
-
-	source_row <- subset(admix_pop, admix_pop$CLUSTER=="BENSON")
-	all_rows <- subset(admix_pop, admix_pop$CLUSTER!="BENSON")
-	admix_ordered <- rbind(source_row, all_rows)
-	order_iid <- admix_ordered$IID
-	return(order_iid)
-}
-
-
-admixtureV1 <- function(fileIn, orderIndex){
-
-	file_read_in <- read.table(fileIn)
-
-	### sort by order, then row ###
-		# corrects random order of population assignment
-	file <- file_read_in[order(match(rownames(file_read_in), orderIndex)),]
-	# transform
-	colnames(file) <- seq(1, ncol(file))
-	admix <- utils::stack(file)
-	admix <- cbind(admix, IID = rep(1:nrow(file)))
-
-	K <- length(unique(admix$ind)) # nrow(admix)
-	#if (K > 8) stop("Maximum number of colours for admixture proportions is 8.")
-
-	# annotate with clusters
-	pop <- read.table(clusters, header = TRUE, sep="\t")
-	admix_pop <- left_join(admix, pop, by=c("IID"))
-	admix_pop <- cbind(admix_pop, K=K)
-	
-	return(admix_pop)
-
-
-}
-
-admixture <- function(fileIn, orderIndex){
+admixture <- function(fileIn){
 
 	file_read_in <- read.table(fileIn)
 	file <- file_read_in
-	### sort by order, then row ###
-		# corrects random order of population assignment
-	#file <- file_read_in[order(match(rownames(file_read_in), orderIndex)),]
+
 	# transform
 	colnames(file) <- seq(1, ncol(file))
 	admix <- utils::stack(file)
@@ -106,7 +52,7 @@ admixture <- function(fileIn, orderIndex){
 ######### Input(s) and Parameters #########
 ###########################################
 
-maxAnc <- 6
+maxAnc <- 9
 
 DIR <- "results/ancestry/ALL_5kb_02maf/"
 files <- list.files(DIR, full.names=T)
@@ -128,8 +74,7 @@ cbPalettelrg <- c("#004949","#009292","#ff6db6","#ffb6db",
 # select the files
 files_to_use <- subset(files, file_ext(files) == "qopt")
 files_to_use <- str_sort(files_to_use, numeric = TRUE) # natural sort
-files_to_use <- files_to_use[1:maxAnc-1]
-
+files_to_use <- files_to_use[2:maxAnc]
 
 # one log file for sites used
 logs <- subset(files, file_ext(files) == "log")[3]
@@ -138,33 +83,16 @@ sites <- strsplit(as.character(d[6,]), " ")[[1]][7]
 maf <- strsplit(as.character(d[4,]), " ")[[1]][3]
 title <- paste(sites, " ", maf)
 
-
-store_admix <- 0
-orderIndex <- idOrder(files_to_use[2])
-#orderIndex <- seq(1,length(orderIndex))
-for(i in seq_along(files_to_use)){
-	
-	# retrieve order on first iter
-	if(i == 1){
-		#orderIndex = idOrder(files_to_use[i])
-		# assign order to global for use in plotting
-		store_admix <- admixture(files_to_use[i], orderIndex)
-
-
-	}else{
-		tmp <- admixture(files_to_use[i], orderIndex)
-		store_admix <- rbind(store_admix, tmp)
-	}
-}
-
-
+# create one df of all admixture data
+ls_df <- lapply(files_to_use, function(x) admixture(x))
+store_admix <- do.call(rbind, ls_df)
 
 # levels based on first lowest K
 K <- max(store_admix$K)
 breeds <- filter(store_admix, K==2)$CLUSTER
-breed_order <- breeds[orderIndex]
-store_admix$IID <- factor(store_admix$IID, levels=orderIndex)
-
+breed_order <- sort(as.character(unique(breeds)))
+breed_order <- c("BENSON", breed_order[!breed_order== "BENSON"])
+store_admix$CLUSTER <- factor(store_admix$CLUSTER, levels = breed_order)
 
 # rename
 names <- colnames(store_admix)
@@ -195,18 +123,22 @@ for(i in 1:nrow(tmp)){
 k_levels <- str_sort(unique(store_admix$K), numeric = TRUE)
 store_admix$K <- factor(store_admix$K, levels = k_levels)
 clst_lvls <- as.character(unique(store_admix$CLUSTER))
-#store_admix$CLUSTER <- factor(store_admix$CLUSTER, levels = clst_lvls)
-
+store_admix$IID <- factor(store_admix$IID)
+store_admix$clust_iid <- paste0(store_admix$CLUSTER,"_",store_admix$IID)
+clst_iid_lvls <- sort(unique(store_admix$clust_iid))
+clst_iid_lvls <- c(clst_iid_lvls[!clst_iid_lvls == "BENSON_172"], "BENSON_172")
+store_admix$clust_iid <- factor(store_admix$clust_iid, levels = clst_iid_lvls)
 
 ### plot ####
-g <- ggplot(store_admix, aes(fill=pop, y=values, x=IID, label=pop))+
+#scale_fill_manual(values = cbPalettelrg) +
+#scale_x_discrete(labels=breed_order)+
+g <- ggplot(store_admix, aes(fill=pop, y=values, x=clust_iid, label=pop))+
 		facet_grid(rows = vars(store_admix$K))+
 		geom_bar(position=position_stack(reverse = TRUE), stat="identity")+
-		#scale_fill_manual(values = cbPalettelrg) +
-		scale_x_discrete(labels=breed_order)+
 		theme_classic()+
 		xlab("")+
 		ylab("")+
+		scale_fill_manual(values = cbPalette) +
 		theme(axis.text.x = element_text(angle = 90, hjust = 1, size =8),
 				 axis.line.y = element_blank(),
 				legend.position = "none",
@@ -216,30 +148,10 @@ g <- ggplot(store_admix, aes(fill=pop, y=values, x=IID, label=pop))+
 				strip.text.y = element_text(size = 4, angle=0),
 				strip.background=element_blank()
         		)
-pdf(file=out, 20, 20)
+pdf(file=out, 20, 10)
 print(g)
 invisible(dev.off())
-
-
-#scale_x_discrete(breaks=br, labels=lab)+
-#ggtitle(title) +
-#labs(fill = "Ancestral\npopulation")+ 
-#scale_x_discrete(labels=breed_order)+
-
-
-#pop<-read.table(clusters, header = TRUE, sep="\t")
-##admix<-t(as.matrix(read.table("myoutfiles.qopt")))
-#admix<-admix[,order(pop[,1])]
-#pop<-pop[order(pop[,1]),]
-
-
-#pdf(file=out, 13, 5)
-#h<-barplot(admix,col=1:3,space=0,border=NA,xlab="Individuals",ylab="admixture")
-#text(tapply(1:nrow(pop),pop[,1],mean),-0.05,unique(pop[,1]),xpd=T)
-#
-#invisible(dev.off())
-
-
+system("open -a Skim.app results/ancestry/ALL.MIX.pdf")
 
 
 ###########################################

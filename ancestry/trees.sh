@@ -1,5 +1,5 @@
 #! /bin/bash
-#PBS -l walltime=24:00:00
+#PBS -l walltime=00:20:00
 #PBS -l select=1:ncpus=5:mem=5gb
 
 
@@ -8,8 +8,9 @@
 CODE_DIR=~/genomics/EquSeq/
 DIR=$EPHEMERAL/ancestry/treemix/
 FILE=$DIR/treemix.frq.gz
-M=$PBS_ARRAY_INDEX
-OUT=$DIR/results/no_jackknife/tree.out.$M
+#M=$PBS_ARRAY_INDEX
+M=0
+OUT=$DIR/results/tree.out.$M
 TREEMIX=$EPHEMERAL/dependencies/treemix-1.13/src/treemix 
 source $CODE_DIR/scripts/unix_functions.sh
 

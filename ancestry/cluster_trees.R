@@ -2,9 +2,9 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-15
-# Last Modified: 2020-07-07
+# Last Modified: 2020-07-10
 
-# Desc: 
+# Desc: cluster file from vcf for treemix
 
 
 ###########################################
@@ -36,9 +36,10 @@ vcffile <- as.character(args[1])
 #vcffile <- as.character("snps.rename.vcf")
 runName <- system(sprintf("bcftools query -l %s", vcffile), intern = T)
 info <- read.csv(args[2])
-out <- args[3]
 #info <- read.csv("../data/cleaned_data/info_all.csv")
 #info <- read.csv("/rds/general/user/jb1919/home/genomics/EquSeq/data/cleaned_data/info_all.csv")
+out <- args[3]
+# out <- "ALL.clst"
 
 ###########################################
 ############### Wraggling #################
