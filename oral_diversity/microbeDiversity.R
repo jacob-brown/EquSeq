@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-07-02
-# Last Modified: 2020-07-03
+# Last Modified: 2020-07-15
 
 # Desc: plot and analyse summarised microbial classification data
 
@@ -170,16 +170,21 @@ virus_total <- length(virus_counts)
 shannon_virus <- diversity(virus_counts, index = "shannon")
 eff_species_virus <- exp(shannon_virus) # effective number of species
 
+sink("results/oral_diversity/summary.txt")
 cat("\n=====================\n")
 cat("\nStatistics\n")
+cat("\n=====================\n")
 cat("\nBacteria...\n")
 cat(paste("shannon: ", shannon_bact, "\n"))
 cat(paste("ENS: ", eff_species_bact, "\n"))
 cat(paste("Total species detected: ", bacteria_total, "\n"))
+cat("\n=====================\n")
 cat("\nVirus...\n")
 cat(paste("shannon: ", shannon_virus, "\n"))
 cat(paste("ENS: ", eff_species_virus, "\n"))
-cat(paste("Total species detected: ", bacteria_total, "\n"))
+cat(paste("Total species detected: ", virus_total, "\n"))
+sink()
+
 
 
 ###########################################
@@ -199,23 +204,25 @@ data_head_bact <- df_species_bact %>%
 #pal <- wes_palette("Darjeeling1", ncolours, type = "continuous")
 #scale_fill_manual(values = pal)+
 
-
+plotBac <- function(){
 g <- ggplot(data=data_head_bact, aes(x=species, y=count, fill =phylum)) +
 		facet_grid(vars(phylum), scales="free", space = "free")+
 		geom_col(colour='black', show.legend = FALSE)+
 		theme_classic() +
-		ylab("total read match") +
-		xlab("species") +
-		scale_y_continuous(labels = scales::comma)+ 
+		ylab("Total read matched to taxa") +
+		xlab("Species") +
 		coord_flip()+
+		scale_y_continuous(labels = scales::comma)+ 
 		scale_fill_manual(values = cbPalette)+
-		theme(strip.text.y = element_text(size = 15, angle=0),
-				text = element_text(size=20))
+		theme(strip.text.y = element_text(size = 8, angle=0),
+				text = element_text(size=8))
 #options(scipen=10000)
-pdf("results/oral_diversity/oralDiv_bacteria.pdf", 15, 20)
+pdf("results/oral_diversity/oralDiv_bacteria.pdf", 7, 7)
 print(g)
 invisible(dev.off())
-
+system("open -a Skim.app results/oral_diversity/oralDiv_bacteria.pdf")
+}
+plotBac()
 
 ### virus ###
 data_head_virus <- df_species_virus %>% 
@@ -240,8 +247,8 @@ pdf("results/oral_diversity/oralDiv_virus.pdf", 15, 20)
 print(p)
 invisible(dev.off())
 
-system("open -a Skim.app results/oral_diversity/oralDiv_bacteria.pdf")
-system("open -a Skim.app results/oral_diversity/oralDiv_virus.pdf")
+
+#system("open -a Skim.app results/oral_diversity/oralDiv_virus.pdf")
 
 
 ### save datatables ###

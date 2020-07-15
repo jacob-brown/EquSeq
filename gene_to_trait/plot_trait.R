@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-29
-# Last Modified: 2020-07-10
+# Last Modified: 2020-07-15
 
 # Desc: 
 
@@ -144,54 +144,10 @@ data_all$clust_ind <- paste0(data_all$CLUSTER, "_", data_all$ind)
 ############### Analysis ##################
 ###########################################
 
-#inds <- c(paste0("Ind", seq(0:44)), "ind177")
-#tmp_data_all <- data_all %>% filter(ind %in% inds)
 
 ###########################################
 ############### Plotting ##################
 ###########################################
-
-
-#p <- ggplot(data_all, aes(clust_ind, phen_marker, fill= GP)) + 
-# 	 facet_grid(rows=vars(type))+
-# 	 geom_tile()+
-# 	 scale_fill_gradient(low="white", high="blue") +
-# 	 theme(axis.text.x = element_text(angle = 90))
-
-#pdf("sandbox/heat.pdf", 20, 20)
-#print(p)
-#dev.off()
-#system("open -a Skim.app sandbox/heat.pdf")
-
-#ggsave(filename="results/gene_to_trait/heat.pdf", 
-#		plot=p, device ="pdf", width=20, height=20, units="in", dpi ="screen")
-#
-#bitmap <- pdf_render_page("results/gene_to_trait/heat.pdf", page = 1)
-
-# issues with R and ariel font with newest mac update... 
-#png::writePNG(bitmap, "results/gene_to_trait/heat.png")
-#system("open -a Preview.app results/gene_to_trait/heat.png")
-
-
-#pdf("sandbox/heat2.pdf", 20, 7)
-#
-#for(i in 1:3){
-#	df <- list(data_all, homo_min_df_piv, hetero_df_piv)[[i]]
-#	type <- unique(df$type)
-#
-#	df$clust_ind <- paste0(df$CLUSTER, "_", df$ind)
-#
-#	g <- ggplot(df, aes(clust_ind, phen_marker, fill= GP)) + 
-# 	 geom_tile()+
-# 	 ggtitle(type)+
-# 	 scale_fill_gradient(low="white", high="blue") +
-# 	 theme(axis.text.x = element_text(angle = 90))
-#
-# 	print(g)
-#}
-#
-#dev.off()
-#system("open -a Skim.app sandbox/heat2.pdf")
 
 
 #####################
@@ -205,16 +161,6 @@ filter_group <- data_all %>%
 	summarise(GP = max(GP)) %>%
 	ungroup() %>%
 	filter(GP != 0)
-	#data.frame() %>%
-	#tibble()
-#	inner_join(data_all, by=c("clust_ind", "phen_marker", "GP")) 
-#data_all %>%
-#	mutate(type = ifelse(GP==0.333333, "ungeno", type)) %>% 
-#	filter(type=="ungeno") %>% arrange(ind, phen_marker)
-#	unique() %>%
-#	inner_join(filter_group, 
-#		by=c("clust_ind", "phen_marker", "GP"))
-
 
 
 ### convert to matrix ###
@@ -298,6 +244,7 @@ tdf_long <- tibble(tdf) %>%
 				pivot_longer(cols = starts_with("Ind"), 
 					names_to = "ind", values_to = "type")
 
+
 ##### ABSENT SHOULD BE SWITCHED AROUND HERE ####
 	# commented out below as 0 does no longer correspond to 0
 
@@ -310,7 +257,8 @@ tvdf$clust_ind <- paste0(tvdf$CLUSTER, "_", tvdf$ind)
 
 # levels
 clust_ind_levels <- sort(unique(tvdf$clust_ind))
-clust_ind_levels <- rev(c("BENSON_Ind171", clust_ind_levels[clust_ind_levels != "BENSON_Ind171"]))
+clust_ind_levels <- rev(c("BENSON_Ind171", 
+						clust_ind_levels[clust_ind_levels != "BENSON_Ind171"]))
 tvdf$clust_ind <- factor(tvdf$clust_ind, levels=clust_ind_levels)
 
 # make all min and maj labels homozygous
@@ -328,6 +276,9 @@ tvdf$type[tvdf$type %in% c("het-min", "het-maj")] <- "het-hom"
 		# 0 or 1 read? --> NA
 	# quick and dirty fix
 
+# filter issue IDs
+tvdf <- filter(tvdf, ind != "Ind29")
+
 # 0-1 reads?
 count_longdf <- tibble(counts_df) %>%
 					dplyr::select(-X) %>%
@@ -344,29 +295,89 @@ count_longdf <- tibble(counts_df) %>%
 	# 0-1 reads from counts
 	# 
 
-plt_tvdf <- tvdf %>%
-			mutate(type = ifelse(type %in% c("het-hom", "het-min-maj"), NA, type),
-					marker = str_split(marker_phen, "_", n = 2)[[1]][2]) %>%
+
+tvdf$marker <- as.vector(
+					sapply(tvdf$marker_phen, 
+							function(x) str_split(x, "_", n=2)[[1]][2]))
+
+alt_tvdf <- tvdf %>%
+			mutate(type = ifelse(type %in% c("het-hom", "het-min-maj"), NA, type)) %>%
 			left_join(count_longdf, by=c("marker", "ind")) %>%
 			mutate(type = ifelse(count <= 1, NA, type),
-				GP = ifelse(is.na(type), NA, GP))
-#filter(CLUSTER %in% as.character(head(sort(unique(tvdf$CLUSTER))))) %>%
+					GP = ifelse(is.na(type), NA, GP)) %>%
+			inner_join(df[c("phen","marker")], by="marker")
+			#filter(!is.na(phen))
+			# slight joining issue with na duplicates, corrected
 
+###
+# higher grouping (coat, disease, etc.)
+
+	#write.table(unique(alt_tvdf$phen), "data/gene_variants/phen_raw.csv", row.names=F, quote=F,sep="\t") 
+	# cp data/gene_variants/phen_raw.csv data/gene_variants/phen_adj.csv
+		# manually assign higher categories
+
+higher_grp <- read.table("data/gene_variants/phen_adj.csv",sep="\t", header=T)
+colnames(higher_grp) <- c("phen", "phen_grp")
+
+# final modifications before plot
+	# add higher categories
+	# change type to present or absent
+plt_tvdf <- alt_tvdf %>%
+				left_join(higher_grp, by="phen") %>% 
+				mutate(marker_phen2 = paste0(phen, " (", marker, ")"),  
+						type2  = 
+							ifelse(type %in% c("het", "homo"), "present", type))
+
+plt_tvdf[is.na(plt_tvdf$type2),]$type2 <- "ungenotyped"
+
+#plt_tvdf <- filter(plt_tvdf, CLUSTER %in% as.character(head(sort(unique(tvdf$CLUSTER))))) 
+
+
+plotGene <- function(){
 # plot and save
-g <- ggplot(plt_tvdf, mapping = aes(marker_phen, clust_ind, fill = GP)) + 
-  		geom_tile(aes(colour=type, width=0.8, height=0.85), size=0.7) +
-    	scale_fill_gradient(low="white", high="blue", na.value = "red")+
-    	coord_fixed()+
-    	scale_colour_manual(values=c(borderCols), na.value = "red")+
-    	theme(axis.text.x = element_text(angle = 90, hjust=1, size=6))+
-    	guides(color=guide_legend(override.aes=list(fill=NA)))
+g <- ggplot(plt_tvdf, mapping = aes(marker_phen2, ind, fill = GP)) + 
+		facet_grid(vars(CLUSTER), vars(phen_grp), 
+				scales = "free", space = "free", 
+				switch="y")+
+  		geom_tile()+
+  		geom_point(aes(shape = type2), 
+  				colour="white", size = 1.8, stroke=1)+
+    	scale_fill_gradient(name  = "Probability", 
+    				low="grey80", high="grey40", na.value = "#DC143C")+
+    	scale_shape_manual(name  = "Classification", 
+    			values=c(8, 4, NA), 
+    			breaks=c("ungenotyped", "absent", "present"))+
+    	ylab("")+
+    	xlab("Phenotype")+
+    	theme_classic()+
+    	theme(axis.text.x = element_text(angle = 45, hjust=1, size=5),
+    			strip.text.x = element_text(angle = 55, size = 7),
+    			strip.text.y.left = element_text(angle = 0),
+    			strip.placement.y = "outside",
+    			strip.placement.x = "outside",
+    			strip.background.x=element_blank(),
+    			aspect.ratio = 1,
+    			panel.spacing.x=unit(0.3, "lines") , 
+    			panel.spacing.y=unit(0.1,"lines"),
+    			legend.key=element_rect(fill="grey40")
+    			)
+    	#scale_fill_distiller(palette = "Blues", direction = 1, na.value =  "#DC143C")+
     	 
 ggsave(filename="results/gene_to_trait/heat.comb.pdf", 
 		plot=g, device ="pdf", width=10, height=30, units="in", dpi ="screen")
 system("open -a Skim.app results/gene_to_trait/heat.comb.pdf")
-# issues with R and ariel font with newest mac update... 
-#bitmap <- pdf_render_page("results/gene_to_trait/heat.comb.pdf", page = 1)
-#png::writePNG(bitmap, "results/gene_to_trait/heat.comb.png")
-#system("open -a Preview.app results/gene_to_trait/heat.comb.png")
+}
+plotGene()
 
 
+
+
+
+
+#g <- ggplot(plt_tvdf, mapping = aes(marker_phen, clust_ind, fill = GP)) + 
+#  		geom_tile(aes(colour=type, width=0.8, height=0.85), size=0.7) +
+#    	scale_fill_gradient(low="white", high="blue", na.value = "red")+
+#    	coord_fixed()+
+#    	scale_colour_manual(values=c(borderCols), na.value = "red")+
+#    	theme(axis.text.x = element_text(angle = 90, hjust=1, size=6))+
+#    	guides(color=guide_legend(override.aes=list(fill=NA)))
