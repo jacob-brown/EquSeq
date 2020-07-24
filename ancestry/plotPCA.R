@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-05
-# Last Modified: 2020-07-15
+# Last Modified: 2020-07-24
 
 # Desc: generate a table of names for running the pcangsd script
 
@@ -17,6 +17,8 @@ require(ggplot2)
 require(RColorBrewer)
 require(ggforce)
 require(gghighlight)
+require(ggpubr)
+require(scales)
 
 ###########################################
 ############## Function(s) ################
@@ -34,7 +36,7 @@ readPC <- function(covIN, sitesIN, MAF, clustIn, breedIN){
 	covar <- read.table(covIN, stringsAsFact=F)
 
 	# Read annot file
-	annot <- read.table(clustIn, sep="\t", header=T) 
+	annotAll <- read.table(clustIn, sep="\t", header=T) 
 
 	# Parse components to analyze
 	comp <- as.numeric(strsplit("1-2", "-", fixed=TRUE)[[1]])
@@ -51,13 +53,18 @@ readPC <- function(covIN, sitesIN, MAF, clustIn, breedIN){
 	#####
 	# remove przewalski? - testing a different PCA 
 	if(covIN == "results/ancestry/NO_PREZ_5kb_02maf/NO.PRZ.PCA.cov"){
-		annot <- annot[(annot$CLUSTER != "Przewalski" & annot$CLUSTER != "Przewalski-hybrid"),]
+		annot <- annotAll[(annotAll$CLUSTER != "Przewalski" & annotAll$CLUSTER != "Przewalski-hybrid"),]
+	}else{
+		annot <- annotAll
 	}
 
-
+	# levels
+	clst <- sort(as.character(unique(annotAll$CLUSTER)))
+	prw <- c("Przewalski-hybrid", "Przewalski")
+	clust_levels <- c(clst[!(clst %in% prw)], prw)
 
 	# update cluster values
-	PC$Pop <- factor(annot$CLUSTER)
+	PC$Pop <- factor(annot$CLUSTER, levels=clust_levels)
 	PC$IID <- as.character(annot$IID)
 	title <- paste("PC1"," (",signif(eig$val[1], digits=3)*100,"%)"," / PC",
 				"PC2"," (",signif(eig$val[2], digits=3)*100,"%)",sep="",collapse="")
@@ -72,6 +79,13 @@ readPC <- function(covIN, sitesIN, MAF, clustIn, breedIN){
 
 	PC <- left_join(PC, breeds, by="Pop")
 
+	# assign shape (for consistant legend when prw are removed)
+	#popCount <- length(unique(annot$CLUSTER))
+	#shapeVal <- c(15:18, 3, 4, 8 ,10)
+	#shapes <- rep(shapeVal, len = popCount)
+	#shapedf <- data.frame(shape=shapes, Pop=unique(annot$CLUSTER))
+	#PC <- left_join(PC, shapedf, by="Pop")
+
 	#issueIDs <- c("32", "90", "120")
 	issueIDs <- c("90")
 	PC <- PC[!PC$IID %in% issueIDs,] # issue ID
@@ -79,10 +93,13 @@ readPC <- function(covIN, sitesIN, MAF, clustIn, breedIN){
 	return(list(PC, title))
 }
 
-plotPCA <- function(PC_ls, out, zoom=T, highlight=F, arrow=F){
+plotPCA <- function(PC_ls, zoom=T, highlight=NA, arrow=F, 
+	leg_pos="right", n_cols=1, nbreak=3, title=NA){
 
 	PC <- PC_ls[[1]]
-	title <- PC_ls[[2]]
+	if(is.na(title)){
+		title <- PC_ls[[2]]
+	}
 
 	# counts
 	popCount <- length(unique(PC$Pop))
@@ -100,14 +117,16 @@ plotPCA <- function(PC_ls, out, zoom=T, highlight=F, arrow=F){
 			ggtitle(title) + 
 			scale_shape_manual(values = rep(shapes, len = popCount)) + 
 			scale_colour_manual(values = rep(cbPalette, len = popCount))+
-			theme_bw() +		
+			scale_x_continuous(breaks=trans_breaks(identity, identity, n = nbreak))+
+			theme_pubr()+
 			labs(shape = "Breeds", color = "Breeds", fill = "Breeds") +
-			theme(legend.position="bottom",
+			theme(legend.position=leg_pos,
+					legend.key.size = unit(3, "mm"),
 					panel.grid.major = element_blank(),
 					panel.grid.minor = element_blank(),
 					panel.background = element_blank()
 					)+
-			guides(shape=guide_legend(ncol=3,bycol=TRUE,
+			guides(shape=guide_legend(ncol=n_cols,bycol=TRUE,
 							title.position="top")) 							
 
 	if(zoom){
@@ -127,15 +146,12 @@ plotPCA <- function(PC_ls, out, zoom=T, highlight=F, arrow=F){
   				) 
 	}
 
-	if(highlight){
-		p <- p + gghighlight(!is.na(maj_grp))
+	if(!is.na(highlight)){
+		p <- p + gghighlight(Pop %in% highlight)
 	}
 
+	return(p)
 
-	pdf(file=out, 10, 10)
-	print(p)
-	invisible(dev.off())
-	system(paste0("open -a Skim.app ", out))
 }
 
 ###########################################
@@ -175,9 +191,46 @@ all05 <- readPC(covIN = "results/ancestry/ALL_5kb_05maf/ALL.05.PCA.cov",
 ################## Plot ###################
 ###########################################
 
-plotPCA(PC_ls=nop05, out="results/ancestry/NO.PRZ.PCA.pdf", zoom=T, highlight=F)
-plotPCA(PC_ls=all02, out="results/ancestry/ALL.02.PCA.pdf", zoom=F, highlight=F)
-plotPCA(PC_ls=all05, out= "results/ancestry/ALL.05.PCA.pdf", zoom=F, highlight=F)
+### plot
+outpca <- "results/ancestry/pca.pdf"
+outleg <- "results/ancestry/pca_leg.pdf"
+
+# 1
+p1 <- plotPCA(PC_ls=all02, zoom=F, 
+				leg_pos="bottom", 
+				n_cols=3, nbreak=5, arrow=F, title="A")
+# 2
+p2 <- plotPCA(PC_ls=nop05, zoom=T, leg_pos="none", 
+				n_cols=3, arrow=F, title="B")
+# arrange plots
+arrangep <- ggarrange(p1, p2, ncol=1, nrow=2, legend="none")
+
+# get legend and plot as seperate plot
+leg <- get_legend(p1)
+
+# save 
+ggsave(filename=outpca, 
+	plot=arrangep, device ="pdf", width=160, height=200,  units="mm", dpi ="screen")
+ggsave(filename=outleg, 
+	plot=as_ggplot(leg), device ="pdf", 
+	width=160, height=60,  units="mm", dpi ="screen")
+system(paste0("open -a Skim.app ", outpca))
+system(paste0("open -a Skim.app ", outleg))
+
+
+
+### minmaf 05 (supplementary)
+p3 <- plotPCA(PC_ls=all05,  zoom=F, leg_pos="bottom", n_cols=3)
+out3 <- "results/ancestry/ALL_05_PCA.pdf"
+ggsave(filename=out3, 
+	plot=p3, device ="pdf",width=180, height=180, units="mm", dpi ="screen")
+system(paste0("open -a Skim.app ", out3))
+
+
+
+
+
+
 
 
 

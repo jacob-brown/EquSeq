@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-15
-# Last Modified: 2020-07-15
+# Last Modified: 2020-07-24
 
 # Desc: plot treemix results
 
@@ -21,27 +21,26 @@ source("dependancies/treemix-1.13/src/plotting_funcs.R")
 ###########################################
 
 ### plot trees
-plotTree <- function(outfile){
+plotTree <- function(outfile, poporder){
 	
 	prefix <- "results/ancestry/treemix/tree.out.0"
 
 	### single migrations ###
-	pdf(outfile, 8, 10)
+	pdf(outfile, width=7, height=9)
 	options(scipen=5)
 	 invisible(capture.output(x <- 
-	  	plot_tree(prefix, plus=0.0001, disp=0.000003, cex=0.8,
-	  		o = NA, 
+	  	plot_tree(prefix, plus=0.0003, disp=0.00001, cex=1,#0.6,
+	  		o = poporder, 
 	  		flip = vector(), arrow = 0.05, 
 	  		scale = T,  # SE
 	  		ybar = 0.1, 
 	  		mbar = F, plotmig = F, # migration
-	  		plotnames = T, xmin = 0, lwd = 1, font = 1
+	  		plotnames = T, xmin = 0, lwd = 1.5, font = 1
 	  		)
 	  	))
 	dev.off()
 	system(paste0("open -a Skim.app ", outfile))
 }
-
 
 ### plot tree residuals
 plotRes <- function(outfile, poporder){
@@ -49,27 +48,63 @@ plotRes <- function(outfile, poporder){
 	prefix <- "results/ancestry/treemix/tree.out.0"
 
 	### single migrations ###
-	pdf(outfile, 10, 10)
-	par(mar = c(15, 15, 1, 1))
+	pdf(outfile, width=7, height=7)
+	par(mar = c(10, 10, 1, 1))
 	invisible(capture.output(x <- 
-		plot_resid(prefix, poporder)
+		plot_resid(prefix, poporder,  
+			min = -0.009, max = 0.009, 
+			cex = 0.7, usemax = T, wcols = "r")
+
 		))
 	dev.off()
 	system(paste0("open -a Skim.app ", outfile))
 }
 
+strip_under <- function(vec) sapply(vec, function(x) sub("_",".", x))
+
 ###########################################
 ################## Plot ###################
 ###########################################
 
-plotTree(outfile="results/ancestry/tree.pdf")
+# update poporder file - for colouring plot
+	# cp poporder  poporder_col
+cbPalette <- c( "#000000", "#999999", "#E69F00", "#56B4E9", 
+				"#009E73",  
+				"#CC79A7", "#F0E442", "#0072B2", "#D55E00")
+
+# major breeds
+maj_breed <- read.table("data/ancestry/breed_grps.csv", sep = ",", header=T)
+maj_breed$major.grp.num <- as.numeric(maj_breed$major.grp)
+maj_breed$col <- NA
+for(i in unique(maj_breed$major.grp.num)){
+	maj_breed[maj_breed$major.grp.num == i, ]$col <- cbPalette[i]
+}
+
+poporder_col <- maj_breed[c("breed", "col")]
+write.table(poporder_col, "results/ancestry/treemix/poporder_col", 
+	row.names = FALSE, col.names = FALSE ,quote = FALSE, sep = " ")
+
+
+
+##############
+#### Plot ####
+
+# tree with coloured groups 
+plotTree(outfile="results/ancestry/tree.pdf",
+			poporder = "results/ancestry/treemix/poporder_col")
+
+# residuals - black colour
 plotRes(out="results/ancestry/tree_res.pdf", 
 	poporder = "results/ancestry//treemix/poporder" )
 
+# variance 
+get_f("results/ancestry/treemix/tree.out.0")
 
 
-
-
+# save table for latex
+breedsv <- maj_breed[c("breed", "major.grp", "region")]
+write.table(breedsv, "results/ancestry/breed_grps.csv", 
+	row.names = FALSE, col.names = TRUE ,quote = FALSE, sep = ",")
 
 
 

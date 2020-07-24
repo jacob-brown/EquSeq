@@ -33,8 +33,8 @@ sed $LINE_NUM's/fixflag/BENSON/g' $FILE | \
 	# columns: 1. Family ID; 2. ID; 3. cluster
 
 
-echo '=================================='
-echo "\nmaking cluster file\n"
+#echo '=================================='
+#echo "\nmaking cluster file\n"
 	# issues here run manually
 #Rscript $CODEDIR/ancestry/cluster_trees.R  \
 #	$FILE_NEW".vcf" \

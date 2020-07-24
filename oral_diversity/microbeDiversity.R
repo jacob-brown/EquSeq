@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-07-02
-# Last Modified: 2020-07-15
+# Last Modified: 2020-07-23
 
 # Desc: plot and analyse summarised microbial classification data
 
@@ -17,7 +17,7 @@ require(stringr)
 require(wesanderson)
 require(RColorBrewer)
 require(vegan)
-
+library(ggpubr)
 # pavian for shiny app
 #pavian::runApp(port=5000)
 
@@ -197,32 +197,7 @@ sink()
 ### bacteria ###
 data_head_bact <- df_species_bact %>% 
 					arrange(desc(rel_abundance)) %>%
-					#head(100)
 					head(ceiling(eff_species_bact))
-
-#ncolours <- length(unique(data_head_bact$phylum))
-#pal <- wes_palette("Darjeeling1", ncolours, type = "continuous")
-#scale_fill_manual(values = pal)+
-
-plotBac <- function(){
-g <- ggplot(data=data_head_bact, aes(x=species, y=count, fill =phylum)) +
-		facet_grid(vars(phylum), scales="free", space = "free")+
-		geom_col(colour='black', show.legend = FALSE)+
-		theme_classic() +
-		ylab("Total read matched to taxa") +
-		xlab("Species") +
-		coord_flip()+
-		scale_y_continuous(labels = scales::comma)+ 
-		scale_fill_manual(values = cbPalette)+
-		theme(strip.text.y = element_text(size = 8, angle=0),
-				text = element_text(size=8))
-#options(scipen=10000)
-pdf("results/oral_diversity/oralDiv_bacteria.pdf", 7, 7)
-print(g)
-invisible(dev.off())
-system("open -a Skim.app results/oral_diversity/oralDiv_bacteria.pdf")
-}
-plotBac()
 
 ### virus ###
 data_head_virus <- df_species_virus %>% 
@@ -230,25 +205,54 @@ data_head_virus <- df_species_virus %>%
 					#head(100)
 					head(ceiling(eff_species_virus))
 
-pal <- wes_palette("Darjeeling1", nrow(data_head_virus), type = "continuous")
 
-p <- ggplot(data=data_head_virus, aes(x=species, y=count, fill =phylum)) +
-		facet_grid(vars(phylum), scales="free", space = "free")+
-		geom_col(colour='black', show.legend = FALSE)+
-		theme_classic() +
-		ylab("total read match") +
-		xlab("species") +
-		coord_flip()+
-		scale_fill_manual(values = cbPalette)+
-		theme(strip.text.y = element_text(size = 15, angle=0),
-				text = element_text(size=20))
+### Combine head dfs ###
+df_head_all <- rbind(data_head_bact, data_head_virus)
 
-pdf("results/oral_diversity/oralDiv_virus.pdf", 15, 20)
-print(p)
-invisible(dev.off())
+# order species
+data_head_bact <- data_head_bact[
+  with(data_head_bact, order(data_head_bact$phylum, data_head_bact$species)),
+]
+speclvls <- rev(as.character(data_head_bact$species))
+data_head_bact$species <- factor(data_head_bact$species, levels=speclvls)
 
 
-#system("open -a Skim.app results/oral_diversity/oralDiv_virus.pdf")
+
+plotMicro <- function(df, out, col, figH=120){
+	g <- ggplot(data=df, aes(x=species, y=count, fill =phylum)) +
+			#facet_grid(~kingdom, scales="free", space="free")+
+			geom_col(colour='black')+
+			theme_classic() +
+			ylab("Total reads matched to taxa") +
+			xlab("Taxa") +
+			coord_flip()+
+			theme_pubr()+
+			scale_y_continuous(labels = scales::scientific)+ 
+			scale_fill_manual(values = col)+
+			theme(axis.text.y = element_text(face = "italic"),
+					legend.position = c(.8,.2),
+					legend.title = element_blank(),
+	    			legend.key.size = unit(3, "mm"))
+
+	ggsave(filename=out, 
+			plot=g, device ="pdf", width=160, height=figH, units="mm", dpi ="screen")
+}
+plotMicro(df=data_head_bact, 
+	out="results/oral_diversity/oralDiv_bacteria.pdf",
+	col = cbPalette)
+system("open -a Skim.app results/oral_diversity/oralDiv_bacteria.pdf")
+
+plotMicro(df=data_head_virus, 
+	out="results/oral_diversity/oralDiv_virus.pdf",
+	col = c(cbPalette[8], cbPalette[6]),
+	figH=50)
+system("open -a Skim.app results/oral_diversity/oralDiv_virus.pdf")
+
+
+#plotMicro(df=df_head_all, 
+#	out="results/oral_diversity/oralDiv.pdf",
+#	col = cbPalette)
+#system("open -a Skim.app results/oral_diversity/oralDiv.pdf")
 
 
 ### save datatables ###

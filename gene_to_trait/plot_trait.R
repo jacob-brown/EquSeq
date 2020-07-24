@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-29
-# Last Modified: 2020-07-15
+# Last Modified: 2020-07-24
 
 # Desc: 
 
@@ -12,7 +12,7 @@
 ###########################################
 
 require(tidyverse)
-#require(pdftools)
+require(ggpubr)
 
 ###########################################
 ############## Function(s) ################
@@ -332,52 +332,122 @@ plt_tvdf[is.na(plt_tvdf$type2),]$type2 <- "ungenotyped"
 
 #plt_tvdf <- filter(plt_tvdf, CLUSTER %in% as.character(head(sort(unique(tvdf$CLUSTER))))) 
 
+# uppercase
+plt_tvdf$phen_grp <- tools::toTitleCase(as.character(plt_tvdf$phen_grp))
 
-plotGene <- function(){
-# plot and save
-g <- ggplot(plt_tvdf, mapping = aes(marker_phen2, ind, fill = GP)) + 
-		facet_grid(vars(CLUSTER), vars(phen_grp), 
-				scales = "free", space = "free", 
-				switch="y")+
-  		geom_tile()+
-  		geom_point(aes(shape = type2), 
-  				colour="white", size = 1.8, stroke=1)+
-    	scale_fill_gradient(name  = "Probability", 
-    				low="grey80", high="grey40", na.value = "#DC143C")+
-    	scale_shape_manual(name  = "Classification", 
-    			values=c(8, 4, NA), 
-    			breaks=c("ungenotyped", "absent", "present"))+
-    	ylab("")+
-    	xlab("Phenotype")+
-    	theme_classic()+
-    	theme(axis.text.x = element_text(angle = 45, hjust=1, size=5),
-    			strip.text.x = element_text(angle = 55, size = 7),
-    			strip.text.y.left = element_text(angle = 0),
-    			strip.placement.y = "outside",
-    			strip.placement.x = "outside",
-    			strip.background.x=element_blank(),
-    			aspect.ratio = 1,
-    			panel.spacing.x=unit(0.3, "lines") , 
-    			panel.spacing.y=unit(0.1,"lines"),
-    			legend.key=element_rect(fill="grey40")
-    			)
-    	#scale_fill_distiller(palette = "Blues", direction = 1, na.value =  "#DC143C")+
-    	 
-ggsave(filename="results/gene_to_trait/heat.comb.pdf", 
-		plot=g, device ="pdf", width=10, height=30, units="in", dpi ="screen")
-system("open -a Skim.app results/gene_to_trait/heat.comb.pdf")
+##########
+### order
+plt_tvdf$ind <- as.character(plt_tvdf$ind)
+plt_tvdf$ind[plt_tvdf$ind == "Ind171"] <- "BENSON"
+indlvls <- rev(as.character(unique(plt_tvdf$ind)))
+indlvls <- c(indlvls[indlvls != "BENSON"], "BENSON")
+plt_tvdf$ind <- factor(plt_tvdf$ind, levels= indlvls)
+
+
+### remove absent GL values 
+plt_tvdf[plt_tvdf$type2 == "absent", ]$GP <- NA
+
+
+## facet plotting group
+inds <- unique(plt_tvdf$ind)
+inds_half <- ceiling(length(inds)/2)
+half_1 <- inds[1:inds_half]
+plt_tvdf <- plt_tvdf %>%
+				mutate(half = ifelse(ind %in% half_1, 1, 2),
+						half = ifelse(ind == "BENSON", 1, half))
+
+
+# blank labels
+labdf <- filter(plt_tvdf, ind =="Ind171") %>%
+				select(phen_grp, marker_phen=marker_phen2) %>%
+				arrange(phen_grp) %>%
+				unique()
+
+phenvec <- labdf$phen_grp
+
+#blanklabs <- c()
+#for(i in unique(labdf$phen_grp)){
+#	tmp <- phenvec[phenvec == i]
+#	indexkeep <- median(which(tmp == i))
+#	tmp[which(tmp == i)] <- ""
+#	tmp[indexkeep] <- i
+#	blanklabs <- c(blanklabs, tmp)
+#}
+
+# numbered labels
+numlabs <- c()
+for(i in unique(labdf$phen_grp)){
+	tmp <- phenvec[phenvec == i]
+	numbered <- paste0(substr(i,1,1), 1:length(tmp))
+	numlabs <- c(numlabs, numbered)
 }
-plotGene()
+
+# strip underscores 
+dfsave <- cbind(numlabs, labdf)
+strip_under <- function(vec) sapply(vec, function(x) sub("_",".", x))
+colnames(dfsave) <- strip_under(colnames(dfsave))
+dfsave$marker.phen <- strip_under(dfsave$marker.phen)
+# save codes
+write.csv(dfsave, 
+	file = "results/gene_to_trait/trait_codes.csv", 
+	row.names =F, quote=F)
 
 
+plotGene <- function(df, title){
+
+	# seperate absent df
+	absentDF <- df[df$type2 == "absent", ] 
+	#ungenDF <- df[df$type2 == "ungenotyped", ] 
+	#absentDF$GP <- 1
+	#ungenDF$GP <- 0
+
+	# plot and save
+	g <- ggplot(df, mapping = aes(marker_phen2, ind, fill = GP)) + 
+	  		geom_raster()+
+	  		geom_raster(absentDF, 
+	  				mapping = aes(marker_phen2, ind),
+	  				fill = "grey")+
+	  		#geom_tile(absentDF, 
+	  		#		mapping = aes(marker_phen2, ind, color = "absent"),
+	  		#		fill = "grey")+
+	    	#scale_colour_manual(name = "", values = c("absent" = "grey"))+
+	    	scale_fill_distiller(name  = "Probability", 
+	    						palette = "Blues", 
+	    						direction = -1, 
+	    						na.value = "#E69F00",
+	    						breaks=c(0,1),labels=c(0,1),
+                           		limits=c(0,1)
+	    						)+
+	    	scale_x_discrete(labels= numlabs)+ 
+	    	ylab("")+
+	    	xlab("")+
+	    	coord_fixed()+
+	    	theme_pubr()+
+	    	theme(axis.text.x = element_text(angle = 90, hjust=1, size=5),
+	    			axis.text.y = element_text(size=5),
+	    			#aspect.ratio = 1,
+	    			#legend.position="right",
+	    			legend.justification="right",
+	    			legend.key.size = unit(3, "mm")
+	    			)+
+	    	ggtitle(title)
+
+}
+
+####
+outfile="results/gene_to_trait/heat.pdf"
+df1 <- plt_tvdf[plt_tvdf$half == 1,]
+df2 <- plt_tvdf[plt_tvdf$half == 2,]
+p1 <- plotGene(df = df1, title="A")
+p2 <- plotGene(df = df2, title="B")
+leg <- get_legend(p2)
+arrangep <- ggarrange(p1, p2, ncol=2, nrow=1, 
+	legend.grob=leg, 
+	common.legend = F,
+	legend="bottom")
+ggsave(filename=outfile, 
+	plot=arrangep, device ="pdf", width=180, height=170,  units="mm", dpi ="screen")
+system(paste0("open -a Skim.app ", outfile))
+####
 
 
-
-
-#g <- ggplot(plt_tvdf, mapping = aes(marker_phen, clust_ind, fill = GP)) + 
-#  		geom_tile(aes(colour=type, width=0.8, height=0.85), size=0.7) +
-#    	scale_fill_gradient(low="white", high="blue", na.value = "red")+
-#    	coord_fixed()+
-#    	scale_colour_manual(values=c(borderCols), na.value = "red")+
-#    	theme(axis.text.x = element_text(angle = 90, hjust=1, size=6))+
-#    	guides(color=guide_legend(override.aes=list(fill=NA)))

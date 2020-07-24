@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-07-15
-# Last Modified: 2020-07-15
+# Last Modified: 2020-07-21
 
 # Desc: 
 
@@ -65,19 +65,82 @@ fileOut = "results/ancestry/f3.all.csv"
 f3_df <- fstatToDF(f3File)
 f4_df <- fstatToDF(f4File)
 
-tibble(f3_df) %>%
+bensonf3df <- tibble(f3_df) %>%
 	filter(zscore < -2 & A == "BENSON") %>%
 	arrange(zscore) %>%
-	write.csv("results/ancestry/f3.benson.csv", row.names = F)
+	mutate(f3 = round(f3, 3), stderr = round(stderr, 3), zscore = round(zscore, 3))
+
+
+write.csv(bensonf3df, "results/ancestry/f3.benson.csv", row.names = F)
+
+# how many times do the breeds feature?
+f3countdf <- data.frame(table(c(bensonf3df$B, bensonf3df$C))) %>% 
+				arrange(desc(Freq))
+f3countdf
+
+# select 
+	# A as outgroup
+	# B as Benson (the target)
+	# C and D as the pops we want to test
+# Przewalski showed signs of mixture
+
+# use f3 to get outgroup
+tibble(f3_df) %>%
+				filter(A == "BENSON") %>%
+				arrange(desc(zscore)) %>%
+				head() %>%
+				mutate(f3 = round(f3, 3), 
+						stderr = round(stderr, 3), 
+						zscore = round(zscore, 3)) %>%
+write.csv("results/ancestry/f3.outgroups.benson.csv", row.names = F)
+
+
+
+# Przewalski seems best or Przewalski-hybrid
 
 tibble(f4_df) %>%
 	filter(zscore < -3 | zscore > 3 ) %>%
-	filter(A == "BENSON") %>%
-	arrange(desc(zscore))  %>%
-	write.csv("results/ancestry/f4.benson.csv", row.names = F)
+	filter(A == "Przewalski" & B == "BENSON" ) %>%
+	arrange(zscore)  %>%
+	mutate(f4 = round(f4, 3), stderr = round(stderr, 3), zscore = round(zscore, 3)) %>%
+	write.csv("results/ancestry/f4_prz.benson.csv", row.names = F)
 
 
+bensonf4df <- tibble(f4_df) %>%
+	filter(zscore < -2 | zscore > 2 ) %>%
+	filter(A == "Przewalski" & B == "BENSON" 
+		& C != "Przewalski-hybrid"& D != "Przewalski-hybrid"
+		) %>%
+	arrange(zscore)  %>%
+	mutate(f4 = round(f4, 3), stderr = round(stderr, 3), zscore = round(zscore, 3))
 
+write.csv(bensonf4df, "results/ancestry/f4_nohybrid.benson.csv", row.names = F)
+
+
+# Split the table and transform it into a more readable format
+	# negative f4  gene flow between B and C
+	# positive f4  gene flow between B and D
+transdf4df <- bensonf4df %>%
+				transmute(f4structure = paste0("(", A,".", B, ";",C, ".",D, ")"), 
+							Target = B, 
+							mixpop = ifelse(zscore < -2, C,  D), 
+							f4 = f4,
+							stderr = stderr,
+							zscore = zscore
+							)
+negdf4df <- transdf4df[transdf4df$zscore < -2, ] 
+posdf4df <- transdf4df[transdf4df$zscore > 2, ] %>%
+				arrange(desc(zscore))
+
+
+write.csv(negdf4df, "results/ancestry/f4_neg.csv", row.names = F)
+write.csv(posdf4df, "results/ancestry/f4_pos.csv", row.names = F)
+
+
+# how many times do the breeds feature?
+f4countdf <- data.frame(table(c(transdf4df$mixpop))) %>% 
+				arrange(desc(Freq))
+f4countdf
 
 ###########################################
 ############### Analysis ##################
