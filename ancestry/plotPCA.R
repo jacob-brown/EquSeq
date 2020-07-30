@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-05
-# Last Modified: 2020-07-24
+# Last Modified: 2020-07-30
 
 # Desc: generate a table of names for running the pcangsd script
 
@@ -135,6 +135,7 @@ plotPCA <- function(PC_ls, zoom=T, highlight=NA, arrow=F,
 	}
 
 	if(arrow){
+
 		p <- p +
 			annotate(
     			geom = "curve", 
@@ -197,20 +198,22 @@ outleg <- "results/ancestry/pca_leg.pdf"
 
 # 1
 p1 <- plotPCA(PC_ls=all02, zoom=F, 
-				leg_pos="bottom", 
-				n_cols=3, nbreak=5, arrow=F, title="A")
+				leg_pos="bottom", title="",
+				n_cols=3, nbreak=5, arrow=F)
 # 2
-p2 <- plotPCA(PC_ls=nop05, zoom=T, leg_pos="none", 
-				n_cols=3, arrow=F, title="B")
+p2 <- plotPCA(PC_ls=nop05, zoom=T, 
+				leg_pos="none", title="",
+				n_cols=3, arrow=F)
 # arrange plots
-arrangep <- ggarrange(p1, p2, ncol=1, nrow=2, legend="none")
+arrangep <- ggarrange(p1, p2, ncol=1, nrow=2, legend="none", labels = c("A", "B"))
 
 # get legend and plot as seperate plot
 leg <- get_legend(p1)
 
 # save 
 ggsave(filename=outpca, 
-	plot=arrangep, device ="pdf", width=160, height=200,  units="mm", dpi ="screen")
+	plot=arrangep, device ="pdf", 
+	width=160, height=200,  units="mm", dpi ="screen")
 ggsave(filename=outleg, 
 	plot=as_ggplot(leg), device ="pdf", 
 	width=160, height=60,  units="mm", dpi ="screen")

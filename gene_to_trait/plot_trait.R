@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-29
-# Last Modified: 2020-07-24
+# Last Modified: 2020-07-27
 
 # Desc: 
 
@@ -358,7 +358,7 @@ plt_tvdf <- plt_tvdf %>%
 
 
 # blank labels
-labdf <- filter(plt_tvdf, ind =="Ind171") %>%
+labdf <- filter(plt_tvdf, ind =="BENSON") %>%
 				select(phen_grp, marker_phen=marker_phen2) %>%
 				arrange(phen_grp) %>%
 				unique()

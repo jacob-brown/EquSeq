@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-15
-# Last Modified: 2020-07-24
+# Last Modified: 2020-07-28
 
 # Desc: plot treemix results
 
@@ -57,7 +57,7 @@ plotRes <- function(outfile, poporder){
 
 		))
 	dev.off()
-	system(paste0("open -a Skim.app ", outfile))
+	#system(paste0("open -a Skim.app ", outfile))
 }
 
 strip_under <- function(vec) sapply(vec, function(x) sub("_",".", x))
@@ -68,9 +68,9 @@ strip_under <- function(vec) sapply(vec, function(x) sub("_",".", x))
 
 # update poporder file - for colouring plot
 	# cp poporder  poporder_col
-cbPalette <- c( "#000000", "#999999", "#E69F00", "#56B4E9", 
+cbPalette <- c( "#000000", "#F0E442", "#E69F00", 
 				"#009E73",  
-				"#CC79A7", "#F0E442", "#0072B2", "#D55E00")
+				"#CC79A7",   "#D55E00", "#999999",  "#56B4E9", "#0072B2")
 
 # major breeds
 maj_breed <- read.table("data/ancestry/breed_grps.csv", sep = ",", header=T)
@@ -101,10 +101,6 @@ plotRes(out="results/ancestry/tree_res.pdf",
 get_f("results/ancestry/treemix/tree.out.0")
 
 
-# save table for latex
-breedsv <- maj_breed[c("breed", "major.grp", "region")]
-write.table(breedsv, "results/ancestry/breed_grps.csv", 
-	row.names = FALSE, col.names = TRUE ,quote = FALSE, sep = ",")
 
 
 

@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-07-02
-# Last Modified: 2020-07-23
+# Last Modified: 2020-07-30
 
 # Desc: plot and analyse summarised microbial classification data
 
@@ -218,10 +218,12 @@ data_head_bact$species <- factor(data_head_bact$species, levels=speclvls)
 
 
 
-plotMicro <- function(df, out, col, figH=120){
+plotMicro <- function(df, title="", col, figH=120){
+
 	g <- ggplot(data=df, aes(x=species, y=count, fill =phylum)) +
 			#facet_grid(~kingdom, scales="free", space="free")+
 			geom_col(colour='black')+
+			ggtitle(title) + 
 			theme_classic() +
 			ylab("Total reads matched to taxa") +
 			xlab("Taxa") +
@@ -232,32 +234,28 @@ plotMicro <- function(df, out, col, figH=120){
 			theme(axis.text.y = element_text(face = "italic"),
 					legend.position = c(.8,.2),
 					legend.title = element_blank(),
+					legend.background = element_blank(),
 	    			legend.key.size = unit(3, "mm"))
-
-	ggsave(filename=out, 
-			plot=g, device ="pdf", width=160, height=figH, units="mm", dpi ="screen")
 }
-plotMicro(df=data_head_bact, 
-	out="results/oral_diversity/oralDiv_bacteria.pdf",
-	col = cbPalette)
-system("open -a Skim.app results/oral_diversity/oralDiv_bacteria.pdf")
-
-plotMicro(df=data_head_virus, 
-	out="results/oral_diversity/oralDiv_virus.pdf",
-	col = c(cbPalette[8], cbPalette[6]),
-	figH=50)
-system("open -a Skim.app results/oral_diversity/oralDiv_virus.pdf")
 
 
-#plotMicro(df=df_head_all, 
-#	out="results/oral_diversity/oralDiv.pdf",
-#	col = cbPalette)
-#system("open -a Skim.app results/oral_diversity/oralDiv.pdf")
+outplot <- "results/oral_diversity/oralDiv.pdf"
+p1 <- plotMicro(df=data_head_bact, col = cbPalette) #, title="A")
+p2 <- plotMicro(df=data_head_virus, col = c(cbPalette[8], cbPalette[6])) #, title="B")
+arrangep <- ggarrange(p1, p2, ncol=1, nrow=2, heights = c(2.8, 1), labels = c("A", "B"))
+# save 
+ggsave(filename=outplot, 
+	plot=arrangep, device ="pdf", width=160, height=200,  units="mm", dpi ="screen")
+system(paste0("open -a Skim.app ", outplot))
+
+
+
 
 
 ### save datatables ###
 write.csv(df_species_bact, "results/oral_diversity/df_bacteria.csv",row.names = F, quote=F)
 write.csv(df_species_virus, "results/oral_diversity/df_virus.csv",row.names = F, quote=F)
+
 #########################
 ### Stats for writeup ###
 #########################
