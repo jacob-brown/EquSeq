@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-05
-# Last Modified: 2020-07-30
+# Last Modified: 2020-08-05
 
 # Desc: generate a table of names for running the pcangsd script
 
@@ -23,6 +23,27 @@ require(scales)
 ###########################################
 ############## Function(s) ################
 ###########################################
+
+correctNames <- function(popls){
+	
+	popstore <- as.character(popls)
+
+	correct_df <- read.csv("data/ancestry/clusters_alt.csv", header=F, stringsAsFactors=F)
+	colnames(correct_df) <- c("Pop", "new")
+
+	to_change <- correct_df[correct_df$Pop != correct_df$new,]
+
+	runs <- length(popstore)
+	for(i in 1:runs){
+
+		if(popstore[i] %in% to_change$Pop){
+			popstore[i] <- to_change[to_change$Pop == popstore[i],2] # change the name
+		}
+	}
+
+	return(as.factor(popstore))
+}
+
 
 readPC <- function(covIN, sitesIN, MAF, clustIn, breedIN){
 
@@ -58,7 +79,13 @@ readPC <- function(covIN, sitesIN, MAF, clustIn, breedIN){
 		annot <- annotAll
 	}
 
+	# correct names
+	annotAll$CLUSTER <- correctNames(annotAll$CLUSTER)
+	annot$CLUSTER <- correctNames(annot$CLUSTER)
+
 	# levels
+	#clst_correct <- as.character(correctNames(unique(annotAll$CLUSTER)))
+	#clst <- sort(clst_correct)
 	clst <- sort(as.character(unique(annotAll$CLUSTER)))
 	prw <- c("Przewalski-hybrid", "Przewalski")
 	clust_levels <- c(clst[!(clst %in% prw)], prw)
@@ -77,7 +104,7 @@ readPC <- function(covIN, sitesIN, MAF, clustIn, breedIN){
 	breeds$V2[breeds$V2 == ""] <- NA
 	colnames(breeds) <- c("Pop", "maj_grp")
 
-	PC <- left_join(PC, breeds, by="Pop")
+	#PC <- left_join(PC, breeds, by="Pop")
 
 	# assign shape (for consistant legend when prw are removed)
 	#popCount <- length(unique(annot$CLUSTER))
@@ -155,6 +182,7 @@ plotPCA <- function(PC_ls, zoom=T, highlight=NA, arrow=F,
 
 }
 
+
 ###########################################
 ######### Input(s) and Parameters #########
 ###########################################
@@ -162,12 +190,13 @@ plotPCA <- function(PC_ls, zoom=T, highlight=NA, arrow=F,
 clustPath <- "results/ancestry/clusters"
 breedPath <- "results/ancestry/breeds.csv"
 
+
 ###########################################
 ############### Wraggling #################
 ###########################################
 
 # 0.02 minmaf - No przewalski
-nop05 <- readPC(covIN = "results/ancestry/NO_PREZ_5kb_02maf/NO.PRZ.PCA.cov", 
+nop02 <- readPC(covIN = "results/ancestry/NO_PREZ_5kb_02maf/NO.PRZ.PCA.cov", 
 				sitesIN = "results/ancestry/NO_PREZ_5kb_02maf/NO.PRZ.PCA.sites", 
 				MAF = "0.02", 
 				clustIn = clustPath,
@@ -188,6 +217,7 @@ all05 <- readPC(covIN = "results/ancestry/ALL_5kb_05maf/ALL.05.PCA.cov",
 				clustIn = clustPath,
 				breedIN = breedPath)
 
+
 ###########################################
 ################## Plot ###################
 ###########################################
@@ -201,7 +231,7 @@ p1 <- plotPCA(PC_ls=all02, zoom=F,
 				leg_pos="bottom", title="",
 				n_cols=3, nbreak=5, arrow=F)
 # 2
-p2 <- plotPCA(PC_ls=nop05, zoom=T, 
+p2 <- plotPCA(PC_ls=nop02, zoom=T, 
 				leg_pos="none", title="",
 				n_cols=3, arrow=F)
 # arrange plots

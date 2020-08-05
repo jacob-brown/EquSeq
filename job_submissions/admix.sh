@@ -1,8 +1,9 @@
 #! /bin/bash
-#PBS -l walltime=12:00:00
+#PBS -l walltime=24:00:00
 #PBS -l select=1:ncpus=5:mem=5gb
 
-# qsub -J 1-20 pca_admix.sh 
+# qsub -J 1-20 admix.sh 
+# qsub -J 21-39 admix.sh 
 
 CODE_DIR=$HOME/genomics/EquSeq/
 DIR=$EPHEMERAL/ancestry/

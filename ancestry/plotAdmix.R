@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-07-13
-# Last Modified: 2020-07-24
+# Last Modified: 2020-08-05
 
 # Desc: 
 
@@ -24,7 +24,25 @@ library(ggpubr)
 ############## Function(s) ################
 ###########################################
 
+correctNames <- function(popls){
+	
+	popstore <- as.character(popls)
 
+	correct_df <- read.csv("data/ancestry/clusters_alt.csv", header=F, stringsAsFactors=F)
+	colnames(correct_df) <- c("Pop", "new")
+
+	to_change <- correct_df[correct_df$Pop != correct_df$new,]
+
+	runs <- length(popstore)
+	for(i in 1:runs){
+
+		if(popstore[i] %in% to_change$Pop){
+			popstore[i] <- to_change[to_change$Pop == popstore[i],2] # change the name
+		}
+	}
+
+	return(as.factor(popstore))
+}
 
 ###########################################
 ######### Input(s) and Parameters #########
@@ -174,6 +192,9 @@ pointdf <- store_join %>%
 			select(grp, val, X, clst) 
 
 pointdf$val <- 0
+
+# rename
+store_join$grp <- correctNames(store_join$grp)
 
 
 plotAdmix <- function(){

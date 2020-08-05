@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-07-15
-# Last Modified: 2020-07-21
+# Last Modified: 2020-08-05
 
 # Desc: 
 
@@ -50,7 +50,30 @@ fstatToDF <- function(fileIn){
 
 }
 
+correctNames <- function(popls, space=T){
+	
+	popstore <- as.character(popls)
 
+	correct_df <- read.csv("data/ancestry/clusters_alt.csv", header=F, stringsAsFactors=F)
+	colnames(correct_df) <- c("Pop", "new")
+
+	to_change <- correct_df#[correct_df$Pop != correct_df$new,]
+
+	# remove space?
+	if(!space){
+		to_change$Pop <- as.vector(sapply(to_change$Pop, function(x) gsub(" ", "", x)))
+	}
+
+	runs <- length(popstore)
+	for(i in 1:runs){
+
+		if(popstore[i] %in% to_change$Pop){
+			popstore[i] <- to_change[to_change$Pop == popstore[i],2] # change the name
+		}
+	}
+
+	return(popstore)
+}
 ###########################################
 ######### Input(s) and Parameters #########
 ###########################################
@@ -70,6 +93,8 @@ bensonf3df <- tibble(f3_df) %>%
 	arrange(zscore) %>%
 	mutate(f3 = round(f3, 3), stderr = round(stderr, 3), zscore = round(zscore, 3))
 
+bensonf3df$B <- correctNames(bensonf3df$B, space=F)
+bensonf3df$C <- correctNames(bensonf3df$C, space=F)
 
 write.csv(bensonf3df, "results/ancestry/f3.benson.csv", row.names = F)
 
@@ -113,6 +138,11 @@ bensonf4df <- tibble(f4_df) %>%
 		) %>%
 	arrange(zscore)  %>%
 	mutate(f4 = round(f4, 3), stderr = round(stderr, 3), zscore = round(zscore, 3))
+
+
+# rename
+bensonf4df$C <- correctNames(bensonf4df$C, space=F)
+bensonf4df$D <- correctNames(bensonf4df$D, space=F)
 
 write.csv(bensonf4df, "results/ancestry/f4_nohybrid.benson.csv", row.names = F)
 

@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-15
-# Last Modified: 2020-07-28
+# Last Modified: 2020-08-05
 
 # Desc: plot treemix results
 
@@ -14,8 +14,8 @@
 library(dplyr)
 library(ggplot2)
 
-source("dependancies/treemix-1.13/src/plotting_funcs.R")
-
+#source("dependancies/treemix-1.13/src/plotting_funcs.R")
+source("scripts/jb_plotting_funcs.R")
 ###########################################
 ############## Function(s) ################
 ###########################################
@@ -26,10 +26,10 @@ plotTree <- function(outfile, poporder){
 	prefix <- "results/ancestry/treemix/tree.out.0"
 
 	### single migrations ###
-	pdf(outfile, width=7, height=9)
+	pdf(outfile, width=7.25, height=9)
 	options(scipen=5)
 	 invisible(capture.output(x <- 
-	  	plot_tree(prefix, plus=0.0003, disp=0.00001, cex=1,#0.6,
+	  	plot_tree(stem = prefix, plus=0.0003, disp=0.00001, cex=1,#0.6,
 	  		o = poporder, 
 	  		flip = vector(), arrow = 0.05, 
 	  		scale = T,  # SE
@@ -62,6 +62,7 @@ plotRes <- function(outfile, poporder){
 
 strip_under <- function(vec) sapply(vec, function(x) sub("_",".", x))
 
+
 ###########################################
 ################## Plot ###################
 ###########################################
@@ -73,7 +74,8 @@ cbPalette <- c( "#000000", "#F0E442", "#E69F00",
 				"#CC79A7",   "#D55E00", "#999999",  "#56B4E9", "#0072B2")
 
 # major breeds
-maj_breed <- read.table("data/ancestry/breed_grps.csv", sep = ",", header=T)
+maj_breed <- read.table("data/ancestry/breed_grps_tree.csv", sep = ",", header=T)
+maj_breed$breed <- sapply(maj_breed$breed, function(x) gsub(" ", "", x))
 maj_breed$major.grp.num <- as.numeric(maj_breed$major.grp)
 maj_breed$col <- NA
 for(i in unique(maj_breed$major.grp.num)){
@@ -94,8 +96,8 @@ plotTree(outfile="results/ancestry/tree.pdf",
 			poporder = "results/ancestry/treemix/poporder_col")
 
 # residuals - black colour
-plotRes(out="results/ancestry/tree_res.pdf", 
-	poporder = "results/ancestry//treemix/poporder" )
+#plotRes(out="results/ancestry/tree_res.pdf", 
+#	poporder = "results/ancestry//treemix/poporder" )
 
 # variance 
 get_f("results/ancestry/treemix/tree.out.0")
