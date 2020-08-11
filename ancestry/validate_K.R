@@ -25,6 +25,6 @@ pdf(file='results/ancestry/k_validation.pdf', 6, 6)
 plot(logs$V1, logs$V2, 
 		xlim=c(0,  max(logs$V1)),
 		type = "b", frame = FALSE, 
-		pch = 19, xlab = "K", ylab = "liklihood")
+		pch = 19, xlab = "K", ylab = "log(liklihood)")
 invisible(dev.off())
 system("open -a Skim.app results/ancestry/k_validation.pdf")
