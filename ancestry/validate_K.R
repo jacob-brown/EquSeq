@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-09
-# Last Modified: 2020-08-05
+# Last Modified: 2020-08-11
 
 # Desc: Validate K for admixture analysis
 
@@ -25,6 +25,6 @@ pdf(file='results/ancestry/k_validation.pdf', 6, 6)
 plot(logs$V1, logs$V2, 
 		xlim=c(0,  max(logs$V1)),
 		type = "b", frame = FALSE, 
-		pch = 19, xlab = "K", ylab = "log(liklihood)")
+		pch = 19, xlab = "K", ylab = "liklihood")
 invisible(dev.off())
 system("open -a Skim.app results/ancestry/k_validation.pdf")

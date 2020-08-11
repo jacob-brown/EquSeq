@@ -18,7 +18,7 @@ require(gridExtra)
 require(grid)
 require(tidyverse)
 require(ggpubr)
-
+library(RColorBrewer)
 
 ###########################################
 ############## Function(s) ################
@@ -45,48 +45,46 @@ correctNames <- function(popls){
 }
 
 
-admixData <- function(dir, clusters,  minAnc, maxAnc){
+admixData <- function(dir, clusters, nAnc){
 
 	# select the files
 	files <- list.files(dir, full.names=T)
 	files_to_use <- subset(files, file_ext(files) == "qopt")
 	files_to_use <- str_sort(files_to_use, numeric = TRUE) # natural sort
-	files_to_use <- files_to_use[minAnc:maxAnc]
+	files_to_use <- files_to_use[nAnc]
 
 	# clusters
 	pop <- read.delim(clusters, header = TRUE, sep="\t", colClasses = "character")
 	# read files to qlist 
 	qlist_all <- readQ(files_to_use)
 	slist <- alignK(qlist_all, type="auto") # sort "within", "auto", "across"
-	k_labs <- c(paste0("K=", (1:length(slist))+1))
-	names(slist) <- c(paste0("K", (1:length(slist))+1))
+	k_labs <- c(paste0("K=", nAnc))
+	names(slist) <- c(paste0("K", nAnc))
 
-	###
-	# manually correct the pops that weren't autocorrected
-	# K3 
-		# c3 > c2
-	names(slist$K3) <- c("Cluster1", "Cluster3", "Cluster2")
-	# K4 
-		# c1 > c2
-		# c4 > c1
-	names(slist$K4) <- c("Cluster2", "Cluster4", "Cluster3", "Cluster1")
+	if(F){
+
+			###
+			# manually correct the pops that weren't autocorrected
+			# K3 
+				# c3 > c2
+			names(slist$K3) <- c("Cluster1", "Cluster3", "Cluster2")
+			# K4 
+				# c1 > c2
+				# c4 > c1
+			names(slist$K4) <- c("Cluster2", "Cluster4", "Cluster3", "Cluster1")
+
+	}
+
 	# K5
-		# c2 > c1
-		# c1 > c5
-		# c3 > c2
 	names(slist$K5) <- c("Cluster2", "Cluster3", "Cluster5", "Cluster4", "Cluster1")
+	
 	# K6
-		# c6 > c2 
-		# c2 > c3
-		# c5 > c1
-		# c4 > c6
 	names(slist$K6) <- c("Cluster4", "Cluster3", "Cluster5", "Cluster6", "Cluster1", "Cluster2")
+	
 	# K7
-		# c3 ><c7
 	names(slist$K7) <- c("Cluster1", "Cluster2", "Cluster7", 
 								"Cluster4", "Cluster5", "Cluster6", "Cluster3")
 	# K8
-		# c3 ><c7
 	names(slist$K8) <- c("Cluster1", "Cluster2", "Cluster7", 
 								"Cluster4", "Cluster5", "Cluster6", "Cluster3", "Cluster8")
 	# K9
@@ -95,6 +93,45 @@ admixData <- function(dir, clusters,  minAnc, maxAnc){
 								"Cluster4", "Cluster5", "Cluster6", 
 								"Cluster3", "Cluster8", "Cluster9")
 
+	# K15
+	names(slist$K15) <- c("Cluster6", "Cluster14", "Cluster2", 
+								"Cluster4", "Cluster1", "Cluster10", 
+								"Cluster9", "Cluster8", "Cluster15",
+								"Cluster5", "Cluster11", "Cluster12",
+								"Cluster13", "Cluster3", "Cluster7")
+
+	# K20
+	names(slist$K20) <- c("Cluster1", "Cluster3", "Cluster17", 
+								"Cluster4", "Cluster16", "Cluster9", 
+								"Cluster19", "Cluster13", "Cluster6",
+								"Cluster7", "Cluster11", "Cluster12",
+								"Cluster8", "Cluster14", "Cluster15",
+								"Cluster5", "Cluster20", "Cluster18",
+								"Cluster10", "Cluster2")
+	# K25
+	names(slist$K25) <- c("Cluster5", "Cluster2", "Cluster14", 
+								"Cluster10", "Cluster13", "Cluster20", 
+								"Cluster4", "Cluster8", "Cluster9",
+								"Cluster7", "Cluster11", "Cluster12",
+								"Cluster1", "Cluster3", "Cluster15",
+								"Cluster16", "Cluster17", "Cluster18",
+								"Cluster19", "Cluster6", "Cluster21", 
+								"Cluster22", "Cluster23","Cluster24", 
+								"Cluster25")
+
+	# K30
+	names(slist$K30) <- c("Cluster7", "Cluster2", "Cluster25", 
+								"Cluster4", "Cluster29", "Cluster16", 
+								"Cluster21", "Cluster8", "Cluster30",
+								"Cluster13", "Cluster11", "Cluster3",
+								"Cluster10", "Cluster14", "Cluster15",
+								"Cluster6", "Cluster17", "Cluster18",
+								"Cluster19", "Cluster20", "Cluster1", 
+								"Cluster22", "Cluster23","Cluster24", 
+								"Cluster5", "Cluster26", "Cluster27", 
+								"Cluster12", "Cluster28","Cluster9")
+
+	
 	# clusters
 	onelabset1 <- pop[,3,drop=FALSE]
 	#onelabset1$CLUSTER <- as.vector(sapply(onelabset1$CLUSTER, function(x) substr(x, 1, 3)))
@@ -152,17 +189,22 @@ admixData <- function(dir, clusters,  minAnc, maxAnc){
 
 plotAdmix <- function(df, out){
 
-		ncol <- length(unique(df$K)) +1
+
+		uniqK <- unique(df$K)
+		ncol <- max(sapply(uniqK, function(x) as.numeric(gsub("K=", "", x))))
 		largedf <- ncol > 9
 		
 		if(!largedf){
 
 			colpal <- c( "#999999", "#E69F00", "#56B4E9", 
-					"#009E73", "#F0E442", "#0072B2", "#D55E00", 
-					"#CC79A7", "#000000")
+						"#009E73", "#F0E442", "#0072B2", "#D55E00", 
+						"#CC79A7", "#000000")
 		}else{
 			
-			colpal <- wesanderson::wes_palette("Zissou1", ncol, type = "continuous")
+			#qual_col_pals <- brewer.pal.info[brewer.pal.info$category == 'qual',]
+			#col_vector <- unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+			#colpal <- sample(col_vector, ncol)
+			colpal <- wesanderson::wes_palette("Darjeeling1", ncol, type = "continuous")
 			
 			}
 
@@ -181,7 +223,6 @@ plotAdmix <- function(df, out){
 				ylab("")+
 				scale_fill_manual(values = colpal) +
 				scale_colour_manual(values = colpal) +
-				#scale_fill_manual(values = wes_pal)+
 				theme(axis.text.x = element_blank(),
 						axis.line.y = element_blank(),
 						axis.line.x = element_blank(),
@@ -227,18 +268,16 @@ plotAdmix <- function(df, out){
 ###########################################
 
 # all data
-dataAll <- admixData(dir="results/ancestry/ALL_5kb_02maf/",  
-					clusters="results/ancestry/clusters", 
-					 minAnc = 2,
-					maxAnc=39)
-plotAdmix(df=dataAll, out="results/ancestry/admixture_all.pdf")
+#dataAll <- admixData(dir="results/ancestry/ALL_5kb_02maf/",  
+#					clusters="results/ancestry/clusters", 
+#					nAnc = seq(2, 39))
+#plotAdmix(df=dataAll, out="results/ancestry/admixture_all.pdf")
 
 # selected 
-data9 <- admixData(dir="results/ancestry/ALL_5kb_02maf/",  
+data_select <- admixData(dir="results/ancestry/ALL_5kb_02maf/",  
 					clusters="results/ancestry/clusters", 
-					minAnc = 2,
-					maxAnc=9)
-plotAdmix(df=data9, out="results/ancestry/admixture.pdf")
+					nAnc=c(5,6,7,8,9,15,20,25,30))
+plotAdmix(df=data_select, out="results/ancestry/admixture.pdf")
 
 
 
