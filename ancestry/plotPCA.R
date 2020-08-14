@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-05
-# Last Modified: 2020-08-05
+# Last Modified: 2020-08-13
 
 # Desc: generate a table of names for running the pcangsd script
 
@@ -93,7 +93,7 @@ readPC <- function(covIN, sitesIN, MAF, clustIn, breedIN){
 	# update cluster values
 	PC$Pop <- factor(annot$CLUSTER, levels=clust_levels)
 	PC$IID <- as.character(annot$IID)
-	title <- paste("PC1"," (",signif(eig$val[1], digits=3)*100,"%)"," / PC",
+	title <- paste("PC1"," (",signif(eig$val[1], digits=3)*100,"%)"," / ",
 				"PC2"," (",signif(eig$val[2], digits=3)*100,"%)",sep="",collapse="")
 	title <- paste0(title, " ", title_append)
 	# abbreviate

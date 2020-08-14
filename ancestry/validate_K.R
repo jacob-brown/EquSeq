@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-09
-# Last Modified: 2020-08-11
+# Last Modified: 2020-08-13
 
 # Desc: Validate K for admixture analysis
 

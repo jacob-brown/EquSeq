@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-07-13
-# Last Modified: 2020-08-11
+# Last Modified: 2020-08-13
 
 # Desc: 
 
@@ -18,7 +18,7 @@ require(gridExtra)
 require(grid)
 require(tidyverse)
 require(ggpubr)
-library(RColorBrewer)
+require(RColorBrewer)
 
 ###########################################
 ############## Function(s) ################
@@ -173,6 +173,9 @@ admixData <- function(dir, clusters, nAnc){
 	#store_join$clst
 	store_join$clst <- as.vector(sapply(store_join$clst, function(x) str_remove(x, "Cluster")))
 
+	clstlvls <- as.numeric(unique(store_join$clst))
+	store_join$clst <- factor(store_join$clst, levels =clstlvls)
+
 	# create point df to plot
 	pointdf <- store_join %>%
 				filter(K == "K=2") %>%
@@ -187,7 +190,22 @@ admixData <- function(dir, clusters, nAnc){
 
 }
 
-plotAdmix <- function(df, out){
+
+discreteColours <- function(ncol){
+
+	library("colorspace")
+
+	cb <- c("#999999", "#E69F00", "#56B4E9", 
+				"#009E73", "#F0E442", "#0072B2", "#D55E00", 
+				"#CC79A7", "#000000")
+	nleft <- ncol - length(cb)
+	colpal <- divergingx_hcl(nleft, palette = "Temps")
+
+	return(c(cb, colpal))
+
+}
+
+plotAdmix <- function(df, out, pwidth=190, pheight=200){
 
 
 		uniqK <- unique(df$K)
@@ -196,15 +214,13 @@ plotAdmix <- function(df, out){
 		
 		if(!largedf){
 
-			colpal <- c( "#999999", "#E69F00", "#56B4E9", 
+			colpal <- c("#999999", "#E69F00", "#56B4E9", 
 						"#009E73", "#F0E442", "#0072B2", "#D55E00", 
 						"#CC79A7", "#000000")
 		}else{
 			
-			#qual_col_pals <- brewer.pal.info[brewer.pal.info$category == 'qual',]
-			#col_vector <- unlist(mapply(brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
-			#colpal <- sample(col_vector, ncol)
-			colpal <- wesanderson::wes_palette("Darjeeling1", ncol, type = "continuous")
+			#colpal <- wesanderson::wes_palette("Darjeeling1", ncol, type = "continuous")
+			colpal <- discreteColours(ncol=ncol)
 			
 			}
 
@@ -254,7 +270,7 @@ plotAdmix <- function(df, out){
 
 
 		ggsave(filename=out, 
-				plot=g, device ="pdf", width=190, height=200, units="mm", dpi ="screen")
+				plot=g, device ="pdf", width=pwidth, height=pheight, units="mm", dpi ="screen")
 
 
 		system(paste0("open -a Skim.app ", out))
@@ -268,17 +284,18 @@ plotAdmix <- function(df, out){
 ###########################################
 
 # all data
-#dataAll <- admixData(dir="results/ancestry/ALL_5kb_02maf/",  
-#					clusters="results/ancestry/clusters", 
-#					nAnc = seq(2, 39))
-#plotAdmix(df=dataAll, out="results/ancestry/admixture_all.pdf")
+dataAll <- admixData(dir="results/ancestry/ALL_5kb_02maf/",  
+					clusters="results/ancestry/clusters", 
+					nAnc = seq(2, 39))
+plotAdmix(df=dataAll, out="results/ancestry/admixture_all.pdf",
+					pwidth=190,
+					pheight=250)
 
 # selected 
 data_select <- admixData(dir="results/ancestry/ALL_5kb_02maf/",  
 					clusters="results/ancestry/clusters", 
 					nAnc=c(5,6,7,8,9,15,20,25,30))
 plotAdmix(df=data_select, out="results/ancestry/admixture.pdf")
-
 
 
 

@@ -3,7 +3,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-04
-# Last Modified: 2020-06-23
+# Last Modified: 2020-08-14
 
 
 
@@ -22,7 +22,6 @@ import argparse
 import os
 import re
 import subprocess
-import time
 
 
 ###########################################

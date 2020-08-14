@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-07-02
-# Last Modified: 2020-07-30
+# Last Modified: 2020-08-13
 
 # Desc: plot and analyse summarised microbial classification data
 
@@ -197,13 +197,13 @@ sink()
 ### bacteria ###
 data_head_bact <- df_species_bact %>% 
 					arrange(desc(rel_abundance)) %>%
-					head(ceiling(eff_species_bact))
+					head(round(eff_species_bact))
 
 ### virus ###
 data_head_virus <- df_species_virus %>% 
 					arrange(desc(rel_abundance)) %>%
 					#head(100)
-					head(ceiling(eff_species_virus))
+					head(round(eff_species_virus))
 
 
 ### Combine head dfs ###
@@ -217,8 +217,13 @@ speclvls <- rev(as.character(data_head_bact$species))
 data_head_bact$species <- factor(data_head_bact$species, levels=speclvls)
 
 
-
 plotMicro <- function(df, title="", col, figH=120){
+
+	
+	min <- min(df$count)
+	max <- max(df$count)
+	jumps <- round((max - min) /3)
+	seq(min, max, by = jumps)
 
 	g <- ggplot(data=df, aes(x=species, y=count, fill =phylum)) +
 			#facet_grid(~kingdom, scales="free", space="free")+
@@ -229,7 +234,8 @@ plotMicro <- function(df, title="", col, figH=120){
 			xlab("Taxa") +
 			coord_flip()+
 			theme_pubr()+
-			scale_y_continuous(labels = scales::scientific)+ 
+			scale_y_continuous(breaks = scales::pretty_breaks(n = 3), 
+				labels = scales::scientific)+ 
 			scale_fill_manual(values = col)+
 			theme(axis.text.y = element_text(face = "italic"),
 					legend.position = c(.8,.2),
@@ -241,8 +247,8 @@ plotMicro <- function(df, title="", col, figH=120){
 
 outplot <- "results/oral_diversity/oralDiv.pdf"
 p1 <- plotMicro(df=data_head_bact, col = cbPalette) #, title="A")
-p2 <- plotMicro(df=data_head_virus, col = c(cbPalette[8], cbPalette[6])) #, title="B")
-arrangep <- ggarrange(p1, p2, ncol=1, nrow=2, heights = c(2.8, 1), labels = c("A", "B"))
+p2 <- plotMicro(df=data_head_virus, col = c(cbPalette[6], cbPalette[8])) #, title="B")
+arrangep <- ggarrange(p1, p2, ncol=1, nrow=2, heights = c(3.1, 1), labels = c("A", "B"))
 # save 
 ggsave(filename=outplot, 
 	plot=arrangep, device ="pdf", width=160, height=200,  units="mm", dpi ="screen")
