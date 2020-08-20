@@ -1,6 +1,6 @@
 .DS_Store
 /data/sequence/
-/data/cleaned_data/
+#/data/cleaned_data/
 __pycache__
 written_project/
 tree.*
