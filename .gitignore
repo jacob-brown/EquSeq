@@ -34,4 +34,3 @@ data/snp_calling_list/*
 dump_delete
 mapping/fastq_screen.sh
 sync.sh
-README*
