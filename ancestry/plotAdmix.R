@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-07-13
-# Last Modified: 2020-08-13
+# Last Modified: 2020-08-14
 
 # Desc: 
 
@@ -19,6 +19,7 @@ require(grid)
 require(tidyverse)
 require(ggpubr)
 require(RColorBrewer)
+require(colorspace)
 
 ###########################################
 ############## Function(s) ################
@@ -192,8 +193,6 @@ admixData <- function(dir, clusters, nAnc){
 
 
 discreteColours <- function(ncol){
-
-	library("colorspace")
 
 	cb <- c("#999999", "#E69F00", "#56B4E9", 
 				"#009E73", "#F0E442", "#0072B2", "#D55E00", 

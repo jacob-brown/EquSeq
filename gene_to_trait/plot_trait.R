@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-29
-# Last Modified: 2020-07-27
+# Last Modified: 2020-08-20
 
 # Desc: 
 
@@ -356,6 +356,14 @@ plt_tvdf <- plt_tvdf %>%
 				mutate(half = ifelse(ind %in% half_1, 1, 2),
 						half = ifelse(ind == "BENSON", 1, half))
 
+#####
+# Save breed and indID 
+plt_tvdf %>%
+	transmute("Individual Figure Label" =ind, Breed = CLUSTER) %>%
+	unique() %>%
+	write.csv(
+	file = "results/gene_to_trait/ind_codes.csv", 
+	row.names =F, quote=F)
 
 # blank labels
 labdf <- filter(plt_tvdf, ind =="BENSON") %>%
@@ -403,10 +411,10 @@ plotGene <- function(df, title){
 
 	# plot and save
 	g <- ggplot(df, mapping = aes(marker_phen2, ind, fill = GP)) + 
-	  		geom_raster()+
-	  		geom_raster(absentDF, 
+	  		geom_tile()+
+	  		geom_tile(absentDF, 
 	  				mapping = aes(marker_phen2, ind),
-	  				fill = "grey")+
+	  				fill = "grey", )+
 	  		#geom_tile(absentDF, 
 	  		#		mapping = aes(marker_phen2, ind, color = "absent"),
 	  		#		fill = "grey")+
@@ -445,9 +453,8 @@ arrangep <- ggarrange(p1, p2, ncol=2, nrow=1,
 	legend.grob=leg, 
 	common.legend = F,
 	legend="bottom")
+
 ggsave(filename=outfile, 
 	plot=arrangep, device ="pdf", width=180, height=170,  units="mm", dpi ="screen")
 system(paste0("open -a Skim.app ", outfile))
-####
-
 

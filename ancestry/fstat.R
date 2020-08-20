@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-07-15
-# Last Modified: 2020-08-05
+# Last Modified: 2020-08-18
 
 # Desc: 
 
@@ -166,20 +166,27 @@ posdf4df <- transdf4df[transdf4df$zscore > 2, ] %>%
 write.csv(negdf4df, "results/ancestry/f4_neg.csv", row.names = F)
 write.csv(posdf4df, "results/ancestry/f4_pos.csv", row.names = F)
 
+### combine f4 tables for report
+f4_all <- rbind(posdf4df, negdf4df)
+f4_all <- f4_all[rev(order(abs(f4_all$zscore))),] # order absolute values
+f4_all <- f4_all %>% 
+	mutate(f4structure = str_replace_all(f4structure, "Przewalski", "A"),
+		f4structure = str_replace_all(f4structure, "BENSON", "B"),
+		f4structure = str_replace_all(f4structure, ";", "; ")
+		) %>%
+			transmute("f4 Structure" = str_replace_all(f4structure, "[.]", ","), 
+				"Target Mixed With" = mixpop,
+				"f4 value" = f4,
+				SE=stderr,
+				"Z-Score" = zscore)
+
+write.csv(f4_all, "results/ancestry/f4_benson.csv", row.names = F)
 
 # how many times do the breeds feature?
 f4countdf <- data.frame(table(c(transdf4df$mixpop))) %>% 
 				arrange(desc(Freq))
 f4countdf
 
-###########################################
-############### Analysis ##################
-###########################################
 
-
-
-###########################################
-############### Plotting ##################
-###########################################
 
 	

@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-07-02
-# Last Modified: 2020-08-13
+# Last Modified: 2020-08-17
 
 # Desc: plot and analyse summarised microbial classification data
 
@@ -217,13 +217,12 @@ speclvls <- rev(as.character(data_head_bact$species))
 data_head_bact$species <- factor(data_head_bact$species, levels=speclvls)
 
 
-plotMicro <- function(df, title="", col, figH=120){
+plotMicro <- function(df, title="", col){
 
 	
 	min <- min(df$count)
 	max <- max(df$count)
 	jumps <- round((max - min) /3)
-	seq(min, max, by = jumps)
 
 	g <- ggplot(data=df, aes(x=species, y=count, fill =phylum)) +
 			#facet_grid(~kingdom, scales="free", space="free")+
@@ -231,7 +230,7 @@ plotMicro <- function(df, title="", col, figH=120){
 			ggtitle(title) + 
 			theme_classic() +
 			ylab("Total reads matched to taxa") +
-			xlab("Taxa") +
+			xlab("") +
 			coord_flip()+
 			theme_pubr()+
 			scale_y_continuous(breaks = scales::pretty_breaks(n = 3), 
@@ -248,10 +247,10 @@ plotMicro <- function(df, title="", col, figH=120){
 outplot <- "results/oral_diversity/oralDiv.pdf"
 p1 <- plotMicro(df=data_head_bact, col = cbPalette) #, title="A")
 p2 <- plotMicro(df=data_head_virus, col = c(cbPalette[6], cbPalette[8])) #, title="B")
-arrangep <- ggarrange(p1, p2, ncol=1, nrow=2, heights = c(3.1, 1), labels = c("A", "B"))
+arrangep <- ggarrange(p1, p2, ncol=1, nrow=2, heights = c(2.7, 1), labels = c("A", "B"))
 # save 
 ggsave(filename=outplot, 
-	plot=arrangep, device ="pdf", width=160, height=200,  units="mm", dpi ="screen")
+	plot=arrangep, device ="pdf", width=150, height=140,  units="mm", dpi ="screen")
 system(paste0("open -a Skim.app ", outplot))
 
 

@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-15
-# Last Modified: 2020-08-05
+# Last Modified: 2020-08-17
 
 # Desc: plot treemix results
 
@@ -26,10 +26,10 @@ plotTree <- function(outfile, poporder){
 	prefix <- "results/ancestry/treemix/tree.out.0"
 
 	### single migrations ###
-	pdf(outfile, width=7.25, height=9)
+	pdf(outfile, width=6, height=6)
 	options(scipen=5)
 	 invisible(capture.output(x <- 
-	  	plot_tree(stem = prefix, plus=0.0003, disp=0.00001, cex=1,#0.6,
+	  	plot_tree(stem = prefix, plus=0.0003, disp=0.00001, cex=0.7,
 	  		o = poporder, 
 	  		flip = vector(), arrow = 0.05, 
 	  		scale = T,  # SE
@@ -41,7 +41,8 @@ plotTree <- function(outfile, poporder){
 	dev.off()
 	system(paste0("open -a Skim.app ", outfile))
 }
-
+plotTree(outfile="results/ancestry/tree.pdf",
+			poporder = "results/ancestry/treemix/poporder_col")
 ### plot tree residuals
 plotRes <- function(outfile, poporder){
 	

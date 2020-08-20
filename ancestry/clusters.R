@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-05-11
-# Last Modified: 2020-07-10
+# Last Modified: 2020-08-18
 
 # Desc: 
 
@@ -85,5 +85,37 @@ df <- df[order(df$IID),]
 # write table out
 write.table(df, row.names=F, sep="\t", file="results/ancestry/clusters", quote=F)
 
-#write.table(table, row.names=F, sep="\t", col.names=c("FID","IID","CLUSTER"), file="results/ancestry/test.clst", quote=F)
+
+
+######
+# Summary tables for report writeup
+
+##################
+### same a table of the individuals used and accession codes
+df_info_all <- run_join %>% 
+				filter(index != 90 & sub_group != "BENSON") %>%
+				transmute(ascension_biosample = name,
+							breed = sub_group
+							) %>%
+				arrange(breed, ascension_biosample)
+
+write.csv(df_info_all, "results/individs_used.csv", row.names=F, quote=F)
+
+
+### find the number of each breed used
+breed_grp <- read.csv("data/ancestry/breed_grps.csv")
+#rbind(data.frame(breed="BENSON", n=1)) %>%
+breed_grp_update <- df_info_all %>%
+						group_by(breed) %>%
+						summarise(n=n()) %>%
+						left_join(breed_grp, by="breed") %>%
+						arrange(breed) %>%
+						transmute(Breed=breed, "Major Type" = major.grp, n)
+
+write.csv(breed_grp_update, "results/breed_grp_update.csv", row.names=F, quote=F)
+
+
+
+
+
 
