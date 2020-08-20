@@ -1,6 +1,9 @@
 # EquSeq
 
-Submitted as part of ...
+Submitted as part of:
+
+**Title:** Direct to consumer genetics for non-human samples
+
 
 Tool is a work in progress, many of the scripts are still hard-coded.  
 

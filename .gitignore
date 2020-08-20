@@ -3,7 +3,6 @@
 #/data/cleaned_data/
 __pycache__
 written_project/
-tree.*
 *.bam*
 /data/processed_sequences/
 /data/omia_sql/
@@ -13,7 +12,6 @@ data/gene_variants/snp.list
 data/ancestry/*
 #data/ancestry/bam_list_grps/
 hpc.txt
-results/
 example_format*
 data/oral_diversity/taxonkit_misc
 *.xlsx
@@ -34,3 +32,14 @@ data/snp_calling_list/*
 dump_delete
 mapping/fastq_screen.sh
 sync.sh
+tree.md
+
+# results to exclude (due to size)
+results/ancestry/archive/
+results/ancestry/ALL_5kb_05maf
+results/ancestry/ALL_5kb_02maf
+results/ancestry/NO_PREZ_5kb_02maf
+results/ancestry/treemix/old/
+results/coverage
+results/gene_to_trait/archive
+results/oral_diversity/all_kreport.zip

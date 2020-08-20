@@ -1,0 +1,18 @@
+
+=====================
+
+Statistics
+
+=====================
+
+Bacteria...
+shannon:  2.85832047228305 
+ENS:  17.432224432182 
+Total species detected:  3025 
+
+=====================
+
+Virus...
+shannon:  1.18377160688832 
+ENS:  3.26667159894473 
+Total species detected:  52 

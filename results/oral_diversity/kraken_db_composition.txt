@@ -1,0 +1,8 @@
+type count
+Chordata 2
+fungi 56
+plant 69
+Archaea 268
+Bacteria 5170
+Eukaryota 127
+Viruses 1191
