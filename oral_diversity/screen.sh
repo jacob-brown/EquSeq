@@ -60,22 +60,3 @@ conda deactivate
 # R
 #pavian::runApp()
 
-### braken ###
-#cd $EPHEMERAL/sandbox/
-##conda install -c bioconda bracken
-#git clone https://github.com/jenniferlu717/Bracken.git
-#cd Bracken
-#bash install_bracken.sh
-#cd ..
-#
-## testing
-#scp V300044309_L2_B5GHORlfyRAAAAAAA-517.kreport jb1919@login.cx1.hpc.ic.ac.uk:/rds/general/user/jb1919/ephemeral/sandbox
-## S for species level
-#Bracken/bracken -d ../oral_diversity/db_kraken_horse -i V300044309_L2_B5GHORlfyRAAAAAAA-517.kreport -o bracken.species.txt -l S
-#
-
-
-
-
-
-

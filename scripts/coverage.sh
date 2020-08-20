@@ -35,11 +35,3 @@ samtools coverage $FILE > $HOME/genomics/stats/$BASE.csv
 
 conda deactivate
 
-
-# 6m29 for 8 GB
-
-# 12m for 18 GB
-
-# scp coverage.sh jb1919@login.cx1.hpc.ic.ac.uk:/rds/general/user/jb1919/home/genomics/code
-
-# scp jb1919@login.cx1.hpc.ic.ac.uk:/rds/general/user/jb1919/home/genomics/stats/* results/coverage/

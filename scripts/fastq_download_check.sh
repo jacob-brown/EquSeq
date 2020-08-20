@@ -2,7 +2,7 @@
 # Author: Jacob Brown
 # Email j.brown19@imperial.ac.uk
 # Date:   2020-06-12
-# Last Modified: 2020-06-12
+# Last Modified: 2020-08-20
 # Desc: check log files for errors
 
 
@@ -15,7 +15,7 @@ cd sandbox/fasta_logs
 mkdir log_pass
 mkdir log_fail
 
-scp jb1919@login.cx1.hpc.ic.ac.uk:/rds/general/user/jb1919/home/genomics/code/fastqDown.zip .
+scp ADD_YOUR_SCP_HERE .
 
 unzip fastqDown.zip
 
