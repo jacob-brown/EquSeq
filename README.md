@@ -3,8 +3,11 @@
 Submitted as part of the thesis:
 
 **Title:** Direct to consumer genetics for non-human samples
+
 **Author**: Jacob Brown
+
 Master of Research at Imperial College London.
+
 Submitted for the *MRes in Computational Methods in Ecology and Evolution*.
 
 
