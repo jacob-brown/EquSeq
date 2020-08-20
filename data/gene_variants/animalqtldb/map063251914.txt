@@ -1,2 +1,0 @@
-QTL_ID	Symbol	Chromosome	Center_cM	Range_cM	Cood_A_bp	Coord_B_bp	Trait_Name	Significance	FlankMrkA2	FlankMrkA1	FlankMrkB1	FlankMrkB2
-135441	INS	14	117.67	117.67-117.67	69276794	69276834	Insulin level	Significant				
