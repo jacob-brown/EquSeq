@@ -1,38 +1,38 @@
 # EquSeq
 
-Submitted as part of the thesis:
+Submitted as part of:
 
 **Title:** Direct to consumer genetics for non-human samples
 
 **Author**: Jacob Brown
 
-Master of Research at Imperial College London.
+Master of Research at Imperial College London 2020.
 
 Submitted for the *MRes in Computational Methods in Ecology and Evolution*.
 
 
 **N.B.** General usage and thesis replicability is sufficient, however, the tool is a work in progress, eg. many of the scripts are still hard-coded.
 
-The scripts make use of 2 environments (both unix), HPC and local. Much of the analysis on raw sequences occured on the HPC space, whilst the local environmet was reserved for smaller data file handling and plotting. 
-
 -----
 # Files/Directories of particular interest
 For thesis examinars and those undertaking future work, below are several important files/directories to take particular note of.
 
-* `data/raw_data` - raw infotables from ncbi, compiled tables for scripts to pivot on. Only edit if more data is being added. 
+* `data/raw_data` - raw infotables from ncbi, compiled tables for scripts to pivot on (only edit if more data is being added). 
 * `data/metadata` - metadata tables from publications, usually breed-sample info 
 * `data/cleaned_data` - scripts take rawdata, clean, assign breeds, and get dumped here
     * `info_all.csv` - Unique sequence runs/file codes with additional information
     * `info_individual_grouped.csv` - As above, but grouped at the individual sample level
     * `info_pop_grouped.csv` - As above, but grouped at the breed level
-* `results/individs_used.csv` - assecion code's and corresponding breeds actually used
+* `results/individs_used.csv` - assecion code's and corresponding breeds actually used for the thesis
 
-# Repo structure
+# Directory structure
+Scripts are grouped by their usage.
+
 
 ```
 .
 ├── ancestry
-├── data
+├── **data**
 │   ├── cleaned_data
 │   │   └── infotables_update
 │   ├── gene_variants
@@ -43,11 +43,11 @@ For thesis examinars and those undertaking future work, below are several import
 │   │   ├── infotables_original
 │   │   └── supplementary_data_from_studies
 │   └── snp_calling_list
-├── gene_to_trait
-├── job_submissions
-├── mapping
-├── oral_diversity
-├── results
+├── **gene_to_trait**
+├── **job_submissions**
+├── **mapping**
+├── **oral_diversity**
+├── **results**
 │   ├── ancestry
 │   │   ├── fstat
 │   │   └── treemix
@@ -55,13 +55,13 @@ For thesis examinars and those undertaking future work, below are several import
 │   └── oral_diversity
 │       ├── kraken_reports
 │       └── stats
-├── scripts
-└── setup
+├── **scripts**
+└── **setup**
 
 ```
 -----
 # Dependencies 
-Written in the unix environment.
+Written in the unix environment. Local and HPC space utilised. 
 
 ## Languages
 * Python (3.6.2)
@@ -125,37 +125,41 @@ Always run the scripts from the parent directory `EquSeq`, unless specified.
 
 `your_path` - notes the path you are using (ssh path for HPC if using) 
 
---------
-# Setup
-Programs requiring specific setup (or those that are slightly tricky) have specific scripts in the `setup` directory. Scripts here also are required for eg. pulling *fastq* files from ncbi into the desired location, and creating the `data/cleaned_data` contents. 
-
-
 
 --------
-# Data Preparation 
-## Sequences
+## Setup
+Programs requiring specific setup (or those that are slightly tricky) have specific scripts in the `setup` directory. Scripts here also are required for generating basic data eg. pulling *fastq* files from ncbi into the desired location, and creating the `data/cleaned_data` contents. 
+
+
+
+--------
+## Data Preparation 
+### Sequences
 1. Novel sample
-  - Mouth swab was taken from individual
-  - low-pass WGS 
-  - Illumina pair-end
-  - 100bp long reads
-  - BGI notes that qualities are in phred33 format
+    - Mouth swab was taken from individual
+    - low-pass WGS 
+    - Illumina pair-end
+    - 100bp long reads
+    - BGI notes that qualities are in phred33 format
 2. Published and publicly available
-  - FASTQ files from ENA (European nucleotide archive)
-  - WGS of horses, only those of known breeds
-  - pair ended 
-  - 38 breeds/mixed breed combinations (excluding novel)
-  - 170 individuals (excluding novel)
+    - FASTQ files from ENA (European nucleotide archive)
+    - WGS of horses, only those of known breeds
+    - pair ended 
+    - 38 breeds/mixed breed combinations
+    - 170 individuals
 
-## Publically available WGS data
+### Publically available WGS data
 1. NCBI BioProject code list and metadata on breeds, age of sample, etc. 
 2. NCBI infotables downloaded for each NCBI BioProject (manually) as ftp leaves out some data
-3. `masterScript.sh` is implemented joining supplementary materials, filtering, and summarising data 
-  - results in lists runIDs to download from ENA/NCBI with the corresponding metadata
+3. `sh setup/masterScript.sh` - generates, `data/cleaned_data` content, joining supplementary materials, filtering, and summarising raw data 
+    - results in lists runIDs to download from ENA/NCBI with the corresponding metadata
 4. Data that passes has the raw sequence files downloaded from ENA
+    - submit job: `job_submissions/fastqDownload.sh`
 
-## Read Mapping - Novel Sample
-`mapping/novelMapper.sh`
+### Read Mapping - Novel Sample
+submit jobs: `mapping/novelMapper.sh` and `mapping/merge.sh`
+
+
 1. `fastqc` - check raw sequence quality
 2. `fastx` - trim the last 10 bases of reads, due to poor kmer scores quality (our seq only)
 3. `bwa mem` - align pair ended reads to reference genome
@@ -172,18 +176,17 @@ Programs requiring specific setup (or those that are slightly tricky) have speci
 14. `samtools` - remove unmapped reads
 15. `samtools` - re-index
 
-## Read Mapping - WGS samples
-0. `wgsMapper.sh` used to control the mapping, as pairing read identification is different.
+### Read Mapping - WGS samples
+0. `wgsMapper.sh` used to control the mapping, as pairing read identification is different to the above method.
     - number of jobs should equal the number of run codes (as some are paired and others not)
 ...
 
-8. run `sh bamAncestry.sh -m` to generate the bam list on the hpc 
-9. run `toMerge.py` to determine which samples need to be merged 
-    * scp bam.list to local, investigate, and run (rsync one way compatible)
-      - `scp your_path/ephemeral/ancestry/bam.list data/`
-    * `python3 scripts/toMerge.py -b data/bam.list -o data/ -i data/cleaned_data/info_all.csv -r Run -g BioSample`
+8. run `sh ancestry/bamAncestry.sh -m` to generate the bam list on the hpc 
+9. run `scripts/toMerge.py` to determine which samples need to be merged 
+    * scp bam.list to local, investigate, and determine which need merging. (rsync one way compatible)
+    * Run: `python3 scripts/toMerge.py -b data/bam.list -o data/ -i data/cleaned_data/info_all.csv -r Run -g BioSample`
 10. `rsync`
-11. run `wgs_merge.sh` to merge the bam files
+11. run `job_submissions/wgs_merge.sh` to merge the bam files
     * one job for each file (i.e. nrow of `to_merge.csv`)
     * also indexes bam files
 12. move the merged files and files that don't require merging to the `final/` directory
@@ -197,16 +200,16 @@ Programs requiring specific setup (or those that are slightly tricky) have speci
 * Bowtie2 aligner trialled but poor results were observed
 
 
-## Reference genome
+### Reference genome
 1. EquCab3
-2. Download from NCBI, header positions needed correcting from ncbi notation to chr:00000 format. `updateHeader.sh`
+2. Download from NCBI, header positions needed correcting from ncbi notation to chr:00000 format. `scripts/updateHeader.sh`
 3. indexed using `bwa index`
 
 
 --------
-# Ancestry 
-## 1. Data preparation
-### 1.1 Variant calling (light)
+## Ancestry 
+### 1. Data preparation
+#### 1.1 Variant calling (light)
 
 * A light variant calling was conducted, `samtools mpileup`, done so to generate a rough list of SNPs, and marking their positions for subsequent analysis, effectively no true filtering, but sped up the angsd GL analysis
 * Filtering was not harsh as this was controlled for later by `angsd`
@@ -217,18 +220,18 @@ Programs requiring specific setup (or those that are slightly tricky) have speci
 
 To speed up the process snps-lists were generated (rather than running on a whole chromosome)
 1. get lengths of chromosomes from EquCab3 assembly report
-  * local: `sh scripts/snp_caller_lists.sh`
+    * local: `sh scripts/snp_caller_lists.sh`
 2. generate the snp files with a set number of sites (n=10 million)
-  * local: `python3 scripts/snp_caller_lists.py`
-3. generate vcf files `snps.sh` 
-  * `samtools mpileup -uf $REF -b $EPHEMERAL/ancestry/bam.list -l $SNPLIST | bcftools call -mv`
+    * local: `python3 scripts/snp_caller_lists.py`
+3. generate vcf files `job_submissions/snps.sh` 
+    * `samtools mpileup -uf $REF -b $EPHEMERAL/ancestry/bam.list -l $SNPLIST | bcftools call -mv`
 4. generate niave snp lists (to be run against on angsd)
-  * run `ancestry/snpHandler.py -c snps` from `vcfsnps.sh` 
-    - manipulates vcf files and creates a full list of niave snps
-    - set the number of files to create (n = 400)
+    * run `ancestry/snpHandler.py -c snps` from `vcfsnps.sh` 
+      - manipulates vcf files and creates a full list of niave snps
+      - set the number of files to create (n = 400)
       - will correspond to the number of angsd runs (1 snp file per angsd run)
 
-### 1.2. Genotype liklihoods (angsd) - Initial pass
+#### 1.2. Genotype liklihoods (angsd) - Initial pass
 1. Quality control tests conducted using `angsd` and results helped determine filtering values
 2. run `ancestry.sh` 
   * `angsd` - genotype liklihoods calculated with the following:
@@ -253,7 +256,7 @@ $ANGSD -bam $ANC_DIR/bam.list -ref $REF -P 7 \
 ```
 
 
-### 1.2.1. Genotype liklihoods (angsd) - bcf generation
+#### 1.2.1. Genotype liklihoods (angsd) - bcf generation
 * I also ran `-doPost 1 -doGeno 8 -doCounts 1 -doBcf 1` with the above command to generate bcf files
 * Used for some of the analysis (eg. Treemix)
 * using snps in final beagle output, generate a list of snps
@@ -265,53 +268,52 @@ $ANGSD -bam $ANC_DIR/bam.list -ref $REF -P 7 \
 * will be used for treemix
 
 
-### 1.3. Select SNPs and manipulating beagle files
+#### 1.3. Select SNPs and manipulating beagle files
 * Selection of snps was conducted to minimise the influenced of linkage disequilibrium
   - i.e. snps shouldn't be too close together
-1. run `window.sh` for each beagle file
-  - `python $CODE_DIR/ancestry/snpHandler.py -c window -i $FILE -o $DIR/all_beagles/$BASE.list.out -d 5`
-  - `-d 5` denotes snps should be 5kb apart
+1. run `job_submissions/window.sh` for each beagle file
+    - `python $CODE_DIR/ancestry/snpHandler.py -c window -i $FILE -o $DIR/all_beagles/$BASE.list.out -d 5`
+    - `-d 5` denotes snps should be 5kb apart
 This will: 
-i. extracted all snps from beagle file
-ii. bin snps in 5kb increments
-iii. 1 snp per bin is randomly sampled
-iv. 5kb snp list is now used to filter beagle file 
-2. merge all beagle files into 1 (to be used for agmixture and pca)
-  - run `beagleMerged.sh`
-3. remove przewalski horses - some of the PCA analysis
-    - `beagle_no_przewalski.sh`
+ * extracted all snps from beagle file  
+ * bin snps in 5kb increments   
+ * 1 snp per bin is randomly sampled    
+ * 5kb snp list is now used to filter beagle file    
 
-## 2. PCA 
+2. merge all beagle files into 1 (to be used for agmixture and pca)
+    - run `ancestry/beagleMerged.sh`
+3. remove przewalski horses - some of the PCA analysis
+    - `ancestry/beagle_no_przewalski.sh`
+
+### 2. PCA 
 
 1. `pcagsd` - covariance matrix based on genotype liklihoods
-  - `sh bamAncestry.sh -p ALL.merged.beagle.gz`
-    - tested with 0.2 and 0.5 minmaf with little difference
-    - next remove prez and rerun
-      - `beagle_no_przewalski.sh`
+    - `sh bamAncestry.sh -p ALL.merged.beagle.gz`
+      - tested with 0.2 and 0.5 minmaf with little difference
+      - next remove prez and rerun
+        - `beagle_no_przewalski.sh`
   - scp to local:`scp your_path/ephemeral/ancestry/ALL.PCA.* results/ancestry/ALL_5kb_02maf/`
   - `-minMaf 0.02`
-  - `-inbreed 1` (might not be used)
 2. eigen values calculated and plotting conducted in `R`
   - run `Rscript ancestry/clusters.R` to generate a clst-like file used for labelling
-  - `sh ancestry/quickplot.sh -p`
-    - within `plotPCA.R` switch between all individuals, and a subset excluding przewalski horses
+    - `ancestry/plotPCA.R` 
 
-*if issues arise when installing create use conda myenv*
+*if issues arise when installing pcangsd create use conda myenv*
 
-## 3. Admixture
+### 3. Admixture
 1. `ngsadmix` - estimating individual admixture proportions, based on genotype liklihoods
-  - for k=2...11 (number of breeds)
-  - `-minMaf 0.02`
-  - `qsub -J 2-11 pca_admix.sh`
-      - pops 2 to 11
-2. plot `plotAdmix.R`
+    - for k=1...39 (number of breeds)
+    - `-minMaf 0.02`
+    - `qsub -J 2-11 pca_admix.sh`
+        - pops 2 to 11
+2. plot `ancestry/plotAdmix.R`
   - `zip -R admix 'ALL.MIX*'`
   - `scp your_path/ephemeral/ancestry/admix.zip results/ancestry/ALL_5kb_02maf/`
   - using the same cluster file as the PCA
 3. `validate_K.R` used to verify which K to use
-  - generates plot (included in supplementary)
+    - generates plot (included in supplementary)
 
-## 4. TreeMix
+### 4. TreeMix
 1.  concatinate bcf files 
     - use bcf file from **2.1.**
     - `module load bcftools/1.3.1; bcftools concat -O v -o merge.vcf *.bcf`
@@ -326,25 +328,24 @@ iv. 5kb snp list is now used to filter beagle file
       4. generate stratified freq file with plink
       5. use `plink2treemix.py` to convert plink to a treemix format
 3. run treemix
-  - `trees.sh` - all snps
-    - `trees_benson.sh` - snps associated to benson
-      - not required in the end
+  - `ancestry/trees.sh`
   - with 0 migrations
   - Przewalski as the outgroup
 
 4. plot locally
-  - `scp your_path/ephemeral/ancestry/treemix/poporder* results/ancestry/treemix/`
-  - `scp your_path/ephemeral/ancestry/treemix/results/* results/ancestry/treemix/`
+    - `scp your_path/ephemeral/ancestry/treemix/poporder* results/ancestry/treemix/`
+    - `scp your_path/ephemeral/ancestry/treemix/results/* results/ancestry/treemix/`
+    - `ancestry/plotTree.R`
 
 
-## 5. F3 statistic
+### 5. F3 statistic
 * submit `f34_treemix.sh` as a job
 * (A; B, C)
 * f3 score sig. different from 0 indicates A is a result of admixture from B and C 
 * I use Z <= -2 (seems to be the rule of thumb for f3)
 
 
-## 6. F4 statistic
+### 6. F4 statistic
 * submit `f34_treemix.sh` as a job
 * test for introgression from incomplete lineage sorting
 * (A,B; C,D)
@@ -359,26 +360,26 @@ iv. 5kb snp list is now used to filter beagle file
 * Benson as target (B)
 * Remove przewalski hybrid as not to appear as C or D
 
-## Files
-`ALL.MIX.pdf` : Admixture
-`NO.PRZ.PCA.pdf`: PCA (0.02)
-`ALL.02.PCA.pdf` : PCA (0.02 with przewalski)
-`ALL.05.PCA.pdf` : PCA (0.05 with przewalski)
-`tree.pdf`: maximum liklihood tree
-`tree_res.pdf`: residuels from tree
+### Files
+* `ALL.MIX.pdf` : admixture     
+* `NO.PRZ.PCA.pdf`: PCA (0.02)    
+* `ALL.02.PCA.pdf` : PCA (0.02 with przewalski)     
+* `ALL.05.PCA.pdf` : PCA (0.05 with przewalski)   
+* `tree.pdf`: maximum liklihood tree      
+* `tree_res.pdf`: residuels from tree     
 
 
 --------
 
-# Gene to trait 
-## 1. Data Preparation
+## Gene to trait 
+### 1. Data Preparation
 * Variant-trait data from:
   - Ten years of the horse reference genome: insights into equine biology, domestication and population dynamics in the post- genome era
 * only used mendelian trait mutations
 * only used substitutions
   - 47/56 of the total mendelian variant-traits
 
-## Generating Data
+### Generating Data
 1. generate list of sites of interest
   - `python3 phenotype_variants.py`
   - from: "Ten years of the horse reference genome: insights into equine biology, domestication and population dynamics in the post-genome era"
@@ -401,41 +402,41 @@ $ANGSD -bam $BAM_LIST -ref $REF -P 4 -out $DIR/gl.out -rf $SNP \
   - `scp your_path/ephemeral/gene_to_trait/gl.out.* results/gene_to_trait/`
 4. `gunzip results/gene_to_trait/gl.out.geno.gz`
 
-## Files
-`heat.pdf` : heatmap of phenotypes, and individuals 
-`trait_codes.csv` : traits and markers that correspond to graph codes
+### Files
+`heat.pdf` : heatmap of phenotypes, and individuals     
+`trait_codes.csv` : traits and markers that correspond to graph codes     
 
 --------
 
-# Oral Microbial Diversity  
-## 1. Data Preparation
-### 1.1 kraken
+## Oral Microbial Diversity  
+### 1. Data Preparation
+#### 1.1 kraken
 
 * custom KRAKEN database 
 * RefSeq for: 
   - bacteria, archaea, virus, plant, fungi, horse, human
 * The header for EquCab3 was updated, allowing for use in Kraken2
 
-1. run `refGenomes.sh` to prepare horse and human genomes
-2. run `dbDownload.sh` to download the remaining data and add the above
-3. run `dbbuild.sh` to build
+1. run `oral_diversity/refGenomes.sh` to prepare horse and human genomes
+2. run `oral_diversity/dbDownload.sh` to download the remaining data and add the above
+3. run `oral_diversity/dbbuild.sh` to build
 
-### 1.2 taxonomic data
+#### 1.2 taxonomic data
 `taxonkit` used to assign complete lineages to kraken reports. 
 
 1. NCBI Taxonomy database dump, containing all known phylogenies
   - 20/05/2020 downloaded
 
 
-## 2. screening
-  - `screen.sh`
+### 2. screening
+  - `oral_diversity/screen.sh`
      - `--paired` used for paired reads
      - reports generated
   - Raw fastq files (pairs) screened across db 
   - LCA mapping for each k-mer
     - taxa classified or unclassified to a k-mer
 2. check confidence intervals of the clssification
-  - `kraken_stat.sh` 
+  - `job_submission/kraken_stat.sh` 
   - `python3 oral_diversity/kraken_explore.py -i sandbox/kraken/all.tmp.kraken -o sandbox/kraken/stats -t 0.2`
   - 20% confidence on kmer classification using C/Q scores (see kraken manual for definition)
   - pass and fail csvs will be generated
@@ -448,9 +449,9 @@ $ANGSD -bam $BAM_LIST -ref $REF -P 4 -out $DIR/gl.out -rf $SNP \
   - impementing `taxonkit`
     - used to produce flat taxanomic lineages
 
-## 3. Summary stats calculation
+### 3. Summary stats calculation
 5. explore data, plot, calculate biodiversity index
-  - run `microbeDiversity.R`
+  - run `oral_diversity/microbeDiversity.R`
   - joins taxa data with counts in flat df
   - total read counts were taken from all files 
     - i.e. read1 + read2 + read3 
@@ -466,14 +467,7 @@ $ANGSD -bam $BAM_LIST -ref $REF -P 4 -out $DIR/gl.out -rf $SNP \
     - effective species number
 
 
-**N.B.**
-Kraken probably shouldn't be used to compute the abundance of species, instead Braken should be used.
-Also, Lassalle 2017: "Alpha diversities were computed using phylodiversity metrics (McCoy & Matsen, 2013)"
-
-https://www.mdpi.com/1999-4915/11/5/435/htm
-*issues running? run within an active conda env*
-
-# Files
+### Files
 * `kraken_db_composition.txt`: counts of species at high taxa levels (plant, fungi, etc.)
 * `df_bacteria.csv` : count df for bacteria
 * `df_virus.csv` : count df for virus
@@ -482,5 +476,8 @@ https://www.mdpi.com/1999-4915/11/5/435/htm
 * `summary.txt` : summary stats from diversity calculations
 
 --------
+
+## Misc Scripts
+found in the `scripts` directory. 
 
 
