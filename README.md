@@ -32,7 +32,7 @@ Scripts are grouped by their usage.
 ```
 .
 ├── ancestry
-├── **data**
+├── data
 │   ├── cleaned_data
 │   │   └── infotables_update
 │   ├── gene_variants
@@ -43,11 +43,11 @@ Scripts are grouped by their usage.
 │   │   ├── infotables_original
 │   │   └── supplementary_data_from_studies
 │   └── snp_calling_list
-├── **gene_to_trait**
-├── **job_submissions**
-├── **mapping**
-├── **oral_diversity**
-├── **results**
+├── gene_to_trait
+├── job_submissions
+├── mapping
+├── oral_diversity
+├── results
 │   ├── ancestry
 │   │   ├── fstat
 │   │   └── treemix
@@ -55,8 +55,8 @@ Scripts are grouped by their usage.
 │   └── oral_diversity
 │       ├── kraken_reports
 │       └── stats
-├── **scripts**
-└── **setup**
+├── scripts
+└── setup
 
 ```
 -----
